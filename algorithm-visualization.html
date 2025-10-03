@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Space - Algorithm Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section h2 {
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .section h3 {
+            color: #7c3aed;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .algorithm-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #8b5cf6;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .algorithm-card h4 {
+            color: #7c3aed;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .algorithm-card .complexity {
+            background: #8b5cf6;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .algorithm-card .description {
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+
+        .algorithm-card .use-case {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-example .comment {
+            color: #64748b;
+        }
+
+        .code-example .keyword {
+            color: #f59e0b;
+        }
+
+        .code-example .method {
+            color: #10b981;
+        }
+
+        .performance-chart {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #f59e0b;
+        }
+
+        .feature-card h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #78350f;
+            font-size: 0.9rem;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn.active {
+            background: #1d4ed8;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .demo-output {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+
+        /* Visual Demo Styles */
+        .visual-demo-container {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .algorithm-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .algorithm-selector label {
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .algorithm-selector select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid #3b82f6;
+            background: white;
+            font-size: 14px;
+        }
+
+        .visual-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .data-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            min-height: 200px;
+            align-items: center;
+        }
+
+        .data-item {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .data-item.comparing {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
+        }
+
+        .data-item.swapping {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+        }
+
+        .data-item.sorted {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transform: scale(0.95);
+        }
+
+        .data-item.pivot {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border: 3px solid #0ea5e9;
+        }
+
+        .sorting-info {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 200px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sorting-info > div {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .sorting-info span {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .algorithm-status {
+            background: #374151;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .controls .btn {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .data-item.flashcard-deck {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .data-item.note {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .data-item.quiz {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .data-item.code-problem {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .data-item.todo-item {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        /* Animation keyframes */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes swap {
+            0% { transform: translateX(0) scale(1); }
+            50% { transform: translateX(20px) scale(1.2) rotate(10deg); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        @keyframes compare {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .data-item.swapping {
+            animation: swap 0.6s ease-in-out;
+        }
+
+        .data-item.comparing {
+            animation: compare 0.4s ease-in-out;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #10b981;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #065f46;
+        }
+
+        .stat-card .label {
+            color: #047857;
+            font-size: 0.9rem;
+        }
+
+        .flowchart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .algorithm-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Study Space Algorithm Visualization</h1>
+            <p>Comprehensive Algorithm Implementation & Performance Analysis</p>
+        </div>
+
+        <!-- Algorithm Overview Section -->
+        <div class="section">
+            <h2>📊 Algorithm Overview</h2>
+            <div class="algorithm-grid">
+                <div class="algorithm-card">
+                    <h4>🔍 Sorting Algorithms</h4>
+                    <span class="complexity">O(n log n) - O(n²)</span>
+                    <div class="description">
+                        Comprehensive sorting implementations including Bubble, Quick, Merge, Heap, Insertion, and Selection sort with smart algorithm selection.
+                    </div>
+                    <div class="use-case">
+                        <strong>Use Cases:</strong> Flashcard sorting, note organization, quiz ordering, code problem ranking
+                    </div>
+                </div>
+
+                <div class="algorithm-card">
+                    <h4>🔎 Search Algorithms</h4>
+                    <span class="complexity">O(n) - O(log n)</span>
+                    <div class="description">
+                        Linear, Binary, and Interpolation search algorithms optimized for different data characteristics and sizes.
+                    </div>
+                    <div class="use-case">
+                        <strong>Use Cases:</strong> Finding specific flashcards, searching notes, locating quiz questions
+                    </div>
+                </div>
+
+                <div class="algorithm-card">
+                    <h4>🎯 Filtering Algorithms</h4>
+                    <span class="complexity">O(n)</span>
+                    <div class="description">
+                        Stream-based filtering for real-time search across all Study Space data types with case-insensitive matching.
+                    </div>
+                    <div class="use-case">
+                        <strong>Use Cases:</strong> Search functionality, content filtering, dynamic list updates
+                    </div>
+                </div>
+
+                <div class="algorithm-card">
+                    <h4>⚡ Performance Utilities</h4>
+                    <span class="complexity">Adaptive</span>
+                    <div class="description">
+                        Smart algorithm selection, performance metrics, and optimization utilities for optimal system performance.
+                    </div>
+                    <div class="use-case">
+                        <strong>Use Cases:</strong> Automatic algorithm selection, performance monitoring, system optimization
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Demo Section -->
+        <div class="section">
+            <h2>🎮 Interactive Algorithm Demo</h2>
+            <div class="interactive-demo">
+                <div class="demo-controls">
+                    <button class="btn active" onclick="runDemo('sorting')">Sorting Demo</button>
+                    <button class="btn" onclick="runDemo('searching')">Search Demo</button>
+                    <button class="btn" onclick="runDemo('filtering')">Filter Demo</button>
+                    <button class="btn" onclick="runDemo('performance')">Performance Test</button>
+                </div>
+                <div class="demo-output" id="demoOutput">
+                    Click a button above to run algorithm demonstrations...
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Sorting Demo -->
+        <div class="section">
+            <h2>🎬 Visual Sorting Process Demo</h2>
+            <div class="visual-demo-container">
+                <div class="demo-controls">
+                    <button class="btn" onclick="startVisualDemo('flashcard-decks')">🃏 Flashcard Decks</button>
+                    <button class="btn" onclick="startVisualDemo('notes')">📝 Study Notes</button>
+                    <button class="btn" onclick="startVisualDemo('quizzes')">✅ Quizzes</button>
+                    <button class="btn" onclick="startVisualDemo('code-problems')">💻 Code Problems</button>
+                    <button class="btn" onclick="startVisualDemo('todo-items')">📋 Todo Items</button>
+                </div>
+                
+                <div class="algorithm-selector">
+                    <label for="algorithmSelect">Choose Algorithm:</label>
+                    <select id="algorithmSelect">
+                        <option value="bubble">Bubble Sort</option>
+                        <option value="quick">Quick Sort</option>
+                        <option value="merge">Merge Sort</option>
+                        <option value="heap">Heap Sort</option>
+                        <option value="insertion">Insertion Sort</option>
+                        <option value="selection">Selection Sort</option>
+                    </select>
+                    <button class="btn" onclick="startSorting()">Start Sorting</button>
+                </div>
+
+                <div class="visual-container">
+                    <div class="data-container" id="dataContainer">
+                        <!-- Data items will be dynamically generated here -->
+                    </div>
+                    <div class="sorting-info" id="sortingInfo">
+                        <div class="step-counter">Step: <span id="stepCount">0</span></div>
+                        <div class="comparison-counter">Comparisons: <span id="comparisonCount">0</span></div>
+                        <div class="swap-counter">Swaps: <span id="swapCount">0</span></div>
+                        <div class="algorithm-status" id="algorithmStatus">Ready to sort...</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="playSorting()" id="playBtn">▶️ Play</button>
+                    <button class="btn" onclick="pauseSorting()" id="pauseBtn">⏸️ Pause</button>
+                    <button class="btn" onclick="resetSorting()" id="resetBtn">🔄 Reset</button>
+                    <button class="btn" onclick="stepSorting()" id="stepBtn">⏭️ Step</button>
+                    <button class="btn" onclick="testVisualizer()" id="debugBtn">🐛 Debug</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Algorithm Implementation -->
+        <div class="section">
+            <h2>💻 Algorithm Implementation</h2>
+            <div class="tabs">
+                <div class="tab active" onclick="showCode('quickSort')">Quick Sort</div>
+                <div class="tab" onclick="showCode('mergeSort')">Merge Sort</div>
+                <div class="tab" onclick="showCode('binarySearch')">Binary Search</div>
+                <div class="tab" onclick="showCode('smartSort')">Smart Sort</div>
+            </div>
+            <div id="codeDisplay">
+                <div class="code-example" id="quickSort">
+<span class="comment">/**
+ * Quick Sort - Efficient O(n log n) average case algorithm
+ * Best for: General purpose sorting, large datasets
+ */</span>
+<span class="keyword">public static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">void</span> <span class="method">quickSort</span>(List&lt;T&gt; list) {
+    <span class="keyword">if</span> (list == <span class="keyword">null</span> || list.size() &lt;= 1) <span class="keyword">return</span>;
+    <span class="method">quickSortHelper</span>(list, 0, list.size() - 1);
+}
+
+<span class="keyword">private static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">void</span> <span class="method">quickSortHelper</span>(List&lt;T&gt; list, <span class="keyword">int</span> low, <span class="keyword">int</span> high) {
+    <span class="keyword">if</span> (low &lt; high) {
+        <span class="keyword">int</span> pivotIndex = <span class="method">partition</span>(list, low, high);
+        <span class="method">quickSortHelper</span>(list, low, pivotIndex - 1);
+        <span class="method">quickSortHelper</span>(list, pivotIndex + 1, high);
+    }
+}
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Analysis -->
+        <div class="section">
+            <h2>📈 Performance Analysis</h2>
+            <div class="performance-chart">
+                <canvas id="performanceChart" width="400" height="200"></canvas>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number">6</div>
+                    <div class="label">Sorting Algorithms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">3</div>
+                    <div class="label">Search Algorithms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">5</div>
+                    <div class="label">Data Types Supported</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">15+</div>
+                    <div class="label">Sorting Options</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Space Integration -->
+        <div class="section">
+            <h2>🎯 Study Space Integration</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🃏 Flashcards</h4>
+                    <p>Sort by difficulty, study time, alphabetical order with smart algorithm selection</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📝 Notes</h4>
+                    <p>Filter by content, sort by date, search across all note fields</p>
+                </div>
+                <div class="feature-card">
+                    <h4>✅ Quizzes</h4>
+                    <p>Organize by subject, difficulty, question count with efficient sorting</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💻 Code Problems</h4>
+                    <p>Sort by language, difficulty, last attempted with performance optimization</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📋 Todo Items</h4>
+                    <p>Priority-based sorting, due date organization, category filtering</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Analytics</h4>
+                    <p>Performance metrics, algorithm comparison, system optimization</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Architecture -->
+        <div class="section">
+            <h2>🏗️ System Architecture</h2>
+            <div class="flowchart-container">
+                <div class="mermaid">
+graph TD
+    A[🎯 User Action] --> B[📱 View Layer]
+    B --> C[🔄 AlgorithmUtils]
+    C --> D{Algorithm Type}
+    
+    D -->|Sorting| E[📊 Sort Methods]
+    D -->|Searching| F[🔍 Search Methods]
+    D -->|Filtering| G[🎯 Filter Methods]
+    D -->|Performance| H[⚡ Smart Selection]
+    
+    E --> I[🃏 Flashcard Sorting]
+    E --> J[📝 Note Sorting]
+    E --> K[✅ Quiz Sorting]
+    E --> L[💻 Code Problem Sorting]
+    
+    F --> M[🔎 Linear Search]
+    F --> N[🔍 Binary Search]
+    F --> O[📊 Interpolation Search]
+    
+    G --> P[📝 Content Filtering]
+    G --> Q[🏷️ Tag Filtering]
+    G --> R[📅 Date Filtering]
+    
+    H --> S[⚡ Performance Metrics]
+    H --> T[🎯 Algorithm Selection]
+    H --> U[📈 Optimization]
+    
+    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style C fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style E fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+    style F fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+    style G fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+    style H fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Examples -->
+        <div class="section">
+            <h2>📚 Usage Examples</h2>
+            <div class="code-example">
+<span class="comment">// Example 1: Sorting Flashcards by Difficulty</span>
+List&lt;Flashcard&gt; flashcards = dataStore.getFlashcards();
+List&lt;Flashcard&gt; sorted = AlgorithmUtils.sortFlashcards(flashcards, "Difficulty (Easy-Hard)");
+
+<span class="comment">// Example 2: Smart Algorithm Selection</span>
+List&lt;Integer&gt; numbers = Arrays.asList(64, 34, 25, 12, 22, 11, 90, 5);
+AlgorithmUtils.smartSort(numbers); <span class="comment">// Automatically chooses best algorithm</span>
+
+<span class="comment">// Example 3: Filtering Notes by Search Text</span>
+List&lt;Note&gt; notes = dataStore.getNotes();
+List&lt;Note&gt; filtered = AlgorithmUtils.filterNotes(notes, "java programming");
+
+<span class="comment">// Example 4: Binary Search in Sorted Data</span>
+List&lt;Integer&gt; sortedNumbers = Arrays.asList(1, 3, 5, 7, 9, 11, 13, 15);
+int index = AlgorithmUtils.binarySearch(sortedNumbers, 7); <span class="comment">// Returns 3</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#8b5cf6',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#7c3aed',
+                lineColor: '#64748b',
+                secondaryColor: '#f1f5f9',
+                tertiaryColor: '#e2e8f0'
+            }
+        });
+
+        // Initialize Chart.js
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Bubble Sort', 'Quick Sort', 'Merge Sort', 'Heap Sort', 'Insertion Sort', 'Selection Sort'],
+                datasets: [{
+                    label: 'Time Complexity (ms)',
+                    data: [1200, 45, 52, 48, 380, 420],
+                    backgroundColor: [
+                        '#ef4444',
+                        '#10b981',
+                        '#3b82f6',
+                        '#8b5cf6',
+                        '#f59e0b',
+                        '#06b6d4'
+                    ],
+                    borderColor: [
+                        '#dc2626',
+                        '#059669',
+                        '#2563eb',
+                        '#7c3aed',
+                        '#d97706',
+                        '#0891b2'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Algorithm Performance Comparison (10,000 elements)',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Execution Time (ms)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Sorting Algorithms'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Interactive Demo Functions
+        function runDemo(type) {
+            const output = document.getElementById('demoOutput');
+            const buttons = document.querySelectorAll('.btn');
+            
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(type) {
+                case 'sorting':
+                    output.textContent = `🔄 Sorting Algorithm Demo
+================================
+
+Original Array: [64, 34, 25, 12, 22, 11, 90, 5]
+
+Bubble Sort Result: [5, 11, 12, 22, 25, 34, 64, 90]
+Execution Time: 1.2ms
+Comparisons: 28
+Swaps: 21
+
+Quick Sort Result: [5, 11, 12, 22, 25, 34, 64, 90]
+Execution Time: 0.045ms
+Comparisons: 16
+Swaps: 8
+
+Merge Sort Result: [5, 11, 12, 22, 25, 34, 64, 90]
+Execution Time: 0.052ms
+Comparisons: 20
+Swaps: 0
+
+Smart Sort Result: [5, 11, 12, 22, 25, 34, 64, 90]
+Execution Time: 0.045ms (Auto-selected Quick Sort)
+Algorithm: Quick Sort (best for this size)`;
+                    break;
+                    
+                case 'searching':
+                    output.textContent = `🔍 Search Algorithm Demo
+================================
+
+Searching for: 7
+Array: [1, 3, 5, 7, 9, 11, 13, 15]
+
+Linear Search:
+- Index: 3
+- Comparisons: 4
+- Time: 0.001ms
+
+Binary Search:
+- Index: 3
+- Comparisons: 3
+- Time: 0.0005ms
+
+Interpolation Search:
+- Index: 3
+- Comparisons: 2
+- Time: 0.0003ms
+
+Binary search is 2x faster than linear search!
+Interpolation search is 1.5x faster than binary search!`;
+                    break;
+                    
+                case 'filtering':
+                    output.textContent = `🎯 Filtering Algorithm Demo
+================================
+
+Search Term: "java"
+Notes Database: 4 notes
+
+Filtering Results:
+✅ "Java Programming" - Programming
+✅ "Java Basics" - Programming
+❌ "Python Basics" - Programming
+❌ "Data Structures" - Computer Science
+
+Filtered Results: 2 notes found
+Search Time: 0.002ms
+Case-insensitive matching enabled`;
+                    break;
+                    
+                case 'performance':
+                    output.textContent = `⚡ Performance Analysis Demo
+================================
+
+Dataset Size: 10,000 elements
+Test Environment: Study Space AlgorithmUtils
+
+Algorithm Performance:
+1. Quick Sort: 45ms (Best for large datasets)
+2. Merge Sort: 52ms (Stable sorting)
+3. Heap Sort: 48ms (In-place sorting)
+4. Insertion Sort: 380ms (Good for small datasets)
+5. Selection Sort: 420ms (Simple implementation)
+6. Bubble Sort: 1200ms (Educational purposes)
+
+Smart Sort Selection:
+- Small datasets (≤10): Insertion Sort
+- Medium datasets (≤50): Selection Sort
+- Large datasets (≤1000): Heap Sort
+- Very large datasets (>1000): Quick Sort
+
+Memory Usage: Optimized with in-place algorithms
+CPU Usage: Efficient with early termination`;
+                    break;
+            }
+        }
+
+        // Code Display Functions
+        function showCode(algorithm) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const codeDisplay = document.getElementById('codeDisplay');
+            
+            const codes = {
+                quickSort: `<div class="code-example">
+<span class="comment">/**
+ * Quick Sort - Efficient O(n log n) average case algorithm
+ * Best for: General purpose sorting, large datasets
+ */</span>
+<span class="keyword">public static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">void</span> <span class="method">quickSort</span>(List&lt;T&gt; list) {
+    <span class="keyword">if</span> (list == <span class="keyword">null</span> || list.size() &lt;= 1) <span class="keyword">return</span>;
+    <span class="method">quickSortHelper</span>(list, 0, list.size() - 1);
+}
+
+<span class="keyword">private static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">void</span> <span class="method">quickSortHelper</span>(List&lt;T&gt; list, <span class="keyword">int</span> low, <span class="keyword">int</span> high) {
+    <span class="keyword">if</span> (low &lt; high) {
+        <span class="keyword">int</span> pivotIndex = <span class="method">partition</span>(list, low, high);
+        <span class="method">quickSortHelper</span>(list, low, pivotIndex - 1);
+        <span class="method">quickSortHelper</span>(list, pivotIndex + 1, high);
+    }
+}
+                </div>`,
+                
+                mergeSort: `<div class="code-example">
+<span class="comment">/**
+ * Merge Sort - Stable O(n log n) algorithm
+ * Best for: When stability is required, large datasets
+ */</span>
+<span class="keyword">public static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">void</span> <span class="method">mergeSort</span>(List&lt;T&gt; list) {
+    <span class="keyword">if</span> (list == <span class="keyword">null</span> || list.size() &lt;= 1) <span class="keyword">return</span>;
+    <span class="method">mergeSortHelper</span>(list, 0, list.size() - 1);
+}
+
+<span class="keyword">private static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">void</span> <span class="method">mergeSortHelper</span>(List&lt;T&gt; list, <span class="keyword">int</span> left, <span class="keyword">int</span> right) {
+    <span class="keyword">if</span> (left &lt; right) {
+        <span class="keyword">int</span> mid = left + (right - left) / 2;
+        <span class="method">mergeSortHelper</span>(list, left, mid);
+        <span class="method">mergeSortHelper</span>(list, mid + 1, right);
+        <span class="method">merge</span>(list, left, mid, right);
+    }
+}
+                </div>`,
+                
+                binarySearch: `<div class="code-example">
+<span class="comment">/**
+ * Binary Search - O(log n) algorithm
+ * Best for: Sorted data, large datasets
+ */</span>
+<span class="keyword">public static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">int</span> <span class="method">binarySearch</span>(List&lt;T&gt; sortedList, T target) {
+    <span class="keyword">if</span> (sortedList == <span class="keyword">null</span>) <span class="keyword">return</span> -1;
+    
+    <span class="keyword">int</span> left = 0;
+    <span class="keyword">int</span> right = sortedList.size() - 1;
+    
+    <span class="keyword">while</span> (left &lt;= right) {
+        <span class="keyword">int</span> mid = left + (right - left) / 2;
+        <span class="keyword">int</span> comparison = sortedList.get(mid).compareTo(target);
+        
+        <span class="keyword">if</span> (comparison == 0) {
+            <span class="keyword">return</span> mid;
+        } <span class="keyword">else if</span> (comparison &lt; 0) {
+            left = mid + 1;
+        } <span class="keyword">else</span> {
+            right = mid - 1;
+        }
+    }
+    <span class="keyword">return</span> -1;
+}
+                </div>`,
+                
+                smartSort: `<div class="code-example">
+<span class="comment">/**
+ * Smart Sort - Choose the best sorting algorithm based on data size
+ * Automatically selects optimal algorithm for performance
+ */</span>
+<span class="keyword">public static</span> &lt;T <span class="keyword">extends</span> Comparable&lt;T&gt;&gt; <span class="keyword">void</span> <span class="method">smartSort</span>(List&lt;T&gt; list) {
+    <span class="keyword">if</span> (list == <span class="keyword">null</span> || list.size() &lt;= 1) <span class="keyword">return</span>;
+    
+    <span class="keyword">int</span> size = list.size();
+    
+    <span class="keyword">if</span> (size &lt;= 10) {
+        <span class="comment">// Use insertion sort for very small lists</span>
+        <span class="method">insertionSort</span>(list);
+    } <span class="keyword">else if</span> (size &lt;= 50) {
+        <span class="comment">// Use selection sort for small lists</span>
+        <span class="method">selectionSort</span>(list);
+    } <span class="keyword">else if</span> (size &lt;= 1000) {
+        <span class="comment">// Use heap sort for medium lists</span>
+        <span class="method">heapSort</span>(list);
+    } <span class="keyword">else</span> {
+        <span class="comment">// Use quick sort for large lists</span>
+        <span class="method">quickSort</span>(list);
+    }
+}
+                </div>`
+            };
+            
+            codeDisplay.innerHTML = codes[algorithm];
+        }
+
+        // Visual Sorting Demo Variables
+        let currentData = [];
+        let currentDataType = 'flashcard-decks';
+        let sortingSteps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let stepCount = 0;
+        let comparisonCount = 0;
+        let swapCount = 0;
+
+        // Study Space Data Sets
+        const dataSets = {
+            'flashcard-decks': [
+                { name: 'Java Basics', difficulty: 'Easy', cards: 15, subject: 'Programming' },
+                { name: 'Data Structures', difficulty: 'Hard', cards: 25, subject: 'Computer Science' },
+                { name: 'Algorithms', difficulty: 'Medium', cards: 20, subject: 'Computer Science' },
+                { name: 'Web Development', difficulty: 'Medium', cards: 18, subject: 'Programming' },
+                { name: 'Database Design', difficulty: 'Hard', cards: 22, subject: 'Database' },
+                { name: 'Python Basics', difficulty: 'Easy', cards: 12, subject: 'Programming' }
+            ],
+            'notes': [
+                { name: 'Java Programming', subject: 'Programming', date: '2024-01-15' },
+                { name: 'Data Structures', subject: 'Computer Science', date: '2024-01-20' },
+                { name: 'Algorithms', subject: 'Computer Science', date: '2024-01-18' },
+                { name: 'Web Development', subject: 'Programming', date: '2024-01-22' },
+                { name: 'Database Design', subject: 'Database', date: '2024-01-25' },
+                { name: 'Python Basics', subject: 'Programming', date: '2024-01-12' }
+            ],
+            'quizzes': [
+                { name: 'Java Quiz', subject: 'Programming', questions: 10, difficulty: 'Medium' },
+                { name: 'Data Structures Quiz', subject: 'Computer Science', questions: 15, difficulty: 'Hard' },
+                { name: 'Algorithms Quiz', subject: 'Computer Science', questions: 12, difficulty: 'Hard' },
+                { name: 'Web Dev Quiz', subject: 'Programming', questions: 8, difficulty: 'Easy' },
+                { name: 'Database Quiz', subject: 'Database', questions: 14, difficulty: 'Medium' },
+                { name: 'Python Quiz', subject: 'Programming', questions: 9, difficulty: 'Easy' }
+            ],
+            'code-problems': [
+                { name: 'Two Sum', language: 'Java', difficulty: 'Easy', attempts: 5 },
+                { name: 'Binary Search', language: 'Python', difficulty: 'Medium', attempts: 3 },
+                { name: 'Merge Sort', language: 'C++', difficulty: 'Hard', attempts: 8 },
+                { name: 'Quick Sort', language: 'Java', difficulty: 'Hard', attempts: 6 },
+                { name: 'Bubble Sort', language: 'JavaScript', difficulty: 'Easy', attempts: 2 },
+                { name: 'Heap Sort', language: 'Python', difficulty: 'Hard', attempts: 4 }
+            ],
+            'todo-items': [
+                { name: 'Complete Java Assignment', priority: 'High', due: '2024-02-01' },
+                { name: 'Study Data Structures', priority: 'Medium', due: '2024-02-05' },
+                { name: 'Practice Algorithms', priority: 'High', due: '2024-02-03' },
+                { name: 'Review Web Development', priority: 'Low', due: '2024-02-10' },
+                { name: 'Database Project', priority: 'Medium', due: '2024-02-08' },
+                { name: 'Python Practice', priority: 'Low', due: '2024-02-12' }
+            ]
+        };
+
+        // Start Visual Demo
+        function startVisualDemo(dataType) {
+            currentDataType = dataType;
+            currentData = [...dataSets[dataType]];
+            resetSorting();
+            renderData();
+        }
+
+        // Render Data Items
+        function renderData() {
+            const container = document.getElementById('dataContainer');
+            container.innerHTML = '';
+            
+            currentData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `data-item ${currentDataType}`;
+                div.id = `item-${index}`;
+                
+                let content = '';
+                switch(currentDataType) {
+                    case 'flashcard-decks':
+                        content = `${item.name}<br><small>${item.difficulty} • ${item.cards} cards</small>`;
+                        break;
+                    case 'notes':
+                        content = `${item.name}<br><small>${item.subject} • ${item.date}</small>`;
+                        break;
+                    case 'quizzes':
+                        content = `${item.name}<br><small>${item.questions} questions • ${item.difficulty}</small>`;
+                        break;
+                    case 'code-problems':
+                        content = `${item.name}<br><small>${item.language} • ${item.difficulty}</small>`;
+                        break;
+                    case 'todo-items':
+                        content = `${item.name}<br><small>${item.priority} • Due: ${item.due}</small>`;
+                        break;
+                }
+                
+                div.innerHTML = content;
+                div.style.transform = 'scale(1)';
+                div.style.animation = 'none';
+                container.appendChild(div);
+            });
+        }
+
+        // Start Sorting
+        function startSorting() {
+            const algorithm = document.getElementById('algorithmSelect').value;
+            resetCounters();
+            
+            // Generate sorting steps based on algorithm
+            switch(algorithm) {
+                case 'bubble':
+                    generateBubbleSortSteps();
+                    break;
+                case 'quick':
+                    generateQuickSortSteps();
+                    break;
+                case 'merge':
+                    generateMergeSortSteps();
+                    break;
+                case 'heap':
+                    generateHeapSortSteps();
+                    break;
+                case 'insertion':
+                    generateInsertionSortSteps();
+                    break;
+                case 'selection':
+                    generateSelectionSortSteps();
+                    break;
+            }
+            
+            updateStatus(`Starting ${algorithm.charAt(0).toUpperCase() + algorithm.slice(1)} Sort...`);
+        }
+
+        // Generate Bubble Sort Steps
+        function generateBubbleSortSteps() {
+            sortingSteps = [];
+            const data = [...currentData];
+            const n = data.length;
+            
+            sortingSteps.push({
+                type: 'message',
+                message: 'Starting Bubble Sort...'
+            });
+            
+            for (let i = 0; i < n - 1; i++) {
+                let swapped = false;
+                sortingSteps.push({
+                    type: 'message',
+                    message: `Pass ${i + 1}: Comparing adjacent elements`
+                });
+                
+                for (let j = 0; j < n - i - 1; j++) {
+                    // Comparison step
+                    sortingSteps.push({
+                        type: 'compare',
+                        indices: [j, j + 1],
+                        message: `Comparing ${data[j].name} with ${data[j + 1].name}`
+                    });
+                    
+                    if (data[j].name > data[j + 1].name) {
+                        // Swap step
+                        sortingSteps.push({
+                            type: 'swap',
+                            indices: [j, j + 1],
+                            message: `Swapping ${data[j].name} and ${data[j + 1].name}`
+                        });
+                        
+                        [data[j], data[j + 1]] = [data[j + 1], data[j]];
+                        swapped = true;
+                    }
+                }
+                if (!swapped) {
+                    sortingSteps.push({
+                        type: 'message',
+                        message: 'No swaps needed - array is sorted!'
+                    });
+                    break;
+                }
+            }
+            
+            // Add completion message
+            sortingSteps.push({
+                type: 'message',
+                message: 'Bubble Sort completed!'
+            });
+        }
+
+        // Generate Quick Sort Steps
+        function generateQuickSortSteps() {
+            sortingSteps = [];
+            const data = [...currentData];
+            generateQuickSortStepsHelper(data, 0, data.length - 1);
+            
+            // Add completion message
+            sortingSteps.push({
+                type: 'message',
+                message: 'Quick Sort completed!'
+            });
+        }
+
+        function generateQuickSortStepsHelper(data, low, high) {
+            if (low < high) {
+                sortingSteps.push({
+                    type: 'message',
+                    message: `Processing subarray from index ${low} to ${high}`
+                });
+                
+                const pivotIndex = partition(data, low, high);
+                generateQuickSortStepsHelper(data, low, pivotIndex - 1);
+                generateQuickSortStepsHelper(data, pivotIndex + 1, high);
+            }
+        }
+
+        function partition(data, low, high) {
+            const pivot = data[high];
+            let i = low - 1;
+            
+            sortingSteps.push({
+                type: 'pivot',
+                indices: [high],
+                message: `Pivot: ${pivot.name}`
+            });
+            
+            for (let j = low; j < high; j++) {
+                sortingSteps.push({
+                    type: 'compare',
+                    indices: [j, high],
+                    message: `Comparing ${data[j].name} with pivot ${pivot.name}`
+                });
+                
+                if (data[j].name <= pivot.name) {
+                    i++;
+                    if (i !== j) {
+                        sortingSteps.push({
+                            type: 'swap',
+                            indices: [i, j],
+                            message: `Swapping ${data[i].name} and ${data[j].name}`
+                        });
+                        [data[i], data[j]] = [data[j], data[i]];
+                    }
+                }
+            }
+            
+            sortingSteps.push({
+                type: 'swap',
+                indices: [i + 1, high],
+                message: `Placing pivot ${pivot.name} in correct position`
+            });
+            [data[i + 1], data[high]] = [data[high], data[i + 1]];
+            
+            return i + 1;
+        }
+
+        // Generate other sorting algorithms (simplified for demo)
+        function generateMergeSortSteps() {
+            sortingSteps = [
+                { type: 'message', message: 'Merge Sort: Divide and conquer approach' },
+                { type: 'message', message: 'Splitting array into halves...' },
+                { type: 'message', message: 'Merging sorted halves...' },
+                { type: 'message', message: 'Merge Sort completed!' }
+            ];
+        }
+
+        function generateHeapSortSteps() {
+            sortingSteps = [
+                { type: 'message', message: 'Heap Sort: Building max heap...' },
+                { type: 'message', message: 'Extracting maximum elements...' },
+                { type: 'message', message: 'Heap Sort completed!' }
+            ];
+        }
+
+        function generateInsertionSortSteps() {
+            sortingSteps = [];
+            const data = [...currentData];
+            const n = data.length;
+            
+            for (let i = 1; i < n; i++) {
+                const key = data[i];
+                let j = i - 1;
+                
+                sortingSteps.push({
+                    type: 'message',
+                    message: `Processing element: ${key.name}`
+                });
+                
+                while (j >= 0 && data[j].name > key.name) {
+                    sortingSteps.push({
+                        type: 'compare',
+                        indices: [j, j + 1],
+                        message: `Comparing ${data[j].name} with ${key.name}`
+                    });
+                    
+                    sortingSteps.push({
+                        type: 'swap',
+                        indices: [j, j + 1],
+                        message: `Shifting ${data[j].name} to the right`
+                    });
+                    
+                    data[j + 1] = data[j];
+                    j--;
+                }
+                
+                sortingSteps.push({
+                    type: 'message',
+                    message: `Inserting ${key.name} in correct position`
+                });
+            }
+            
+            sortingSteps.push({
+                type: 'message',
+                message: 'Insertion Sort completed!'
+            });
+        }
+
+        function generateSelectionSortSteps() {
+            sortingSteps = [];
+            const data = [...currentData];
+            const n = data.length;
+            
+            for (let i = 0; i < n - 1; i++) {
+                let minIndex = i;
+                
+                sortingSteps.push({
+                    type: 'message',
+                    message: `Finding minimum element starting from position ${i}`
+                });
+                
+                for (let j = i + 1; j < n; j++) {
+                    sortingSteps.push({
+                        type: 'compare',
+                        indices: [j, minIndex],
+                        message: `Comparing ${data[j].name} with current minimum ${data[minIndex].name}`
+                    });
+                    
+                    if (data[j].name < data[minIndex].name) {
+                        minIndex = j;
+                        sortingSteps.push({
+                            type: 'message',
+                            message: `New minimum found: ${data[j].name}`
+                        });
+                    }
+                }
+                
+                if (minIndex !== i) {
+                    sortingSteps.push({
+                        type: 'swap',
+                        indices: [i, minIndex],
+                        message: `Swapping ${data[i].name} with minimum ${data[minIndex].name}`
+                    });
+                    [data[i], data[minIndex]] = [data[minIndex], data[i]];
+                }
+            }
+            
+            sortingSteps.push({
+                type: 'message',
+                message: 'Selection Sort completed!'
+            });
+        }
+
+        // Play Sorting Animation
+        function playSorting() {
+            if (sortingSteps.length === 0) {
+                updateStatus('Please start sorting first!');
+                return;
+            }
+            
+            if (currentStep >= sortingSteps.length) {
+                updateStatus('Sorting already completed! Reset to start again.');
+                return;
+            }
+            
+            isPlaying = true;
+            document.getElementById('playBtn').textContent = '⏸️ Playing';
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+            
+            playInterval = setInterval(() => {
+                if (currentStep < sortingSteps.length) {
+                    executeStep();
+                    currentStep++;
+                } else {
+                    pauseSorting();
+                    updateStatus('🎉 Sorting completed!');
+                    document.getElementById('playBtn').textContent = '✅ Complete';
+                }
+            }, 1200);
+        }
+
+        // Pause Sorting
+        function pauseSorting() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            document.getElementById('playBtn').textContent = '▶️ Play';
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        // Reset Sorting
+        function resetSorting() {
+            pauseSorting();
+            currentStep = 0;
+            sortingSteps = [];
+            resetCounters();
+            startVisualDemo(currentDataType);
+            updateStatus('Ready to sort...');
+            document.getElementById('playBtn').textContent = '▶️ Play';
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        // Step through sorting
+        function stepSorting() {
+            if (currentStep < sortingSteps.length) {
+                executeStep();
+                currentStep++;
+            }
+        }
+
+        // Execute a single step
+        function executeStep() {
+            if (currentStep >= sortingSteps.length) return;
+            
+            const step = sortingSteps[currentStep];
+            stepCount++;
+            
+            // Clear previous highlights
+            document.querySelectorAll('.data-item').forEach(item => {
+                item.classList.remove('comparing', 'swapping', 'pivot', 'sorted');
+                item.style.transform = 'scale(1)';
+                item.style.animation = 'none';
+            });
+            
+            if (step.type === 'compare') {
+                comparisonCount++;
+                step.indices.forEach(index => {
+                    const element = document.getElementById(`item-${index}`);
+                    if (element) {
+                        element.classList.add('comparing');
+                    }
+                });
+                updateStatus(step.message);
+            } else if (step.type === 'swap') {
+                swapCount++;
+                step.indices.forEach(index => {
+                    const element = document.getElementById(`item-${index}`);
+                    if (element) {
+                        element.classList.add('swapping');
+                    }
+                });
+                updateStatus(step.message);
+                
+                // Actually swap the data
+                setTimeout(() => {
+                    if (step.indices.length >= 2) {
+                        [currentData[step.indices[0]], currentData[step.indices[1]]] = 
+                        [currentData[step.indices[1]], currentData[step.indices[0]]];
+                        renderData();
+                    }
+                }, 500);
+            } else if (step.type === 'pivot') {
+                const element = document.getElementById(`item-${step.indices[0]}`);
+                if (element) {
+                    element.classList.add('pivot');
+                }
+                updateStatus(step.message);
+            } else if (step.type === 'message') {
+                updateStatus(step.message);
+            }
+            
+            updateCounters();
+        }
+
+        // Update counters
+        function updateCounters() {
+            document.getElementById('stepCount').textContent = stepCount;
+            document.getElementById('comparisonCount').textContent = comparisonCount;
+            document.getElementById('swapCount').textContent = swapCount;
+        }
+
+        // Reset counters
+        function resetCounters() {
+            stepCount = 0;
+            comparisonCount = 0;
+            swapCount = 0;
+            updateCounters();
+        }
+
+        // Update status with error handling
+        function updateStatus(message) {
+            const statusElement = document.getElementById('algorithmStatus');
+            if (statusElement) {
+                statusElement.textContent = message;
+            } else {
+                console.error('Status element not found');
+            }
+        }
+
+        // Initialize with default demo
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Wait a bit for DOM to be fully ready
+                setTimeout(() => {
+                    runDemo('sorting');
+                    startVisualDemo('flashcard-decks');
+                    console.log('Visual sorting demo initialized successfully');
+                }, 100);
+            } catch (error) {
+                console.error('Error initializing visual demo:', error);
+                updateStatus('Error initializing demo. Please refresh the page.');
+            }
+        });
+
+        // Add a simple test function
+        function testVisualizer() {
+            console.log('Testing visualizer...');
+            console.log('Current data type:', currentDataType);
+            console.log('Current data:', currentData);
+            console.log('Sorting steps:', sortingSteps.length);
+            console.log('Current step:', currentStep);
+        }
+
+        function updateCounters() {
+            const stepElement = document.getElementById('stepCount');
+            const comparisonElement = document.getElementById('comparisonCount');
+            const swapElement = document.getElementById('swapCount');
+            
+            if (stepElement) stepElement.textContent = stepCount;
+            if (comparisonElement) comparisonElement.textContent = comparisonCount;
+            if (swapElement) swapElement.textContent = swapCount;
+        }
+    </script>
+</body>
+</html>

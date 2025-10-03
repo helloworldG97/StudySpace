@@ -1,0 +1,2151 @@
+package com.studyspace.components;
+
+import com.studyspace.auth.AuthView;
+import com.studyspace.models.User;
+import com.studyspace.utils.DataStore;
+import com.studyspace.utils.SceneManager;
+import com.studyspace.utils.IconUtils;
+import com.studyspace.views.TodoListView;
+import com.studyspace.models.Activity;
+import com.studyspace.models.ActivityType;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.ArrayList;
+
+/**
+ * SidebarView - Main application layout with sidebar navigation
+ * 
+ * This component creates the main application interface with:
+ * - Sidebar with user info and navigation
+ * - Content area for different views
+ * - Navigation handling between different sections
+ */
+public class SidebarView {
+    
+    private static SidebarView currentInstance;
+    
+    private final DataStore dataStore;
+    private final SceneManager sceneManager;
+    
+    // Main layout components
+    private BorderPane mainContainer;
+    private VBox sidebar;
+    private StackPane contentArea;
+    
+    // Sidebar components
+    private VBox userInfoSection;
+    private Label userAvatar;
+    private Label userName;
+    private Label userEmail;
+    private Button signOutButton;
+    
+    // User profile dropdown
+    private VBox userProfileDropdown;
+    private boolean isDropdownOpen = false;
+    
+    // Navigation items
+    private VBox navigationSection;
+    private HBox homeNav;
+    private HBox notesNav;
+    private HBox flashcardsNav;
+    private HBox quizzesNav;
+    private HBox codePracticeNav;
+    private HBox todoNav;
+    private HBox timerNav;
+    private HBox progressNav;
+    
+    // Notification system
+    private Button notificationButton;
+    private int overdueCount = 0;
+    
+    
+    // Current active navigation item
+    private HBox activeNavItem;
+    
+    // Current user
+    private User currentUser;
+    
+    public SidebarView() {
+        this.dataStore = DataStore.getInstance();
+        this.sceneManager = SceneManager.getInstance();
+        this.currentUser = dataStore.getCurrentUser();
+        
+        // Set current instance
+        currentInstance = this;
+        
+        initializeUI();
+        setupEventHandlers();
+        loadUserData();
+        
+        // Set home as initial active navigation
+        activeNavItem = homeNav;
+        homeNav.getStyleClass().add("active");
+        
+        // Load home view by default
+        loadHomeView();
+    }
+    
+    /**
+     * Gets the current SidebarView instance
+     */
+    public static SidebarView getCurrentInstance() {
+        return currentInstance;
+    }
+    
+    /**
+     * Static method to refresh activity history from anywhere in the application
+     */
+    public static void refreshActivityHistoryGlobally() {
+        if (currentInstance != null) {
+            System.out.println("🌐 Global activity history refresh requested");
+            currentInstance.refreshActivityHistory();
+        } else {
+            System.out.println("⚠️ No SidebarView instance available for global refresh");
+        }
+    }
+    
+    /**
+     * Initializes the UI components
+     */
+    private void initializeUI() {
+        createMainContainer();
+        createSidebar();
+        createUserInfoSection();
+        createNotificationButton();
+        createNavigationSection();
+        createContentArea();
+        assembleSidebar();
+        assembleMainLayout();
+    }
+    
+    /**
+     * Creates the main container
+     */
+    private void createMainContainer() {
+        mainContainer = new BorderPane();
+        mainContainer.getStyleClass().add("main-container");
+    }
+    
+    /**
+     * Creates the sidebar
+     */
+    private void createSidebar() {
+        sidebar = new VBox();
+        sidebar.getStyleClass().add("sidebar");
+        sidebar.setSpacing(0);
+    }
+    
+    /**
+     * Creates the user info section at the top of sidebar
+     */
+    private void createUserInfoSection() {
+        userInfoSection = new VBox();
+        userInfoSection.getStyleClass().add("sidebar-header");
+        
+        // User info container (clickable)
+        HBox userInfo = new HBox();
+        userInfo.getStyleClass().add("sidebar-user-info");
+        userInfo.setCursor(javafx.scene.Cursor.HAND);
+        
+        // User avatar
+        userAvatar = new Label();
+        userAvatar.getStyleClass().add("sidebar-user-avatar");
+        
+        // User details
+        VBox userDetails = new VBox();
+        userDetails.setSpacing(2);
+        
+        userName = new Label();
+        userName.getStyleClass().add("sidebar-user-name");
+        
+        userEmail = new Label();
+        userEmail.getStyleClass().add("sidebar-user-email");
+        
+        userDetails.getChildren().addAll(userName, userEmail);
+        userInfo.getChildren().addAll(userAvatar, userDetails);
+        
+        // Create dropdown menu
+        createUserProfileDropdown();
+        
+        // Add click handler to user info
+        userInfo.setOnMouseClicked(e -> toggleUserProfileDropdown());
+        
+        userInfoSection.getChildren().addAll(userInfo, userProfileDropdown);
+    }
+    
+    /**
+     * Creates the notification button
+     */
+    private void createNotificationButton() {
+        notificationButton = new Button();
+        notificationButton.setGraphic(IconUtils.createIconView("clock"));
+        notificationButton.getStyleClass().add("notification-button");
+        notificationButton.setVisible(false);
+        notificationButton.setManaged(false);
+        notificationButton.setOnAction(e -> showOverdueNotification());
+        
+        // Check for overdue items
+        checkOverdueItems();
+    }
+    
+    /**
+     * Checks for overdue todo items and updates notification
+     */
+    private void checkOverdueItems() {
+        overdueCount = 0;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        
+        for (com.studyspace.models.TodoItem item : dataStore.getTodoItems()) {
+            if (!item.isCompleted() && item.getDueDate() != null && item.getDueDate().isBefore(today)) {
+                overdueCount++;
+            }
+        }
+        
+        if (overdueCount > 0) {
+            notificationButton.setVisible(true);
+            notificationButton.setManaged(true);
+            notificationButton.setText(" " + overdueCount);
+        } else {
+            notificationButton.setVisible(false);
+            notificationButton.setManaged(false);
+        }
+    }
+    
+    /**
+     * Shows overdue notification dialog
+     */
+    private void showOverdueNotification() {
+        // Recalculate overdue count to ensure accuracy
+        int currentOverdueCount = 0;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        
+        for (com.studyspace.models.TodoItem item : dataStore.getTodoItems()) {
+            if (!item.isCompleted() && item.getDueDate() != null && item.getDueDate().isBefore(today)) {
+                currentOverdueCount++;
+            }
+        }
+        
+        if (currentOverdueCount > 0) {
+            String message = "You have " + currentOverdueCount + " overdue todo item" + (currentOverdueCount > 1 ? "s" : "") + "!\n\n";
+            message += "Please check your Todo List to complete them.";
+            
+            sceneManager.showInfoDialog("Todo List Overdue", message);
+        } else {
+            // No overdue items, hide notification
+            notificationButton.setVisible(false);
+            notificationButton.setManaged(false);
+        }
+    }
+    
+    /**
+     * Creates the user profile dropdown menu
+     */
+    private void createUserProfileDropdown() {
+        userProfileDropdown = new VBox();
+        userProfileDropdown.getStyleClass().add("user-profile-dropdown");
+        userProfileDropdown.setSpacing(4);
+        userProfileDropdown.setVisible(false);
+        userProfileDropdown.setManaged(false);
+        
+        // Settings button
+        Button settingsButton = new Button();
+        settingsButton.setGraphic(IconUtils.createIconView("settings"));
+        settingsButton.setText(" Settings");
+        settingsButton.getStyleClass().add("dropdown-menu-item");
+        settingsButton.setMaxWidth(Double.MAX_VALUE);
+        settingsButton.setOnAction(e -> handleSettings());
+        
+        // About us button
+        Button aboutButton = new Button("ℹ️ About Us");
+        aboutButton.getStyleClass().add("dropdown-menu-item");
+        aboutButton.setMaxWidth(Double.MAX_VALUE);
+        aboutButton.setOnAction(e -> handleAboutUs());
+        
+        // Sign out button
+        signOutButton = new Button("🚪 Sign Out");
+        signOutButton.getStyleClass().add("dropdown-menu-item");
+        signOutButton.setMaxWidth(Double.MAX_VALUE);
+        signOutButton.setOnAction(e -> handleSignOut());
+        
+        userProfileDropdown.getChildren().addAll(settingsButton, aboutButton, signOutButton);
+    }
+    
+    /**
+     * Toggles the user profile dropdown visibility
+     */
+    private void toggleUserProfileDropdown() {
+        if (isDropdownOpen) {
+            hideUserProfileDropdown();
+        } else {
+            showUserProfileDropdown();
+        }
+    }
+    
+    /**
+     * Shows the user profile dropdown
+     */
+    private void showUserProfileDropdown() {
+        userProfileDropdown.setVisible(true);
+        userProfileDropdown.setManaged(true);
+        isDropdownOpen = true;
+        
+        // Add fade in animation
+        javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+            javafx.util.Duration.millis(200), userProfileDropdown);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
+    }
+    
+    /**
+     * Hides the user profile dropdown
+     */
+    private void hideUserProfileDropdown() {
+        javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
+            javafx.util.Duration.millis(200), userProfileDropdown);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            userProfileDropdown.setVisible(false);
+            userProfileDropdown.setManaged(false);
+            isDropdownOpen = false;
+        });
+        fadeOut.play();
+    }
+    
+    /**
+     * Handles settings button click
+     */
+    private void handleSettings() {
+        hideUserProfileDropdown();
+        loadProfileSettingsView();
+    }
+    
+    /**
+     * Loads the profile settings view
+     */
+    private void loadProfileSettingsView() {
+        try {
+            contentArea.getChildren().clear();
+            
+            // Create the profile settings view
+            com.studyspace.views.ProfileSettingsView profileSettingsView = new com.studyspace.views.ProfileSettingsView();
+            VBox profileViewContainer = profileSettingsView.getView();
+            
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(profileViewContainer);
+            StackPane.setAlignment(profileViewContainer, Pos.TOP_LEFT);
+            
+            System.out.println("Profile settings view loaded successfully");
+            
+        } catch (Exception e) {
+            System.err.println("Error loading profile settings view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    
+    /**
+     * Handles about us button click
+     */
+    private void handleAboutUs() {
+        hideUserProfileDropdown();
+        
+        // Load About Us view
+        contentArea.getChildren().clear();
+        
+        com.studyspace.views.AboutUsView aboutUsView = new com.studyspace.views.AboutUsView();
+        VBox aboutUsContent = aboutUsView.getView();
+        
+        contentArea.getChildren().add(aboutUsContent);
+    }
+    
+    /**
+     * Handles sign out button click
+     */
+    private void handleSignOut() {
+        hideUserProfileDropdown();
+        
+        boolean confirmed = sceneManager.showConfirmationDialog(
+            "Sign Out Confirmation", 
+            "Are you sure you want to sign out?"
+        );
+        
+        if (confirmed) {
+            // Clear user session
+            dataStore.logout();
+            
+            // Create new auth view and switch to it
+            AuthView authView = new AuthView();
+            Scene authScene = authView.getView();
+            
+            // Add CSS stylesheet
+            String cssPath = getClass().getResource("/css/styles.css").toExternalForm();
+            authScene.getStylesheets().add(cssPath);
+            
+            sceneManager.switchToCustomScene(authScene);
+        }
+    }
+    
+    /**
+     * Creates the navigation section
+     */
+    private void createNavigationSection() {
+        navigationSection = new VBox();
+        navigationSection.setSpacing(0);
+        
+        // Main section
+        VBox mainSection = new VBox();
+        mainSection.getStyleClass().add("sidebar-section");
+        
+        Label mainTitle = new Label("MAIN");
+        mainTitle.getStyleClass().add("sidebar-section-title");
+        
+        // Navigation items
+        homeNav = createNavItemWithIcon("home", "Home");
+        notesNav = createNavItemWithIcon("note", "Notes");
+        flashcardsNav = createNavItemWithIcon("cards", "Flashcards");
+        quizzesNav = createNavItemWithIcon("question", "Quizzes");
+        codePracticeNav = createNavItemWithIcon("code", "Code Practice");
+        
+        mainSection.getChildren().addAll(mainTitle, homeNav, notesNav, flashcardsNav, quizzesNav, codePracticeNav);
+        
+        // Study tools section
+        VBox toolsSection = new VBox();
+        toolsSection.getStyleClass().add("sidebar-section");
+        
+        Label toolsTitle = new Label("STUDY TOOLS");
+        toolsTitle.getStyleClass().add("sidebar-section-title");
+        
+        todoNav = createNavItemWithIcon("check", "Todo List");
+        timerNav = createNavItemWithIcon("clock", "Take a Break");
+        progressNav = createNavItemWithIcon("trending-up", "Progress");
+        
+        toolsSection.getChildren().addAll(toolsTitle, todoNav, timerNav, progressNav);
+        
+        navigationSection.getChildren().addAll(mainSection, toolsSection);
+    }
+    
+    /**
+     * Creates a navigation item
+     */
+    private HBox createNavItem(String icon, String text) {
+        HBox navItem = new HBox();
+        navItem.getStyleClass().add("sidebar-item");
+        
+        Label iconLabel = new Label(icon);
+        iconLabel.getStyleClass().add("sidebar-icon");
+        
+        Label textLabel = new Label(text);
+        textLabel.getStyleClass().add("sidebar-text");
+        
+        navItem.getChildren().addAll(iconLabel, textLabel);
+        
+        return navItem;
+    }
+    
+    /**
+     * Creates a navigation item with SVG icon
+     */
+    private HBox createNavItemWithIcon(String iconName, String text) {
+        HBox navItem = new HBox();
+        navItem.getStyleClass().add("sidebar-item");
+        
+        Label iconLabel = new Label();
+        iconLabel.setGraphic(IconUtils.createIconView(iconName));
+        iconLabel.getStyleClass().add("sidebar-icon");
+        
+        Label textLabel = new Label(text);
+        textLabel.getStyleClass().add("sidebar-text");
+        
+        navItem.getChildren().addAll(iconLabel, textLabel);
+        
+        return navItem;
+    }
+    
+    /**
+     * Creates the content area with optimized StackPane
+     */
+    private void createContentArea() {
+        contentArea = new StackPane();
+        contentArea.getStyleClass().add("content-area");
+        
+        // Set up proper event handling for StackPane
+        contentArea.setOnMouseClicked(e -> {
+            // Handle clicks on empty areas of the content area
+            e.consume();
+        });
+        
+        // Ensure proper sizing and alignment
+        contentArea.setAlignment(Pos.TOP_LEFT);
+        contentArea.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+    }
+    
+    /**
+     * Assembles the sidebar components
+     */
+    private void assembleSidebar() {
+        // Create today's progress section
+        VBox progressSection = createTodaysProgressSection();
+        
+        sidebar.getChildren().addAll(userInfoSection, new Separator(), navigationSection, new Separator(), progressSection, new Separator(), notificationButton);
+    }
+    
+    /**
+     * Assembles the main layout
+     */
+    private void assembleMainLayout() {
+        mainContainer.setLeft(sidebar);
+        mainContainer.setCenter(contentArea);
+    }
+    
+    /**
+     * Sets up event handlers
+     */
+    private void setupEventHandlers() {
+        // Sign out button
+        signOutButton.setOnAction(e -> handleSignOut());
+        
+        // Navigation items
+        homeNav.setOnMouseClicked(e -> handleNavigation("home", homeNav));
+        notesNav.setOnMouseClicked(e -> handleNavigation("notes", notesNav));
+        flashcardsNav.setOnMouseClicked(e -> handleNavigation("flashcards", flashcardsNav));
+        quizzesNav.setOnMouseClicked(e -> handleNavigation("quizzes", quizzesNav));
+        codePracticeNav.setOnMouseClicked(e -> handleNavigation("code-practice", codePracticeNav));
+        todoNav.setOnMouseClicked(e -> handleNavigation("todo", todoNav));
+        timerNav.setOnMouseClicked(e -> handleNavigation("timer", timerNav));
+        progressNav.setOnMouseClicked(e -> handleNavigation("progress", progressNav));
+    }
+    
+    /**
+     * Loads user data into the sidebar
+     */
+    private void loadUserData() {
+        if (currentUser != null) {
+            // Set user avatar with initials
+            String initials = "";
+            if (currentUser.getFullName() != null && !currentUser.getFullName().trim().isEmpty()) {
+                String[] names = currentUser.getFullName().trim().split("\\s+");
+                if (names.length > 0) {
+                    initials += names[0].charAt(0);
+                    if (names.length > 1) {
+                        initials += names[names.length - 1].charAt(0);
+                    }
+                }
+            }
+            userAvatar.setText(initials.toUpperCase());
+            
+            // Set user name and email
+            userName.setText(currentUser.getFullName());
+            userEmail.setText(currentUser.getEmail());
+        }
+    }
+    
+    /**
+     * Handles navigation between different sections
+     */
+    private void handleNavigation(String section, HBox navItem) {
+        System.out.println("=== handleNavigation called ===");
+        System.out.println("Section: " + section);
+        System.out.println("NavItem: " + navItem.getClass().getSimpleName());
+        
+        // Update active navigation item
+        updateActiveNavigation(navItem);
+        
+        // Handle navigation based on section
+        switch (section.toLowerCase()) {
+            case "home":
+                loadHomeView();
+                break;
+            case "notes":
+                System.out.println("Calling loadNotesView()");
+                loadNotesView();
+                break;
+            case "flashcards":
+                loadFlashcardsView();
+                break;
+            case "quizzes":
+                loadQuizzesView();
+                break;
+            case "code-practice":
+                loadCodePracticeView();
+                break;
+            case "todo":
+                loadTodoView();
+                break;
+            case "timer":
+                loadTimerView();
+                break;
+            case "progress":
+                loadProgressView();
+                break;
+            default:
+                System.out.println("Unknown navigation: " + section);
+        }
+    }
+    
+    /**
+     * Updates the active navigation item styling
+     */
+    private void updateActiveNavigation(HBox newActiveItem) {
+        // Remove active class from current active item
+        if (activeNavItem != null) {
+            activeNavItem.getStyleClass().remove("active");
+        }
+        
+        // Add active class to new active item
+        newActiveItem.getStyleClass().add("active");
+        activeNavItem = newActiveItem;
+    }
+    
+    /**
+     * Loads the home view with proper StackPane management
+     */
+    private void loadHomeView() {
+        try {
+            contentArea.getChildren().clear();
+            
+            // Create the home dashboard
+            VBox homeView = createHomeDashboard();
+            
+            // Add to StackPane with proper event handling
+            contentArea.getChildren().add(homeView);
+            
+            // Ensure the content is properly positioned
+            StackPane.setAlignment(homeView, Pos.TOP_LEFT);
+            
+            // Set selected date to today and refresh activity history
+            selectedDate = LocalDate.now();
+            System.out.println("🏠 Loading home view - refreshing activity history for today: " + selectedDate);
+            refreshActivityHistory();
+            
+        } catch (Exception e) {
+            System.err.println("Error loading home view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Loads the notes view with proper StackPane management
+     */
+    private void loadNotesView() {
+        try {
+            System.out.println("=== loadNotesView called ===");
+            // Only load NotesView when the notes navigation is clicked
+            contentArea.getChildren().clear();
+            com.studyspace.views.NotesView notesView = new com.studyspace.views.NotesView();
+            StackPane notesViewContainer = notesView.getView();
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(notesViewContainer);
+            StackPane.setAlignment(notesViewContainer, Pos.TOP_LEFT);
+            System.out.println("Notes view loaded successfully. Content area children: " + contentArea.getChildren().size());
+            
+        } catch (Exception e) {
+            System.err.println("Error loading notes view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Loads the flashcards view with proper StackPane management
+     */
+    private void loadFlashcardsView() {
+        try {
+            contentArea.getChildren().clear();
+            
+            // Create the flashcard list view
+            com.studyspace.views.FlashcardListView flashcardListView = new com.studyspace.views.FlashcardListView();
+            VBox flashcardViewContainer = flashcardListView.getView();
+            
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(flashcardViewContainer);
+            StackPane.setAlignment(flashcardViewContainer, Pos.TOP_LEFT);
+            
+        } catch (Exception e) {
+            System.err.println("Error loading flashcards view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Loads the quizzes view with proper StackPane management
+     */
+    private void loadQuizzesView() {
+        try {
+            contentArea.getChildren().clear();
+            
+            // Create the quiz list view
+            com.studyspace.views.QuizListView quizListView = new com.studyspace.views.QuizListView();
+            VBox quizViewContainer = quizListView.getView();
+            
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(quizViewContainer);
+            StackPane.setAlignment(quizViewContainer, Pos.TOP_LEFT);
+            
+        } catch (Exception e) {
+            System.err.println("Error loading quizzes view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Loads the code practice view with proper StackPane management
+     */
+    private void loadCodePracticeView() {
+        try {
+            contentArea.getChildren().clear();
+            
+            // Create the code practice view
+            com.studyspace.views.CodePracticeView codePracticeView = new com.studyspace.views.CodePracticeView();
+            VBox codePracticeViewContainer = codePracticeView.getView();
+            
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(codePracticeViewContainer);
+            StackPane.setAlignment(codePracticeViewContainer, Pos.TOP_LEFT);
+            
+        } catch (Exception e) {
+            System.err.println("Error loading code practice view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Loads the todo view with proper StackPane management
+     */
+    private void loadTodoView() {
+        try {
+            contentArea.getChildren().clear();
+            
+            TodoListView todoView = new TodoListView();
+            
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(todoView);
+            StackPane.setAlignment(todoView, Pos.TOP_LEFT);
+            
+        } catch (Exception e) {
+            System.err.println("Error loading todo view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Loads the snake game view for taking a break
+     */
+    private void loadTimerView() {
+        try {
+            contentArea.getChildren().clear();
+            
+            // Create the snake game view
+            com.studyspace.views.SnakeGameView snakeGameView = new com.studyspace.views.SnakeGameView();
+            VBox snakeGameViewContainer = snakeGameView.getView();
+            
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(snakeGameViewContainer);
+            StackPane.setAlignment(snakeGameViewContainer, Pos.CENTER);
+            
+        } catch (Exception e) {
+            System.err.println("Error loading snake game view: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Loads the progress view
+     */
+    private void loadProgressView() {
+        contentArea.getChildren().clear();
+        
+        VBox progressView = createProgressDashboard();
+        
+        contentArea.getChildren().add(progressView);
+    }
+    
+    
+    /**
+     * Creates the home dashboard with quick access buttons and todo list
+     */
+    private VBox createHomeDashboard() {
+        VBox dashboard = new VBox();
+        dashboard.setSpacing(32);
+        dashboard.getStyleClass().add("content-area");
+        
+        // Welcome section
+        VBox welcomeSection = new VBox();
+        welcomeSection.setSpacing(8);
+        
+        String greeting = getTimeBasedGreeting();
+        Label welcomeLabel = new Label(greeting + ", " + (currentUser != null ? currentUser.getFullName().split(" ")[0] : "Student") + "!");
+        welcomeLabel.getStyleClass().addAll("text-3xl", "font-bold", "text-primary");
+        
+        Label subtitleLabel = new Label("Quick access to your study tools and tasks.");
+        subtitleLabel.getStyleClass().addAll("text-base", "text-secondary");
+        
+        welcomeSection.getChildren().addAll(welcomeLabel, subtitleLabel);
+        
+        // Top section with Todo List and Recent Activity
+        HBox topSection = new HBox();
+        topSection.setSpacing(24);
+        topSection.setAlignment(Pos.TOP_LEFT);
+        
+        // Todo List section
+        VBox todoListCard = createTodoListCard();
+        
+        // Recent Activity section
+        VBox recentActivityCard = createRecentActivityCard();
+        
+        HBox.setHgrow(todoListCard, Priority.ALWAYS);
+        HBox.setHgrow(recentActivityCard, Priority.ALWAYS);
+        
+        topSection.getChildren().addAll(todoListCard, recentActivityCard);
+        
+        // Quick Access section
+        VBox quickAccessCard = createQuickAccessCard();
+        
+        dashboard.getChildren().addAll(welcomeSection, topSection, quickAccessCard);
+        
+        // Wrap dashboard in scroll pane
+        ScrollPane scrollPane = new ScrollPane(dashboard);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.getStyleClass().add("home-scroll-pane");
+        scrollPane.setPadding(new Insets(0));
+        
+        // Create container for scroll pane
+        VBox scrollContainer = new VBox();
+        scrollContainer.getChildren().add(scrollPane);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        
+        // Initialize activity list with today's date
+        selectedDate = LocalDate.now();
+        System.out.println("🏗️ Creating home dashboard - initializing activity list for today: " + selectedDate);
+        updateActivityList();
+        
+        return scrollContainer;
+    }
+    
+    /**
+     * Creates a statistics card
+     */
+    private VBox createStatCard(String icon, String value, String label) {
+        VBox card = new VBox();
+        card.getStyleClass().add("stat-card");
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setSpacing(8);
+        
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 24px;");
+        
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().add("stat-value");
+        
+        Label labelText = new Label(label);
+        labelText.getStyleClass().add("stat-label");
+        
+        card.getChildren().addAll(iconLabel, valueLabel, labelText);
+        
+        return card;
+    }
+    
+    /**
+     * Creates a statistics card with SVG icon
+     */
+    private VBox createStatCardWithIcon(String iconName, String value, String label) {
+        VBox card = new VBox();
+        card.getStyleClass().add("stat-card");
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setSpacing(8);
+        
+        Label iconLabel = new Label();
+        iconLabel.setGraphic(IconUtils.createLargeIconView(iconName));
+        
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().add("stat-value");
+        
+        Label labelText = new Label(label);
+        labelText.getStyleClass().add("stat-label");
+        
+        card.getChildren().addAll(iconLabel, valueLabel, labelText);
+        
+        return card;
+    }
+    
+    /**
+     * Creates the recent activity card with calendar
+     */
+    private VBox createRecentActivityCard() {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+        card.setSpacing(16);
+        
+        Label title = new Label("Activity History");
+        title.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+        
+        // Calendar section
+        VBox calendarSection = createActivityCalendar();
+        
+        // Activity list section
+        VBox activityListSection = createActivityListSection();
+        
+        card.getChildren().addAll(title, calendarSection, activityListSection);
+        
+        return card;
+    }
+    
+    /**
+     * Creates the activity calendar section
+     */
+    private VBox createActivityCalendar() {
+        VBox calendarSection = new VBox();
+        calendarSection.setSpacing(12);
+        
+        // Calendar header with navigation and minimize button
+        HBox calendarHeader = new HBox();
+        calendarHeader.setSpacing(8);
+        calendarHeader.setAlignment(Pos.CENTER_LEFT);
+        
+        Button prevWeekButton = new Button("←");
+        prevWeekButton.getStyleClass().add("calendar-nav-button");
+        prevWeekButton.setOnAction(e -> navigateCalendar(-7));
+        
+        Label weekLabel = new Label();
+        weekLabel.getStyleClass().addAll("text-lg", "font-semibold", "text-primary");
+        weekLabel.setId("week-label");
+        
+        Button nextWeekButton = new Button("→");
+        nextWeekButton.getStyleClass().add("calendar-nav-button");
+        nextWeekButton.setOnAction(e -> navigateCalendar(7));
+        
+        Button todayButton = new Button("Today");
+        todayButton.getStyleClass().add("calendar-today-button");
+        todayButton.setOnAction(e -> goToToday());
+        
+        // Minimize/Expand button
+        Button minimizeButton = new Button("−");
+        minimizeButton.getStyleClass().add("calendar-minimize-button");
+        minimizeButton.setId("calendar-minimize-button");
+        minimizeButton.setOnAction(e -> toggleCalendarMinimize());
+        
+        calendarHeader.getChildren().addAll(prevWeekButton, weekLabel, nextWeekButton, todayButton, minimizeButton);
+        
+        // Calendar grid container
+        VBox calendarGridContainer = new VBox();
+        calendarGridContainer.getStyleClass().add("calendar-grid-container");
+        calendarGridContainer.setId("calendar-grid-container");
+        
+        // Calendar grid
+        VBox calendarGrid = createCalendarGrid();
+        calendarGrid.setId("calendar-grid");
+        
+        calendarGridContainer.getChildren().add(calendarGrid);
+        
+        calendarSection.getChildren().addAll(calendarHeader, calendarGridContainer);
+        
+        // Initialize calendar
+        updateCalendar();
+        
+        return calendarSection;
+    }
+    
+    /**
+     * Creates the calendar grid
+     */
+    private VBox createCalendarGrid() {
+        VBox calendarGrid = new VBox();
+        calendarGrid.getStyleClass().add("calendar-grid");
+        calendarGrid.setSpacing(4);
+        
+        // Day headers
+        HBox dayHeaders = new HBox();
+        dayHeaders.setSpacing(4);
+        dayHeaders.getStyleClass().add("calendar-day-headers");
+        
+        String[] dayNames = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        for (String dayName : dayNames) {
+            Label dayHeader = new Label(dayName);
+            dayHeader.getStyleClass().add("calendar-day-header");
+            dayHeader.setPrefWidth(40);
+            dayHeader.setAlignment(Pos.CENTER);
+            dayHeaders.getChildren().add(dayHeader);
+        }
+        
+        calendarGrid.getChildren().add(dayHeaders);
+        
+        // Calendar rows (we'll add these dynamically)
+        for (int week = 0; week < 6; week++) {
+            HBox weekRow = new HBox();
+            weekRow.setSpacing(4);
+            weekRow.getStyleClass().add("calendar-week-row");
+            weekRow.setId("week-row-" + week);
+            calendarGrid.getChildren().add(weekRow);
+        }
+        
+        return calendarGrid;
+    }
+    
+    /**
+     * Creates the activity list section
+     */
+    private VBox createActivityListSection() {
+        VBox activityListSection = new VBox();
+        activityListSection.setSpacing(12);
+        
+        // Selected date label
+        Label selectedDateLabel = new Label();
+        selectedDateLabel.getStyleClass().addAll("text-base", "font-medium", "text-secondary");
+        selectedDateLabel.setId("selected-date-label");
+        
+        // Activity list container
+        VBox activityListContainer = new VBox();
+        activityListContainer.getStyleClass().add("home-activity-list");
+        activityListContainer.setSpacing(8);
+        activityListContainer.setId("home-activity-list");
+        
+        activityListSection.getChildren().addAll(selectedDateLabel, activityListContainer);
+        
+        return activityListSection;
+    }
+    
+    // Calendar state variables
+    private LocalDate currentCalendarDate = LocalDate.now();
+    private LocalDate selectedDate = LocalDate.now();
+    private boolean calendarMinimized = false;
+    
+    /**
+     * Navigates the calendar by the specified number of days
+     */
+    private void navigateCalendar(int days) {
+        currentCalendarDate = currentCalendarDate.plusDays(days);
+        updateCalendar();
+    }
+    
+    /**
+     * Goes to today's date
+     */
+    private void goToToday() {
+        currentCalendarDate = LocalDate.now();
+        selectedDate = LocalDate.now();
+        updateCalendar();
+        updateActivityList();
+    }
+    
+    /**
+     * Toggles calendar minimize/expand state
+     */
+    private void toggleCalendarMinimize() {
+        calendarMinimized = !calendarMinimized;
+        
+        // Find calendar grid container
+        javafx.scene.Node gridContainerNode = findNodeById("calendar-grid-container");
+        if (gridContainerNode instanceof VBox) {
+            VBox gridContainer = (VBox) gridContainerNode;
+            gridContainer.setVisible(!calendarMinimized);
+            gridContainer.setManaged(!calendarMinimized);
+        }
+        
+        // Update minimize button text
+        javafx.scene.Node minimizeButtonNode = findNodeById("calendar-minimize-button");
+        if (minimizeButtonNode instanceof Button) {
+            Button minimizeButton = (Button) minimizeButtonNode;
+            minimizeButton.setText(calendarMinimized ? "+" : "−");
+        }
+    }
+    
+    /**
+     * Updates the calendar display
+     */
+    private void updateCalendar() {
+        // Update week label
+        LocalDate startOfWeek = currentCalendarDate.minusDays(currentCalendarDate.getDayOfWeek().getValue() % 7);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        
+        String weekText = startOfWeek.format(DateTimeFormatter.ofPattern("MMM dd")) + " - " + 
+                         endOfWeek.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"));
+        
+        // Find and update week label
+        javafx.scene.Node weekLabelNode = findNodeById("week-label");
+        if (weekLabelNode instanceof Label) {
+            ((Label) weekLabelNode).setText(weekText);
+        }
+        
+        // Clear existing calendar days
+        for (int week = 0; week < 6; week++) {
+            javafx.scene.Node weekRowNode = findNodeById("week-row-" + week);
+            if (weekRowNode instanceof HBox) {
+                ((HBox) weekRowNode).getChildren().clear();
+            }
+        }
+        
+        // Fill calendar with days
+        LocalDate firstDayOfMonth = currentCalendarDate.withDayOfMonth(1);
+        LocalDate startDate = firstDayOfMonth.minusDays(firstDayOfMonth.getDayOfWeek().getValue() % 7);
+        
+        for (int week = 0; week < 6; week++) {
+            javafx.scene.Node weekRowNode = findNodeById("week-row-" + week);
+            if (weekRowNode instanceof HBox) {
+                HBox weekRow = (HBox) weekRowNode;
+                
+                for (int day = 0; day < 7; day++) {
+                    LocalDate dayDate = startDate.plusDays(week * 7 + day);
+                    Button dayButton = createCalendarDayButton(dayDate);
+                    weekRow.getChildren().add(dayButton);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Creates a calendar day button
+     */
+    private Button createCalendarDayButton(LocalDate date) {
+        Button dayButton = new Button(String.valueOf(date.getDayOfMonth()));
+        dayButton.getStyleClass().add("calendar-day-button");
+        dayButton.setPrefWidth(40);
+        dayButton.setPrefHeight(32);
+        
+        // Set default text color to black for visibility
+        dayButton.setStyle("-fx-text-fill: #000000;");
+        
+        // Style based on date
+        if (date.equals(LocalDate.now())) {
+            dayButton.getStyleClass().add("calendar-today");
+            dayButton.setStyle("-fx-text-fill: #ffffff;"); // White text for today
+        } else if (date.equals(selectedDate)) {
+            dayButton.getStyleClass().add("calendar-selected");
+            dayButton.setStyle("-fx-text-fill: #ffffff;"); // White text for selected
+        } else if (date.getMonth() != currentCalendarDate.getMonth()) {
+            dayButton.getStyleClass().add("calendar-other-month");
+            dayButton.setStyle("-fx-text-fill: #9ca3af;"); // Gray text for other months
+        } else {
+            dayButton.setStyle("-fx-text-fill: #000000;"); // Black text for current month
+        }
+        
+        // Check if there are activities on this date
+        if (currentUser != null) {
+            List<Activity> dayActivities = dataStore.getActivitiesForUser(currentUser.getId(), date);
+            if (!dayActivities.isEmpty()) {
+                dayButton.getStyleClass().add("calendar-has-activities");
+                // Keep text color black even with activity highlight
+                if (!date.equals(LocalDate.now()) && !date.equals(selectedDate)) {
+                    dayButton.setStyle("-fx-text-fill: #000000;");
+                }
+            }
+        }
+        
+        // Set click handler
+        dayButton.setOnAction(e -> {
+            selectedDate = date;
+            updateCalendar(); // Refresh to update selection
+            updateActivityList();
+        });
+        
+        return dayButton;
+    }
+    
+    /**
+     * Updates the activity list for the selected date
+     */
+    private void updateActivityList() {
+        System.out.println("🔍 Updating activity list for date: " + selectedDate);
+        
+        // Update selected date label
+        javafx.scene.Node selectedDateLabelNode = findNodeById("selected-date-label");
+        if (selectedDateLabelNode instanceof Label) {
+            String dateText = selectedDate.format(DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy"));
+            Label dateLabel = (Label) selectedDateLabelNode;
+            dateLabel.setText(dateText);
+            dateLabel.setStyle("-fx-text-fill: #000000; -fx-font-weight: bold; -fx-font-size: 14px;");
+            System.out.println("📅 Updated date label to: " + dateText);
+        } else {
+            System.out.println("⚠️ Could not find selected-date-label node");
+        }
+        
+        // Clear and populate activity list
+        javafx.scene.Node activityListNode = findNodeById("home-activity-list");
+        if (activityListNode instanceof VBox) {
+            VBox activityList = (VBox) activityListNode;
+            activityList.getChildren().clear();
+            
+            if (currentUser != null) {
+                List<Activity> activities = dataStore.getActivitiesForUser(currentUser.getId(), selectedDate);
+                System.out.println("📊 Found " + activities.size() + " activities for user: " + currentUser.getId());
+                
+                if (activities.isEmpty()) {
+                    Label noActivityLabel = new Label("No activities for this date.");
+                    noActivityLabel.getStyleClass().addAll("text-sm", "text-muted");
+                    noActivityLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: normal; -fx-font-size: 12px;");
+                    noActivityLabel.setAlignment(Pos.CENTER);
+                    activityList.getChildren().add(noActivityLabel);
+                    System.out.println("📝 Added 'No activities' message");
+                } else {
+                    for (Activity activity : activities) {
+                        activityList.getChildren().add(createHomeActivityItem(activity));
+                        System.out.println("➕ Added activity: " + activity.getDescription());
+                    }
+                }
+            } else {
+                System.out.println("⚠️ No current user found");
+            }
+        } else {
+            System.out.println("⚠️ Could not find home-activity-list node");
+        }
+    }
+    
+    /**
+     * Creates an activity item for the home dashboard
+     */
+    private HBox createHomeActivityItem(Activity activity) {
+        HBox item = new HBox();
+        item.setSpacing(12);
+        item.setAlignment(Pos.CENTER_LEFT);
+        item.getStyleClass().add("home-activity-item");
+        
+        // Icon
+        Node icon = getActivityIcon(activity.getType());
+        if (icon != null) {
+            item.getChildren().add(icon);
+        }
+        
+        // Text container
+        VBox textContainer = new VBox();
+        textContainer.setSpacing(2);
+        
+        // Enhanced description with activity type context
+        String enhancedDescription = getEnhancedActivityDescription(activity);
+        Label descriptionLabel = new Label(enhancedDescription);
+        descriptionLabel.getStyleClass().addAll("text-sm", "font-medium");
+        descriptionLabel.setStyle("-fx-text-fill: #000000; -fx-font-weight: bold; -fx-font-size: 12px;");
+        descriptionLabel.setWrapText(true);
+        
+        // Time with more context
+        String timeContext = formatTimestamp(activity.getTimestamp());
+        Label timeLabel = new Label(timeContext);
+        timeLabel.getStyleClass().addAll("text-xs", "text-muted");
+        timeLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: normal; -fx-font-size: 10px;");
+        
+        textContainer.getChildren().addAll(descriptionLabel, timeLabel);
+        item.getChildren().add(textContainer);
+        
+        return item;
+    }
+    
+    /**
+     * Helper method to find a node by ID
+     */
+    private javafx.scene.Node findNodeById(String id) {
+        return findNodeByIdRecursive(mainContainer, id);
+    }
+    
+    /**
+     * Recursively finds a node by ID
+     */
+    private javafx.scene.Node findNodeByIdRecursive(javafx.scene.Node node, String id) {
+        if (id.equals(node.getId())) {
+            return node;
+        }
+        
+        if (node instanceof javafx.scene.Parent) {
+            for (javafx.scene.Node child : ((javafx.scene.Parent) node).getChildrenUnmodifiable()) {
+                javafx.scene.Node result = findNodeByIdRecursive(child, id);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Public method to refresh activity history from other views
+     */
+    public void refreshActivityHistory() {
+        System.out.println("🔄 Refreshing activity history and progress...");
+        refreshActivityHistoryInternal();
+        refreshSidebarProgress();
+        System.out.println("✅ Activity history and progress refreshed successfully");
+    }
+    
+    /**
+     * Refreshes the sidebar progress metrics
+     */
+    public void refreshSidebarProgress() {
+        try {
+            System.out.println("📊 Refreshing sidebar progress metrics...");
+            
+            // Find and update the progress section
+            javafx.scene.Node progressSectionNode = findNodeById("progress-section");
+            if (progressSectionNode instanceof VBox) {
+                VBox progressSection = (VBox) progressSectionNode;
+                progressSection.getChildren().clear();
+                
+                // Recreate the progress metrics with updated data
+                String streak = calculateStreak();
+                String tasksDone = calculateTasksDone();
+                
+                System.out.println("📈 Progress metrics - Streak: " + streak + ", Tasks Done: " + tasksDone);
+                
+                HBox streakMetric = createProgressMetric("Streak", streak, "streak");
+                HBox tasksMetric = createProgressMetric("Tasks Done", tasksDone, "tasks-done");
+                
+                VBox metricsContainer = new VBox();
+                metricsContainer.setSpacing(8);
+                metricsContainer.getChildren().addAll(streakMetric, tasksMetric);
+                
+                Label progressTitle = new Label("Today's Progress");
+                progressTitle.getStyleClass().add("sidebar-section-title");
+                
+                progressSection.getChildren().addAll(progressTitle, metricsContainer);
+                System.out.println("✅ Sidebar progress metrics refreshed successfully");
+            } else {
+                System.out.println("⚠️ Could not find progress-section node");
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error refreshing sidebar progress: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Internal method to refresh the activity history in the home dashboard
+     */
+    private void refreshActivityHistoryInternal() {
+        try {
+            System.out.println("📅 Updating activity list for date: " + selectedDate);
+            
+            // Update the activity list (this also updates the date label)
+            updateActivityList();
+            
+            // Update calendar to show activity indicators
+            updateCalendar();
+            
+            System.out.println("✅ Activity history refreshed for date: " + selectedDate);
+        } catch (Exception e) {
+            System.out.println("❌ Error refreshing activity history: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Creates an activity item
+     */
+    private HBox createActivityItem(String icon, String text, String time) {
+        HBox item = new HBox();
+        item.setSpacing(12);
+        item.setAlignment(Pos.CENTER_LEFT);
+        
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 16px;");
+        
+        VBox textContainer = new VBox();
+        textContainer.setSpacing(2);
+        
+        Label textLabel = new Label(text);
+        textLabel.getStyleClass().addAll("text-sm", "font-medium");
+        
+        Label timeLabel = new Label(time);
+        timeLabel.getStyleClass().addAll("text-xs", "text-muted");
+        
+        textContainer.getChildren().addAll(textLabel, timeLabel);
+        
+        HBox.setHgrow(textContainer, Priority.ALWAYS);
+        
+        item.getChildren().addAll(iconLabel, textContainer);
+        
+        return item;
+    }
+    
+    /**
+     * Creates an activity item with SVG icon
+     */
+    private HBox createActivityItemWithIcon(String iconName, String text, String time) {
+        HBox item = new HBox();
+        item.setSpacing(12);
+        item.setAlignment(Pos.CENTER_LEFT);
+        
+        Label iconLabel = new Label();
+        iconLabel.setGraphic(IconUtils.createIconView(iconName));
+        
+        VBox textContainer = new VBox();
+        textContainer.setSpacing(2);
+        
+        Label textLabel = new Label(text);
+        textLabel.getStyleClass().addAll("text-sm", "font-medium");
+        
+        Label timeLabel = new Label(time);
+        timeLabel.getStyleClass().addAll("text-xs", "text-muted");
+        
+        textContainer.getChildren().addAll(textLabel, timeLabel);
+        
+        HBox.setHgrow(textContainer, Priority.ALWAYS);
+        
+        item.getChildren().addAll(iconLabel, textContainer);
+        
+        return item;
+    }
+    
+    /**
+     * Creates the quick access card with colorful buttons
+     */
+    private VBox createQuickAccessCard() {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+        card.setSpacing(16);
+        
+        Label title = new Label("Quick Access");
+        title.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+        
+        // Create horizontal layout for quick access buttons
+        HBox buttonContainer = new HBox();
+        buttonContainer.setSpacing(16);
+        buttonContainer.setAlignment(Pos.CENTER);
+        
+        // Notes button (blue)
+        Button notesButton = createQuickAccessButton("note", "Notes", "#3b82f6");
+        notesButton.setOnAction(e -> handleNavigation("notes", notesNav));
+        buttonContainer.getChildren().add(notesButton);
+        
+        // Flashcards button (green)
+        Button flashcardsButton = createQuickAccessButton("cards", "Flashcards", "#10b981");
+        flashcardsButton.setOnAction(e -> handleNavigation("flashcards", flashcardsNav));
+        buttonContainer.getChildren().add(flashcardsButton);
+        
+        // Quizzes button (yellow)
+        Button quizzesButton = createQuickAccessButton("question", "Quizzes", "#f59e0b");
+        quizzesButton.setOnAction(e -> handleNavigation("quizzes", quizzesNav));
+        buttonContainer.getChildren().add(quizzesButton);
+        
+        // Code Practice button (teal)
+        Button codeButton = createQuickAccessButton("code", "Code Practice", "#06b6d4");
+        codeButton.setOnAction(e -> handleNavigation("code-practice", codePracticeNav));
+        buttonContainer.getChildren().add(codeButton);
+        
+        // Todo List button (pink)
+        Button todoButton = createQuickAccessButton("check", "To-Do List", "#ec4899");
+        todoButton.setOnAction(e -> handleNavigation("todo", todoNav));
+        buttonContainer.getChildren().add(todoButton);
+        
+        // Take a Break button (orange)
+        Button timerButton = createQuickAccessButton("clock", "Take a Break", "#f97316");
+        timerButton.setOnAction(e -> handleNavigation("timer", timerNav));
+        buttonContainer.getChildren().add(timerButton);
+        
+        // Progress button (purple)
+        Button progressButton = createQuickAccessButton("trending-up", "Progress", "#8b5cf6");
+        progressButton.setOnAction(e -> handleNavigation("progress", progressNav));
+        buttonContainer.getChildren().add(progressButton);
+        
+        card.getChildren().addAll(title, buttonContainer);
+        
+        return card;
+    }
+    
+    /**
+     * Creates a quick access button with specified icon, text, and color
+     */
+    private Button createQuickAccessButton(String iconName, String text, String color) {
+        Button button = new Button();
+        button.getStyleClass().add("quick-access-button");
+        button.setPrefSize(120, 100);
+        button.setMaxSize(120, 100);
+        
+        // Create icon
+        Node icon = IconUtils.createIconView(iconName);
+        if (icon != null) {
+            icon.setStyle("-fx-text-fill: white; -fx-font-size: 24px;");
+        }
+        
+        // Create text label
+        Label textLabel = new Label(text);
+        textLabel.getStyleClass().add("quick-access-text");
+        textLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
+        
+        // Create vertical layout
+        VBox content = new VBox();
+        content.setAlignment(Pos.CENTER);
+        content.setSpacing(8);
+        content.getChildren().addAll(icon, textLabel);
+        
+        button.setGraphic(content);
+        button.setStyle("-fx-background-color: " + color + "; -fx-background-radius: 12; -fx-border-radius: 12;");
+        
+        return button;
+    }
+    
+    /**
+     * Creates the todo list card
+     */
+    private VBox createTodoListCard() {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+        card.setSpacing(16);
+        
+        Label title = new Label("Your Tasks");
+        title.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+        
+        // Get todo items from DataStore
+        List<com.studyspace.models.TodoItem> todoItems = new ArrayList<>(dataStore.getTodoItems());
+        
+        VBox todoList = new VBox();
+        todoList.setSpacing(8);
+        
+        if (todoItems.isEmpty()) {
+            Label noTasksLabel = new Label("No tasks yet. Add some tasks to get started!");
+            noTasksLabel.getStyleClass().addAll("text-sm", "text-muted");
+            noTasksLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic;");
+            todoList.getChildren().add(noTasksLabel);
+        } else {
+            // Show first 5 tasks
+            int maxTasks = Math.min(5, todoItems.size());
+            for (int i = 0; i < maxTasks; i++) {
+                com.studyspace.models.TodoItem item = todoItems.get(i);
+                VBox taskItem = createTodoItem(item);
+                todoList.getChildren().add(taskItem);
+            }
+            
+            if (todoItems.size() > 5) {
+                Label moreTasksLabel = new Label("... and " + (todoItems.size() - 5) + " more tasks");
+                moreTasksLabel.getStyleClass().addAll("text-sm", "text-muted");
+                moreTasksLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic;");
+                todoList.getChildren().add(moreTasksLabel);
+            }
+        }
+        
+        // View all tasks button
+        Button viewAllButton = new Button("View All Tasks");
+        viewAllButton.getStyleClass().add("secondary-button");
+        viewAllButton.setMaxWidth(Double.MAX_VALUE);
+        viewAllButton.setOnAction(e -> handleNavigation("todo", todoNav));
+        
+        card.getChildren().addAll(title, todoList, viewAllButton);
+        
+        return card;
+    }
+    
+    /**
+     * Creates a todo item display
+     */
+    private VBox createTodoItem(com.studyspace.models.TodoItem item) {
+        // Create container for the todo item
+        VBox itemContainer = new VBox();
+        itemContainer.getStyleClass().add("todo-item-container");
+        itemContainer.setSpacing(8);
+        itemContainer.setPadding(new Insets(12));
+        
+        HBox itemBox = new HBox();
+        itemBox.setSpacing(12);
+        itemBox.setAlignment(Pos.CENTER_LEFT);
+        itemBox.getStyleClass().add("todo-item-preview");
+        
+        // Checkbox
+        CheckBox checkbox = new CheckBox();
+        checkbox.setSelected(item.isCompleted());
+        checkbox.setDisable(true); // Read-only in preview
+        checkbox.setStyle("-fx-text-fill: white;");
+        
+        // Task text
+        Label taskLabel = new Label(item.getTitle());
+        taskLabel.getStyleClass().add("todo-item-text");
+        if (item.isCompleted()) {
+            taskLabel.setStyle("-fx-text-fill: #9ca3af; -fx-text-decoration: line-through;");
+        } else {
+            taskLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+        }
+        
+        // Priority indicator
+        Label priorityLabel = new Label();
+        priorityLabel.getStyleClass().add("todo-priority");
+        switch (item.getPriority()) {
+            case HIGH:
+                priorityLabel.setText("!");
+                priorityLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                break;
+            case MEDIUM:
+                priorityLabel.setText("•");
+                priorityLabel.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold;");
+                break;
+            case LOW:
+                priorityLabel.setText("•");
+                priorityLabel.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
+                break;
+        }
+        
+        itemBox.getChildren().addAll(checkbox, taskLabel, priorityLabel);
+        
+        // Add due date if available
+        if (item.getDueDate() != null) {
+            Label dueDateLabel = new Label("Due: " + item.getDueDate().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")));
+            dueDateLabel.getStyleClass().add("todo-due-date");
+            dueDateLabel.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 11px;");
+            itemContainer.getChildren().addAll(itemBox, dueDateLabel);
+        } else {
+            itemContainer.getChildren().add(itemBox);
+        }
+        
+        return itemContainer;
+    }
+    
+    /**
+     * Creates the progress dashboard
+     */
+    private VBox createProgressDashboard() {
+        VBox dashboard = new VBox();
+        dashboard.setSpacing(32);
+        dashboard.getStyleClass().add("progress-dashboard");
+        dashboard.setPadding(new Insets(24));
+        
+        // Header section
+        VBox headerSection = new VBox();
+        headerSection.setSpacing(8);
+        
+        Label title = new Label("Progress Dashboard");
+        title.getStyleClass().addAll("progress-dashboard-title");
+        
+        Label subtitle = new Label("Track your learning journey and achievements");
+        subtitle.getStyleClass().addAll("progress-dashboard-subtitle");
+        
+        headerSection.getChildren().addAll(title, subtitle);
+        
+        // Statistics cards section
+        VBox statsSection = new VBox();
+        statsSection.setSpacing(24);
+        
+        // Top row - Main statistics
+        HBox topStatsRow = new HBox();
+        topStatsRow.setSpacing(20);
+        topStatsRow.setAlignment(Pos.CENTER_LEFT);
+        
+        VBox notesCard = createStatCard("📝", "Notes Created", String.valueOf(getNotesCount()), "#3b82f6");
+        VBox cardsCard = createStatCard("📚", "Cards Reviewed", String.valueOf(getCardsReviewedCount()), "#10b981");
+        VBox quizzesCard = createStatCard("❓", "Quizzes Taken", String.valueOf(getQuizzesTakenCount()), "#f59e0b");
+        
+        HBox.setHgrow(notesCard, Priority.ALWAYS);
+        HBox.setHgrow(cardsCard, Priority.ALWAYS);
+        HBox.setHgrow(quizzesCard, Priority.ALWAYS);
+        
+        topStatsRow.getChildren().addAll(notesCard, cardsCard, quizzesCard);
+        
+        // Bottom row - Additional statistics
+        HBox bottomStatsRow = new HBox();
+        bottomStatsRow.setSpacing(20);
+        bottomStatsRow.setAlignment(Pos.CENTER_LEFT);
+        
+        VBox averageScoreCard = createStatCard("📊", "Average Score", getAverageScoreFormatted(), "#ef4444");
+        VBox streakCard = createStatCard("🔥", "Current Streak", getCurrentStreakFormatted(), "#f97316");
+        VBox tasksCard = createStatCard("✅", "Tasks Completed", String.valueOf(getTasksCompletedCount()), "#06b6d4");
+        VBox decksCard = createStatCard("📖", "Decks Created", String.valueOf(getDecksCreatedCount()), "#ec4899");
+        
+        HBox.setHgrow(averageScoreCard, Priority.ALWAYS);
+        HBox.setHgrow(streakCard, Priority.ALWAYS);
+        HBox.setHgrow(tasksCard, Priority.ALWAYS);
+        HBox.setHgrow(decksCard, Priority.ALWAYS);
+        
+        bottomStatsRow.getChildren().addAll(averageScoreCard, streakCard, tasksCard, decksCard);
+        
+        statsSection.getChildren().addAll(topStatsRow, bottomStatsRow);
+        
+        // Progress overview section
+        VBox progressOverviewCard = createProgressOverviewCard();
+        
+        dashboard.getChildren().addAll(headerSection, statsSection, progressOverviewCard);
+        
+        return dashboard;
+    }
+    
+    /**
+     * Creates a statistics card
+     */
+    private VBox createStatCard(String icon, String title, String value, String color) {
+        VBox card = new VBox();
+        card.getStyleClass().add("progress-stat-card");
+        card.setSpacing(12);
+        card.setPadding(new Insets(20));
+        card.setAlignment(Pos.CENTER);
+        
+        // Icon
+        Label iconLabel = new Label(icon);
+        iconLabel.getStyleClass().add("progress-stat-icon");
+        iconLabel.setStyle("-fx-font-size: 32px;");
+        
+        // Value
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().add("progress-stat-value");
+        valueLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+        
+        // Title
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("progress-stat-title");
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #6b7280; -fx-font-weight: 500;");
+        
+        card.getChildren().addAll(iconLabel, valueLabel, titleLabel);
+        
+        return card;
+    }
+    
+    /**
+     * Gets the number of notes created
+     */
+    private int getNotesCount() {
+        return dataStore.getNotes().size();
+    }
+    
+    /**
+     * Gets the number of cards reviewed
+     */
+    private int getCardsReviewedCount() {
+        if (currentUser != null) {
+            return currentUser.getFlashcardsStudied();
+        }
+        return 0;
+    }
+    
+    /**
+     * Gets the number of quizzes taken
+     */
+    private int getQuizzesTakenCount() {
+        if (currentUser != null) {
+            return currentUser.getQuizzesTaken();
+        }
+        return 0;
+    }
+    
+    
+    /**
+     * Gets the average score formatted
+     */
+    private String getAverageScoreFormatted() {
+        // Calculate average score from quiz activities
+        List<Activity> quizActivities = dataStore.getActivities().values().stream()
+            .filter(activity -> activity.getType() == ActivityType.QUIZ_COMPLETED)
+            .collect(java.util.stream.Collectors.toList());
+        
+        if (quizActivities.isEmpty()) {
+            return "0.0%";
+        }
+        
+        // For now, return a sample average since we don't store actual scores
+        return "85.2%";
+    }
+    
+    /**
+     * Gets the current streak formatted
+     */
+    private String getCurrentStreakFormatted() {
+        if (currentUser != null) {
+            int streak = currentUser.getCurrentStreak();
+            return streak + " days";
+        }
+        return "0 days";
+    }
+    
+    /**
+     * Gets the number of tasks completed
+     */
+    private int getTasksCompletedCount() {
+        return (int) dataStore.getTodoItems().stream()
+            .filter(com.studyspace.models.TodoItem::isCompleted)
+            .count();
+    }
+    
+    /**
+     * Gets the number of decks created
+     */
+    private int getDecksCreatedCount() {
+        return dataStore.getAllFlashcardDecks().size();
+    }
+    
+    /**
+     * Creates the progress overview card
+     */
+    private VBox createProgressOverviewCard() {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+        card.setSpacing(16);
+        
+        Label title = new Label("Study Progress Overview");
+        title.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+        
+        HBox progressContainer = new HBox();
+        progressContainer.setSpacing(24);
+        progressContainer.setAlignment(Pos.CENTER_LEFT);
+        
+        VBox jsProgress = createProgressItem("JavaScript Fundamentals", 0.85, "85%");
+        VBox pythonProgress = createProgressItem("Python Programming", 0.72, "72%");
+        VBox algoProgress = createProgressItem("Data Structures", 0.43, "43%");
+        
+        HBox.setHgrow(jsProgress, Priority.ALWAYS);
+        HBox.setHgrow(pythonProgress, Priority.ALWAYS);
+        HBox.setHgrow(algoProgress, Priority.ALWAYS);
+        
+        progressContainer.getChildren().addAll(jsProgress, pythonProgress, algoProgress);
+        
+        card.getChildren().addAll(title, progressContainer);
+        
+        return card;
+    }
+    
+    /**
+     * Creates a progress item
+     */
+    private VBox createProgressItem(String subject, double progress, String percentage) {
+        VBox item = new VBox();
+        item.setSpacing(8);
+        
+        HBox header = new HBox();
+        header.setSpacing(8);
+        header.setAlignment(Pos.CENTER_LEFT);
+        
+        Label subjectLabel = new Label(subject);
+        subjectLabel.getStyleClass().addAll("text-sm", "font-medium");
+        
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        
+        Label percentageLabel = new Label(percentage);
+        percentageLabel.getStyleClass().addAll("text-xs", "text-muted");
+        
+        header.getChildren().addAll(subjectLabel, spacer, percentageLabel);
+        
+        ProgressBar progressBar = new ProgressBar(progress);
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+        progressBar.getStyleClass().add("progress-bar");
+        
+        item.getChildren().addAll(header, progressBar);
+        
+        return item;
+    }
+    
+    /**
+     * Gets a time-based greeting
+     */
+    private String getTimeBasedGreeting() {
+        int hour = java.time.LocalDateTime.now().getHour();
+        if (hour < 12) {
+            return "Good morning";
+        } else if (hour < 17) {
+            return "Good afternoon";
+        } else {
+            return "Good evening";
+        }
+    }
+    
+    /**
+     * Creates a placeholder view for sections
+     */
+    private VBox createPlaceholderView(String title, String subtitle, String description) {
+        VBox view = new VBox();
+        view.setAlignment(Pos.CENTER);
+        view.setSpacing(16);
+        view.getStyleClass().add("content-area");
+        
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().addAll("text-3xl", "font-bold", "text-primary");
+        
+        Label subtitleLabel = new Label(subtitle);
+        subtitleLabel.getStyleClass().addAll("text-lg", "text-secondary");
+        
+        Label descriptionLabel = new Label(description);
+        descriptionLabel.getStyleClass().addAll("text-base", "text-muted");
+        descriptionLabel.setWrapText(true);
+        descriptionLabel.setMaxWidth(600);
+        descriptionLabel.setStyle("-fx-text-alignment: center;");
+        
+        Button comingSoonButton = new Button("Coming Soon");
+        comingSoonButton.getStyleClass().add("primary-button");
+        comingSoonButton.setOnAction(e -> 
+            sceneManager.showInfoDialog("Coming Soon", 
+                "This feature is under development and will be available soon!"));
+        
+        view.getChildren().addAll(titleLabel, subtitleLabel, descriptionLabel, comingSoonButton);
+        
+        return view;
+    }
+    
+    /**
+     * Creates a placeholder view with SVG icon
+     */
+    private VBox createPlaceholderViewWithIcon(String iconName, String title, String subtitle, String description) {
+        VBox view = new VBox();
+        view.setAlignment(Pos.CENTER);
+        view.setSpacing(16);
+        view.getStyleClass().add("content-area");
+        
+        Label titleLabel = new Label();
+        titleLabel.setGraphic(IconUtils.createLargeIconView(iconName));
+        titleLabel.setText(" " + title);
+        titleLabel.getStyleClass().addAll("text-3xl", "font-bold", "text-primary");
+        
+        Label subtitleLabel = new Label(subtitle);
+        subtitleLabel.getStyleClass().addAll("text-lg", "text-secondary");
+        
+        Label descriptionLabel = new Label(description);
+        descriptionLabel.getStyleClass().addAll("text-base", "text-muted");
+        descriptionLabel.setWrapText(true);
+        descriptionLabel.setMaxWidth(600);
+        descriptionLabel.setStyle("-fx-text-alignment: center;");
+        
+        Button comingSoonButton = new Button("Coming Soon");
+        comingSoonButton.getStyleClass().add("primary-button");
+        comingSoonButton.setOnAction(e -> 
+            sceneManager.showInfoDialog("Coming Soon", 
+                "This feature is under development and will be available soon!"));
+        
+        view.getChildren().addAll(titleLabel, subtitleLabel, descriptionLabel, comingSoonButton);
+        
+        return view;
+    }
+    
+    
+    /**
+     * Gets the main view container
+     */
+    public BorderPane getView() {
+        return mainContainer;
+    }
+    
+    /**
+     * Gets the content area for external manipulation
+     */
+    public StackPane getContentArea() {
+        return contentArea;
+    }
+    
+    /**
+     * Utility method to safely switch content in StackPane
+     */
+    private void switchContentInStackPane(Node newContent) {
+        try {
+            if (contentArea != null && newContent != null) {
+                contentArea.getChildren().clear();
+                contentArea.getChildren().add(newContent);
+                StackPane.setAlignment(newContent, Pos.TOP_LEFT);
+            }
+        } catch (Exception e) {
+            System.err.println("Error switching content in StackPane: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Utility method to add content to StackPane with proper event handling
+     */
+    private void addContentToStackPane(Node content) {
+        try {
+            if (contentArea != null && content != null) {
+                // Set up proper event handling for the content
+                content.setOnMouseClicked(e -> {
+                    // Allow content to handle its own mouse events
+                    // Don't consume here to allow child components to handle events
+                });
+                
+                contentArea.getChildren().add(content);
+                StackPane.setAlignment(content, Pos.TOP_LEFT);
+            }
+        } catch (Exception e) {
+            System.err.println("Error adding content to StackPane: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Refreshes user data in the sidebar
+     */
+    public void refreshUserData() {
+        this.currentUser = dataStore.getCurrentUser();
+        loadUserData();
+    }
+    
+    /**
+     * Refreshes the notification status
+     */
+    public void refreshNotifications() {
+        checkOverdueItems();
+    }
+    
+    /**
+     * Creates the Today's Progress section
+     */
+    private VBox createTodaysProgressSection() {
+        VBox progressSection = new VBox();
+        progressSection.getStyleClass().add("sidebar-section");
+        progressSection.setSpacing(12);
+        progressSection.setId("progress-section");
+        
+        // Section title
+        Label progressTitle = new Label("Today's Progress");
+        progressTitle.getStyleClass().add("sidebar-section-title");
+        
+        // Progress metrics
+        VBox metricsContainer = new VBox();
+        metricsContainer.setSpacing(8);
+        
+        // Calculate actual progress data
+        String streak = calculateStreak();
+        String tasksDone = calculateTasksDone();
+        
+        // Streak metric
+        HBox streakMetric = createProgressMetric("Streak", streak, "streak");
+        
+        // Tasks Done metric
+        HBox tasksMetric = createProgressMetric("Tasks Done", tasksDone, "tasks-done");
+        
+        metricsContainer.getChildren().addAll(streakMetric, tasksMetric);
+        
+        progressSection.getChildren().addAll(progressTitle, metricsContainer);
+        
+        return progressSection;
+    }
+    
+    /**
+     * Creates a progress metric row
+     */
+    private HBox createProgressMetric(String label, String value, String metricId) {
+        HBox metric = new HBox();
+        metric.setSpacing(8);
+        metric.setAlignment(Pos.CENTER_LEFT);
+        metric.getStyleClass().add("progress-metric");
+        
+        Label labelText = new Label(label);
+        labelText.getStyleClass().add("progress-label");
+        
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        
+        Label valueText = new Label(value);
+        valueText.getStyleClass().add("progress-value");
+        valueText.getStyleClass().add(metricId);
+        
+        metric.getChildren().addAll(labelText, spacer, valueText);
+        
+        return metric;
+    }
+    
+    
+    /**
+     * Calculates current streak
+     */
+    private String calculateStreak() {
+        if (currentUser != null) {
+            int streak = currentUser.getCurrentStreak();
+            return streak + " days";
+        }
+        return "0 days";
+    }
+    
+    /**
+     * Calculates completed tasks for today
+     */
+    private String calculateTasksDone() {
+        // Count completed todo items for today
+        LocalDate today = LocalDate.now();
+        long completedCount = dataStore.getTodoItems().stream()
+            .filter(item -> item.isCompleted() && 
+                item.getCompletedAt() != null && 
+                item.getCompletedAt().toLocalDate().equals(today))
+            .count();
+        return String.valueOf(completedCount);
+    }
+    
+    /**
+     * Returns an enhanced activity description with context
+     */
+    private String getEnhancedActivityDescription(Activity activity) {
+        String baseDescription = activity.getDescription();
+        
+        // Add contextual information based on activity type
+        switch (activity.getType()) {
+            case QUIZ_COMPLETED:
+                return "🎯 " + baseDescription;
+            case FLASHCARDS_REVIEWED:
+                return "📚 " + baseDescription;
+            case NOTES_ADDED:
+                return "📝 " + baseDescription;
+            case CODE_PROBLEM_SOLVED:
+                return "💻 " + baseDescription;
+            case STUDY_SESSION_STARTED:
+                return "🚀 " + baseDescription;
+            case STUDY_SESSION_ENDED:
+                return "✅ " + baseDescription;
+            case TODO_ITEM_ADDED:
+                return "➕ " + baseDescription;
+            case TODO_ITEM_COMPLETED:
+                return "🎉 " + baseDescription;
+            case FLASHCARD_DECK_CREATED:
+                return "📖 " + baseDescription;
+            case QUIZ_TAKEN:
+                return "📊 " + baseDescription;
+            case NOTE_EDITED:
+                return "✏️ " + baseDescription;
+            case CODE_PROBLEM_ATTEMPTED:
+                return "🔧 " + baseDescription;
+            default:
+                return "📋 " + baseDescription;
+        }
+    }
+    
+    /**
+     * Returns an icon based on the activity type
+     */
+    private Node getActivityIcon(ActivityType type) {
+        String iconName = "";
+        switch (type) {
+            case QUIZ_COMPLETED:
+                iconName = "question";
+                break;
+            case FLASHCARDS_REVIEWED:
+                iconName = "cards";
+                break;
+            case NOTES_ADDED:
+                iconName = "note";
+                break;
+            case CODE_PROBLEM_SOLVED:
+                iconName = "code";
+                break;
+            case STUDY_SESSION_STARTED:
+            case STUDY_SESSION_ENDED:
+                iconName = "clock";
+                break;
+            case TODO_ITEM_ADDED:
+            case TODO_ITEM_COMPLETED:
+                iconName = "check";
+                break;
+            default:
+                iconName = "info";
+                break;
+        }
+        return IconUtils.createIconView(iconName);
+    }
+    
+    /**
+     * Formats the activity timestamp into a human-readable string
+     */
+    private String formatTimestamp(LocalDateTime timestamp) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(timestamp, now);
+        
+        if (duration.toMinutes() < 60) {
+            long minutes = duration.toMinutes();
+            return minutes == 0 ? "Just now" : minutes + " minute" + (minutes == 1 ? " ago" : "s ago");
+        } else if (duration.toHours() < 24) {
+            long hours = duration.toHours();
+            return hours + " hour" + (hours == 1 ? " ago" : "s ago");
+        } else if (duration.toDays() < 2) {
+            return "Yesterday";
+        } else if (duration.toDays() < 7) {
+            long days = duration.toDays();
+            return days + " day" + (days == 1 ? " ago" : "s ago");
+        } else {
+            return timestamp.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"));
+        }
+    }
+}

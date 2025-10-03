@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Space - System Architecture Flowchart</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .flowchart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            min-height: 600px;
+            overflow-x: auto;
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .info-panel ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-panel li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .info-panel li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #a78bfa;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: block;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tech-item h4 {
+            margin-bottom: 5px;
+            color: #a78bfa;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Mermaid diagram styling */
+        .mermaid {
+            text-align: center;
+        }
+
+        /* Custom node styling for different types */
+        .node-start { fill: #10b981; }
+        .node-auth { fill: #f59e0b; }
+        .node-view { fill: #3b82f6; }
+        .node-model { fill: #8b5cf6; }
+        .node-util { fill: #ef4444; }
+        .node-data { fill: #06b6d4; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Study Space System Architecture</h1>
+            <p>Interactive Flowchart of the Learning Management System</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn active" onclick="showFlowchart('overview')">System Overview</button>
+            <button class="btn" onclick="showFlowchart('authentication')">Authentication Flow</button>
+            <button class="btn" onclick="showFlowchart('dataflow')">Data Flow</button>
+            <button class="btn" onclick="showFlowchart('components')">Component Architecture</button>
+            <button class="btn" onclick="showFlowchart('features')">Feature Modules</button>
+        </div>
+
+        <div class="flowchart-container">
+            <div id="flowchart-content"></div>
+        </div>
+
+        <div class="info-panel">
+            <h3>📋 System Information</h3>
+            <ul>
+                <li><strong>Application Type:</strong> JavaFX Desktop Application</li>
+                <li><strong>Java Version:</strong> Java 21</li>
+                <li><strong>UI Framework:</strong> JavaFX 21</li>
+                <li><strong>Build Tool:</strong> Maven</li>
+                <li><strong>Architecture:</strong> MVC Pattern with Singleton Data Store</li>
+                <li><strong>UI Design:</strong> Glassmorphism with Dark Theme</li>
+            </ul>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color" style="background: #10b981;"></span>
+                <strong>Entry Points</strong><br>
+                Application startup
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #f59e0b;"></span>
+                <strong>Authentication</strong><br>
+                Login/Signup system
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #3b82f6;"></span>
+                <strong>Views</strong><br>
+                User interface components
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #8b5cf6;"></span>
+                <strong>Models</strong><br>
+                Data structures
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #ef4444;"></span>
+                <strong>Utilities</strong><br>
+                Helper classes
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #06b6d4;"></span>
+                <strong>Data Store</strong><br>
+                Data persistence
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <div class="tech-item">
+                <h4>Java 21</h4>
+                <p>Modern Java features</p>
+            </div>
+            <div class="tech-item">
+                <h4>JavaFX 21</h4>
+                <p>Rich UI framework</p>
+            </div>
+            <div class="tech-item">
+                <h4>Maven</h4>
+                <p>Build & dependency management</p>
+            </div>
+            <div class="tech-item">
+                <h4>CSS3</h4>
+                <p>Glassmorphism styling</p>
+            </div>
+            <div class="tech-item">
+                <h4>FXML</h4>
+                <p>UI markup language</p>
+            </div>
+            <div class="tech-item">
+                <h4>ControlsFX</h4>
+                <p>Additional UI controls</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#8b5cf6',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#7c3aed',
+                lineColor: '#64748b',
+                secondaryColor: '#f1f5f9',
+                tertiaryColor: '#e2e8f0'
+            },
+            flowchart: {
+                nodeSpacing: 50,
+                rankSpacing: 50,
+                curve: 'basis'
+            }
+        });
+
+        // Flowchart definitions
+        const flowcharts = {
+            overview: `
+                graph TD
+                    A[🚀 Main.java<br/>Application Entry Point] --> B[🔐 AuthView<br/>Authentication Interface]
+                    B --> C{User Authentication}
+                    C -->|Success| D[📱 SidebarView<br/>Main Application]
+                    C -->|Failure| B
+                    
+                    D --> E[📚 Study Modules]
+                    E --> F[🃏 Flashcards]
+                    E --> G[📝 Notes]
+                    E --> H[✅ Quizzes]
+                    E --> I[💻 Code Practice]
+                    E --> J[📋 Todo Lists]
+                    E --> K[🎮 Snake Game]
+                    
+                    F --> L[📊 DataStore<br/>Singleton Pattern]
+                    G --> L
+                    H --> L
+                    I --> L
+                    J --> L
+                    K --> L
+                    
+                    L --> M[👤 User Model]
+                    L --> N[📄 Note Model]
+                    L --> O[🃏 Flashcard Model]
+                    L --> P[❓ Question Model]
+                    L --> Q[💻 CodeProblem Model]
+                    L --> R[📋 TodoItem Model]
+                    
+                    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style B fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style D fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style L fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+            `,
+            
+            authentication: `
+                graph TD
+                    A[🚀 Application Start] --> B[🔐 AuthView Creation]
+                    B --> C[📋 FXML Loading]
+                    C --> D[🎨 CSS Styling]
+                    D --> E[👤 User Input]
+                    
+                    E --> F{Login or Signup?}
+                    F -->|Login| G[🔑 AuthController.loginUser]
+                    F -->|Signup| H[📝 AuthController.registerUser]
+                    
+                    G --> I{Valid Credentials?}
+                    H --> J{Email Available?}
+                    
+                    I -->|Yes| K[✅ Authentication Success]
+                    I -->|No| L[❌ Show Error Message]
+                    
+                    J -->|Yes| M[👤 Create New User]
+                    J -->|No| N[❌ Email Already Exists]
+                    
+                    M --> K
+                    L --> E
+                    N --> E
+                    
+                    K --> O[🏠 Switch to SidebarView]
+                    O --> P[📱 Main Application Interface]
+                    
+                    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style B fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style K fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style P fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+            `,
+            
+            dataflow: `
+                graph TD
+                    A[👤 User Action] --> B[📱 View Layer]
+                    B --> C[🎯 Event Handler]
+                    C --> D[📊 DataStore.getInstance]
+                    
+                    D --> E{Data Operation}
+                    E -->|Create| F[➕ Add to Collection]
+                    E -->|Read| G[📖 Retrieve Data]
+                    E -->|Update| H[✏️ Modify Data]
+                    E -->|Delete| I[🗑️ Remove Data]
+                    
+                    F --> J[💾 Update DataStore]
+                    G --> J
+                    H --> J
+                    I --> J
+                    
+                    J --> K[🔄 Update UI]
+                    K --> L[📊 Activity Logging]
+                    L --> M[📈 Progress Tracking]
+                    
+                    N[🏗️ Models] --> D
+                    N --> O[👤 User Model]
+                    N --> P[📄 Note Model]
+                    N --> Q[🃏 Flashcard Model]
+                    N --> R[❓ Question Model]
+                    N --> S[💻 CodeProblem Model]
+                    N --> T[📋 TodoItem Model]
+                    N --> U[📊 Activity Model]
+                    
+                    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style D fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+                    style J fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style N fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+            `,
+            
+            components: `
+                graph TD
+                    A[🏗️ Application Architecture] --> B[📱 Presentation Layer]
+                    A --> C[🎯 Business Logic Layer]
+                    A --> D[💾 Data Layer]
+                    
+                    B --> E[🔐 AuthView]
+                    B --> F[📱 SidebarView]
+                    B --> G[🃏 FlashcardListView]
+                    B --> H[📝 NotesView]
+                    B --> I[✅ QuizListView]
+                    B --> J[💻 CodePracticeView]
+                    B --> K[📋 TodoListView]
+                    B --> L[🎮 SnakeGameView]
+                    
+                    C --> M[🎯 AuthController]
+                    C --> N[🔄 SceneManager]
+                    C --> O[🛠️ IconUtils]
+                    
+                    D --> P[💾 DataStore]
+                    D --> Q[👤 User]
+                    D --> R[📄 Note]
+                    D --> S[🃏 Flashcard]
+                    D --> T[❓ Question]
+                    D --> U[💻 CodeProblem]
+                    D --> V[📋 TodoItem]
+                    D --> W[📊 Activity]
+                    
+                    E --> M
+                    F --> N
+                    G --> P
+                    H --> P
+                    I --> P
+                    J --> P
+                    K --> P
+                    L --> P
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style C fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style D fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+            `,
+            
+            features: `
+                graph TD
+                    A[🎯 Study Space Features] --> B[📚 Learning Tools]
+                    A --> C[🎮 Entertainment]
+                    A --> D[📊 Progress Tracking]
+                    
+                    B --> E[🃏 Flashcard System]
+                    B --> F[📝 Notes Management]
+                    B --> G[✅ Quiz System]
+                    B --> H[💻 Code Practice]
+                    B --> I[📋 Task Management]
+                    
+                    E --> E1[📚 Create Decks]
+                    E --> E2[🎯 Study Sessions]
+                    E --> E3[📈 Progress Tracking]
+                    
+                    F --> F1[📝 Rich Text Notes]
+                    F --> F2[🏷️ Tag System]
+                    F --> F3[🔍 Search & Filter]
+                    
+                    G --> G1[❓ Multiple Choice]
+                    G --> G2[⏱️ Time Limits]
+                    G --> G3[📊 Score Tracking]
+                    
+                    H --> H1[💻 Multi-Language Support]
+                    H --> H2[🧪 Test Cases]
+                    H --> H3[📈 Difficulty Levels]
+                    
+                    I --> I1[📋 Priority System]
+                    I --> I2[📅 Due Dates]
+                    I --> I3[📊 Completion Stats]
+                    
+                    C --> J[🐍 Snake Game]
+                    C --> K[🎯 Break Activities]
+                    
+                    D --> L[📊 Activity Logging]
+                    D --> M[📈 Statistics]
+                    D --> N[🏆 Achievements]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style C fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style D fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+            `
+        };
+
+        // Show flowchart function
+        function showFlowchart(type) {
+            // Update active button
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update flowchart content
+            const content = document.getElementById('flowchart-content');
+            content.innerHTML = `<div class="mermaid">${flowcharts[type]}</div>`;
+            
+            // Re-render Mermaid
+            mermaid.init(undefined, content.querySelector('.mermaid'));
+        }
+
+        // Initialize with overview
+        document.addEventListener('DOMContentLoaded', function() {
+            showFlowchart('overview');
+        });
+    </script>
+</body>
+</html>
