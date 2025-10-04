@@ -9,12 +9,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
-/**
- * AboutUsView - Modern About Us page with team information and features
- */
+//============ about us view =============
+//this is where application information and team details are displayed
+
 public class AboutUsView {
     
     private VBox mainContainer;

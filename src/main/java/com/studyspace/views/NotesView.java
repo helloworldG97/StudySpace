@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 
-/**
- * Notes View - Full-featured notes management with search and sort
- */
+//============ notes view =============
+//this is where study notes are managed, created, and organized
+
 public class NotesView {
     private StackPane mainContainer;
     private VBox contentContainer;

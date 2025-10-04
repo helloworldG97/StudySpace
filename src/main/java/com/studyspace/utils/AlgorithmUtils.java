@@ -4,16 +4,9 @@ import com.studyspace.models.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * AlgorithmUtils - Comprehensive utility class for all algorithms used in Study Space
- * 
- * This class contains:
- * - Sorting algorithms (Bubble, Quick, Merge, Heap, Insertion, Selection)
- * - Search algorithms (Linear, Binary, Interpolation)
- * - Filtering algorithms
- * - Data processing utilities
- * - Performance-optimized implementations
- */
+//============ algorithm utilities =============
+//this is where sorting, searching, and data processing algorithms are implemented
+
 public class AlgorithmUtils {
     
     // ===================================================================

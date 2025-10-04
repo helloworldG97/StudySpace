@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Note model representing a study note
- */
+//============ note model =============
+//this is where study notes and content are stored
+
 public class Note {
     private String id;
     private String title;

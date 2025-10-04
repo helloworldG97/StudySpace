@@ -21,14 +21,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * SidebarView - Main application layout with sidebar navigation
- * 
- * This component creates the main application interface with:
- * - Sidebar with user info and navigation
- * - Content area for different views
- * - Navigation handling between different sections
- */
+//============ sidebar view =============
+//this is where the main application layout and navigation is handled
+
 public class SidebarView {
     
     private static SidebarView currentInstance;

@@ -19,6 +19,9 @@ import javafx.scene.text.FontWeight;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+//============ todo list view =============
+//this is where task management and todo items are handled
+
 public class TodoListView extends VBox {
     
     private final DataStore dataStore;

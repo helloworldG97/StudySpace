@@ -16,12 +16,9 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * AuthViewController - FXML controller for authentication interface
- * 
- * This controller handles the Sign In and Sign Up forms with smooth transitions
- * and all authentication logic using FXML-based UI.
- */
+//============ authentication view controller =============
+//this is where the login and registration form interactions are handled
+
 public class AuthViewController implements Initializable {
     
     private final AuthController authController;

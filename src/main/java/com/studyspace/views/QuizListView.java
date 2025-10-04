@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * QuizListView - Displays all available quizzes in a grid layout
- */
+//============ quiz list view =============
+//this is where quizzes are displayed and managed
+
 public class QuizListView {
     
     private final DataStore dataStore;

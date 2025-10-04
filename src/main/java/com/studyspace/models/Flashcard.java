@@ -2,9 +2,9 @@ package com.studyspace.models;
 
 import java.time.LocalDateTime;
 
-/**
- * Flashcard model representing a single flashcard
- */
+//============ flashcard model =============
+//this is where flashcard data and study progress is stored
+
 public class Flashcard {
     private String id;
     private String question;

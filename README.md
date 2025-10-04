@@ -113,6 +113,86 @@ src/main/java/com/studyspace/
 java --module-path /path/to/javafx/lib --add-modules javafx.controls,javafx.fxml -cp target/classes com.studyspace.Main
 ```
 
+## 🎨 Algorithm Visualizations
+
+The Study Space system includes interactive HTML visualizations that demonstrate the sorting and searching algorithms used throughout the application. These visualizations help users understand how data is organized and processed.
+
+### 📊 Available Visualizations
+
+#### 1. **Working Algorithm Demo** (`working-algorithm-demo.html`)
+- **Purpose**: Interactive demonstration of sorting algorithms with real Study Space data
+- **Features**:
+  - Color-coded algorithm visualization (Orange=Pivot, Blue=Index i, Green=Index j, Red=Swapping)
+  - Real-time step-by-step process tracking
+  - Multiple data types: Flashcards, Notes, Quizzes, Code Problems, Todo Items
+  - Sorting algorithms: Bubble Sort, Quick Sort, Merge Sort, Insertion Sort, Selection Sort
+  - Performance metrics and complexity analysis
+
+#### 2. **Index Page** (`index.html`)
+- **Purpose**: Main landing page with system overview and navigation
+- **Features**:
+  - System architecture overview
+  - Feature demonstrations
+  - Navigation to different components
+
+### 🚀 How to Run the Visualizations
+
+#### Quick Start (Recommended)
+1. **Open Chrome browser**
+2. **Navigate to the project root directory**
+3. **Double-click on the HTML files:**
+   - `working-algorithm-demo.html` - Interactive Algorithm Demo
+   - `index.html` - System Architecture Overview
+4. **The visualizations will load automatically in Chrome**
+
+#### Alternative Methods
+If you prefer using a local server:
+```bash
+# Using Python 3
+python -m http.server 8000
+
+# Using Node.js (if you have it installed)
+npx http-server
+
+# Using PHP (if you have it installed)
+php -S localhost:8000
+```
+
+Then open your browser and navigate to:
+- `http://localhost:8000/working-algorithm-demo.html` - Algorithm Demo
+- `http://localhost:8000/index.html` - System Overview
+
+### 🎮 Using the Algorithm Demo
+
+1. **Select Data Type**: Choose from Flashcards, Notes, Quizzes, Code Problems, or Todo Items
+2. **Choose Algorithm**: Select from Bubble Sort, Quick Sort, Merge Sort, Insertion Sort, or Selection Sort
+3. **Pick Sort Criteria**: Sort by Name, Difficulty, Value, or Date
+4. **Start Visualization**: Click "Start Sorting" to generate the steps
+5. **Control Playback**: Use Play, Pause, Step, or Reset controls
+6. **Watch the Process**: Observe the color-coded elements showing:
+   - 🟠 **Orange**: Pivot elements
+   - 🔵 **Blue**: Index i (current position)
+   - 🟢 **Green**: Index j (comparison position)
+   - 🔴 **Red**: Elements being swapped
+   - 🟡 **Yellow**: Elements being compared
+
+### 🎯 Educational Value
+
+These visualizations help users understand:
+- **Algorithm Complexity**: See how different algorithms perform
+- **Data Organization**: Understand how Study Space sorts and searches data
+- **Step-by-Step Process**: Visualize each comparison and swap
+- **Performance Metrics**: Track comparisons, swaps, and time complexity
+- **Real Data Context**: See algorithms working with actual Study Space data types
+
+### 🔧 Technical Details
+
+- **Pure HTML/CSS/JavaScript**: No external dependencies required
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Modern Browser Support**: Compatible with Chrome, Firefox, Safari, Edge
+- **Interactive Controls**: Play, pause, step-through, and reset functionality
+- **Real-time Updates**: Live performance metrics and status messages
+
 ## 📱 Features in Detail
 
 ### 🔐 Authentication System

@@ -1,5 +1,8 @@
 package com.studyspace.models;
 
+//============ activity type enum =============
+//this is where different types of user activities are defined
+
 public enum ActivityType {
     QUIZ_COMPLETED,
     FLASHCARDS_REVIEWED,

@@ -6,12 +6,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.io.InputStream;
 
-/**
- * Utility class for handling icons and creating icon-based UI elements
- * Uses Unicode symbols and emoji that JavaFX can display properly
- */
+//============ icon utilities =============
+//this is where icon creation and management is handled
+
 public class IconUtils {
     
     // Icon mapping to Unicode symbols and PNG files

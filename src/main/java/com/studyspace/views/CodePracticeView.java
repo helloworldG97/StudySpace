@@ -17,9 +17,9 @@ import javafx.scene.layout.*;
 
 import java.util.Comparator;
 
-/**
- * CodePracticeView - Code practice interface with problem list and editor
- */
+//============ code practice view =============
+//this is where programming problems are listed and practiced
+
 public class CodePracticeView {
     
     private final DataStore dataStore;

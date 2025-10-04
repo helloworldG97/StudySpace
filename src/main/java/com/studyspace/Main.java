@@ -6,6 +6,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+//============ main application entry point =============
+//this is where the application starts and initializes
 
 public class Main extends Application {
     
@@ -18,20 +20,16 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Configure the primary stage
             primaryStage.setTitle(APP_TITLE);
             primaryStage.setMinWidth(MIN_WIDTH);
             primaryStage.setMinHeight(MIN_HEIGHT);
             primaryStage.setMaximized(false);
             
-            // Initialize SceneManager
             SceneManager.getInstance().initialize(primaryStage);
             
-            // Create the authentication view (FXML-based)
             AuthView authView = new AuthView();
             Scene authScene = authView.getView();
             
-            // Load CSS stylesheet with error handling
             try {
                 String cssPath = getClass().getResource("/css/styles.css").toExternalForm();
                 if (cssPath != null) {
@@ -59,7 +57,6 @@ public class Main extends Application {
         } catch (Exception e) {
             System.err.println("Error starting application: " + e.getMessage());
             e.printStackTrace();
-            
 
             try {
                 SceneManager.getInstance().showErrorDialog(
@@ -72,11 +69,6 @@ public class Main extends Application {
         }
     }
     
-    /**
-     * Main method - entry point of the application
-     * 
-     * @param args command line arguments
-     */
     public static void main(String[] args) {
         System.setProperty("javafx.animation.fullspeed", "true");
         System.setProperty("javafx.animation.pulse", "60");

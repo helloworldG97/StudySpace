@@ -2,9 +2,9 @@ package com.studyspace.models;
 
 import java.util.List;
 
-/**
- * Question model representing a quiz question
- */
+//============ question model =============
+//this is where quiz questions and answers are stored
+
 public class Question {
     private String id;
     private String questionText;

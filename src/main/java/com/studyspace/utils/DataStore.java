@@ -8,10 +8,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Comparator;
 
-/**
- * DataStore - Singleton class for managing application data
- * In a real application, this would interface with a database
- */
+//============ data store =============
+//this is where all application data is managed and stored
+
 public class DataStore {
     private static DataStore instance;
     

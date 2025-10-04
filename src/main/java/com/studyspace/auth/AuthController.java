@@ -5,19 +5,17 @@ import com.studyspace.utils.DataStore;
 
 import java.util.regex.Pattern;
 
-/**
- * AuthController handles authentication business logic
- */
+//============ authentication controller =============
+//this is where user login and registration is handled
+
 public class AuthController {
     
     private final DataStore dataStore;
     
-    // Validation patterns
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
         "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     );
     
-    // Error messages
     public static final String ERROR_INVALID_EMAIL = "Please enter a valid email address";
     public static final String ERROR_EMPTY_FIELD = "All fields are required";
     public static final String ERROR_USER_EXISTS = "An account with this email already exists";
@@ -30,17 +28,12 @@ public class AuthController {
         this.dataStore = DataStore.getInstance();
     }
     
-    /**
-     * Handles user registration
-     */
     public AuthResult registerUser(String fullName, String email, String password) {
-        // Validate input fields
         AuthResult validation = validateRegistrationInput(fullName, email, password);
         if (!validation.isSuccess()) {
             return validation;
         }
         
-        // Attempt to register user
         User newUser = dataStore.registerUser(fullName.trim(), email.toLowerCase().trim(), password);
         if (newUser == null) {
             return new AuthResult(false, ERROR_USER_EXISTS);
@@ -49,16 +42,11 @@ public class AuthController {
         return new AuthResult(true, SUCCESS_REGISTRATION, newUser);
     }
     
-    /**
-     * Handles user login
-     */
     public AuthResult loginUser(String email, String password) {
-        // Validate input fields
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             return new AuthResult(false, ERROR_EMPTY_FIELD);
         }
         
-        // Attempt authentication
         boolean authenticated = dataStore.authenticateUser(email.toLowerCase().trim(), password);
         if (!authenticated) {
             return new AuthResult(false, ERROR_INVALID_CREDENTIALS);
@@ -68,28 +56,21 @@ public class AuthController {
         return new AuthResult(true, SUCCESS_LOGIN, user);
     }
     
-    /**
-     * Validates registration input
-     */
     private AuthResult validateRegistrationInput(String fullName, String email, String password) {
-        // Check for empty fields
         if (fullName == null || fullName.trim().isEmpty() ||
             email == null || email.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
             return new AuthResult(false, ERROR_EMPTY_FIELD);
         }
         
-        // Validate email format
         if (!EMAIL_PATTERN.matcher(email.trim()).matches()) {
             return new AuthResult(false, ERROR_INVALID_EMAIL);
         }
         
-        // Validate name length
         if (fullName.trim().length() < 2) {
             return new AuthResult(false, "Full name must be at least 2 characters long");
         }
         
-        // Validate password length
         if (password.length() < 6) {
             return new AuthResult(false, "Password must be at least 6 characters long");
         }
@@ -97,9 +78,6 @@ public class AuthController {
         return new AuthResult(true, "Validation successful");
     }
     
-    /**
-     * Validates email format
-     */
     public boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return false;
@@ -107,28 +85,17 @@ public class AuthController {
         return EMAIL_PATTERN.matcher(email.trim()).matches();
     }
     
-    /**
-     * Checks if email already exists in the system
-     */
     public boolean emailExists(String email) {
         if (email == null || email.trim().isEmpty()) {
             return false;
         }
-        // This would typically check the database
-        // For now, we'll assume it's handled by the DataStore
         return false;
     }
     
-    /**
-     * Logs out the current user
-     */
     public void logout() {
         dataStore.logout();
     }
     
-    /**
-     * AuthResult inner class to encapsulate authentication results
-     */
     public static class AuthResult {
         private final boolean success;
         private final String message;

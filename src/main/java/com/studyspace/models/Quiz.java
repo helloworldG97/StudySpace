@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Quiz model representing a collection of questions
- */
+//============ quiz model =============
+//this is where quiz data and question collections are stored
+
 public class Quiz {
     private String id;
     private String title;

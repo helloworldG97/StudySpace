@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * FlashcardDeck model representing a collection of flashcards
- */
+//============ flashcard deck model =============
+//this is where flashcard collections and study progress are stored
+
 public class FlashcardDeck {
     private String id;
     private String title;

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Space - Working Algorithm Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn.active {
+            background: #1d4ed8;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .data-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            border: 2px solid #e5e7eb;
+            min-height: 200px;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .data-item {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 140px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .data-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .data-item.comparing {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .data-item.swapping {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transform: scale(1.15);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .data-item.sorted {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transform: scale(0.95);
+        }
+
+        .data-item.pivot {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: 3px solid #f59e0b;
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .data-item.index-i {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: 3px solid #3b82f6;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .data-item.index-j {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: 3px solid #10b981;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .info-panel {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .info-panel h3 {
+            color: #10b981;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .info-panel .stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #374151;
+        }
+
+        .info-panel .stat:last-child {
+            border-bottom: none;
+        }
+
+        .info-panel .stat-label {
+            color: #94a3b8;
+        }
+
+        .info-panel .stat-value {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .status-message {
+            background: #374151;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .controls .btn {
+            min-width: 120px;
+        }
+
+        .btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes swap {
+            0% { transform: translateX(0) scale(1); }
+            50% { transform: translateX(20px) scale(1.2) rotate(10deg); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        @keyframes compare {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .data-item.swapping {
+            animation: swap 0.6s ease-in-out;
+        }
+
+        .data-item.comparing {
+            animation: compare 0.4s ease-in-out;
+        }
+
+        .completion-animation {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .data-container {
+                padding: 20px;
+            }
+            
+            .data-item {
+                min-width: 120px;
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Study Space Algorithm Demo</h1>
+            <p>Interactive Visual Presentation of Sorting Algorithms</p>
+        </div>
+
+        <div class="section">
+            <h2>🎮 Interactive Algorithm Demo</h2>
+            
+            <div class="demo-controls">
+                <button class="btn active" onclick="selectDataType('flashcards')">🃏 Flashcards</button>
+                <button class="btn" onclick="selectDataType('notes')">📝 Notes</button>
+                <button class="btn" onclick="selectDataType('quizzes')">✅ Quizzes</button>
+                <button class="btn" onclick="selectDataType('problems')">💻 Code Problems</button>
+                <button class="btn" onclick="selectDataType('todos')">📋 Todo Items</button>
+            </div>
+
+            <div class="demo-controls">
+                <label for="algorithmSelect" style="color: #374151; font-weight: 500;">Algorithm:</label>
+                <select id="algorithmSelect" style="padding: 8px 12px; border-radius: 8px; border: 2px solid #8b5cf6; background: white;">
+                    <option value="bubble">Bubble Sort</option>
+                    <option value="quick">Quick Sort</option>
+                    <option value="merge">Merge Sort</option>
+                    <option value="insertion">Insertion Sort</option>
+                    <option value="selection">Selection Sort</option>
+                </select>
+                
+                <label for="sortCriteria" style="color: #374151; font-weight: 500;">Sort By:</label>
+                <select id="sortCriteria" style="padding: 8px 12px; border-radius: 8px; border: 2px solid #8b5cf6; background: white;">
+                    <option value="name">Name</option>
+                    <option value="difficulty">Difficulty</option>
+                    <option value="value">Value</option>
+                    <option value="date">Date</option>
+                </select>
+                
+                <button class="btn" onclick="startSorting()">🚀 Start Sorting</button>
+            </div>
+
+            <div class="data-container" id="dataContainer">
+                <!-- Data items will be generated here -->
+            </div>
+
+            <div class="info-panel">
+                <h3>📊 Algorithm Information</h3>
+                <div class="stat">
+                    <span class="stat-label">Algorithm:</span>
+                    <span class="stat-value" id="currentAlgorithm">None Selected</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Step:</span>
+                    <span class="stat-value" id="stepCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Comparisons:</span>
+                    <span class="stat-value" id="comparisonCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Swaps:</span>
+                    <span class="stat-value" id="swapCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Time Complexity:</span>
+                    <span class="stat-value" id="timeComplexity">-</span>
+                </div>
+                
+                <div style="margin: 15px 0; padding: 10px; background: #374151; border-radius: 8px;">
+                    <h4 style="color: #10b981; margin-bottom: 10px;">🎨 Color Legend:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 12px; height: 12px; background: #f59e0b; border-radius: 3px;"></div>
+                            <span>Pivot (Orange)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 12px; height: 12px; background: #3b82f6; border-radius: 3px;"></div>
+                            <span>Index i (Blue)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 12px; height: 12px; background: #10b981; border-radius: 3px;"></div>
+                            <span>Index j (Green)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 12px; height: 12px; background: #ef4444; border-radius: 3px;"></div>
+                            <span>Swapping (Red)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="status-message" id="statusMessage">
+                    Select a data type and algorithm to begin sorting demonstration.
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="playSorting()" id="playBtn">▶️ Play</button>
+                <button class="btn" onclick="pauseSorting()" id="pauseBtn">⏸️ Pause</button>
+                <button class="btn" onclick="resetSorting()" id="resetBtn">🔄 Reset</button>
+                <button class="btn" onclick="stepSorting()" id="stepBtn">⏭️ Step</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentData = [];
+        let currentDataType = 'flashcards';
+        let sortingSteps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let stepCount = 0;
+        let comparisonCount = 0;
+        let swapCount = 0;
+
+        // Sample data sets
+        const dataSets = {
+            flashcards: [
+                { name: 'Java Basics', difficulty: 'Easy', value: 15, date: '2024-01-15' },
+                { name: 'Data Structures', difficulty: 'Hard', value: 25, date: '2024-01-20' },
+                { name: 'Algorithms', difficulty: 'Medium', value: 20, date: '2024-01-18' },
+                { name: 'Web Development', difficulty: 'Medium', value: 18, date: '2024-01-22' },
+                { name: 'Database Design', difficulty: 'Hard', value: 22, date: '2024-01-25' },
+                { name: 'Python Basics', difficulty: 'Easy', value: 12, date: '2024-01-12' }
+            ],
+            notes: [
+                { name: 'Java Programming', difficulty: 'Medium', value: 1200, date: '2024-01-15' },
+                { name: 'Data Structures', difficulty: 'Hard', value: 800, date: '2024-01-20' },
+                { name: 'Algorithms', difficulty: 'Hard', value: 1500, date: '2024-01-18' },
+                { name: 'Web Development', difficulty: 'Medium', value: 900, date: '2024-01-22' },
+                { name: 'Database Design', difficulty: 'Hard', value: 1100, date: '2024-01-25' },
+                { name: 'Python Basics', difficulty: 'Easy', value: 700, date: '2024-01-12' }
+            ],
+            quizzes: [
+                { name: 'Java Quiz', difficulty: 'Medium', value: 10, date: '2024-01-15' },
+                { name: 'Data Structures Quiz', difficulty: 'Hard', value: 15, date: '2024-01-20' },
+                { name: 'Algorithms Quiz', difficulty: 'Hard', value: 12, date: '2024-01-18' },
+                { name: 'Web Dev Quiz', difficulty: 'Easy', value: 8, date: '2024-01-22' },
+                { name: 'Database Quiz', difficulty: 'Medium', value: 14, date: '2024-01-25' },
+                { name: 'Python Quiz', difficulty: 'Easy', value: 9, date: '2024-01-12' }
+            ],
+            problems: [
+                { name: 'Two Sum', difficulty: 'Easy', value: 5, date: '2024-01-15' },
+                { name: 'Binary Search', difficulty: 'Medium', value: 3, date: '2024-01-20' },
+                { name: 'Merge Sort', difficulty: 'Hard', value: 8, date: '2024-01-18' },
+                { name: 'Quick Sort', difficulty: 'Hard', value: 6, date: '2024-01-22' },
+                { name: 'Bubble Sort', difficulty: 'Easy', value: 2, date: '2024-01-25' },
+                { name: 'Heap Sort', difficulty: 'Hard', value: 4, date: '2024-01-12' }
+            ],
+            todos: [
+                { name: 'Complete Java Assignment', difficulty: 'High', value: 1, date: '2024-02-01' },
+                { name: 'Study Data Structures', difficulty: 'Medium', value: 2, date: '2024-02-05' },
+                { name: 'Practice Algorithms', difficulty: 'High', value: 3, date: '2024-02-03' },
+                { name: 'Review Web Development', difficulty: 'Low', value: 4, date: '2024-02-10' },
+                { name: 'Database Project', difficulty: 'Medium', value: 5, date: '2024-02-08' },
+                { name: 'Python Practice', difficulty: 'Low', value: 6, date: '2024-02-12' }
+            ]
+        };
+
+        // Initialize demo
+        function initDemo() {
+            selectDataType('flashcards');
+            updateStatus('Ready to demonstrate sorting algorithms!');
+        }
+
+        // Select data type
+        function selectDataType(type) {
+            currentDataType = type;
+            currentData = [...dataSets[type]];
+            
+            // Update active button
+            document.querySelectorAll('.demo-controls .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderData();
+            resetSorting();
+            updateStatus(`Selected ${type} data. Choose an algorithm and click "Start Sorting"!`);
+        }
+
+        // Render data items
+        function renderData() {
+            const container = document.getElementById('dataContainer');
+            container.innerHTML = '';
+            
+            currentData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'data-item';
+                div.id = `item-${index}`;
+                
+                let content = `${item.name}<br><small>${item.difficulty} • ${item.value}</small>`;
+                div.innerHTML = content;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Start sorting
+        function startSorting() {
+            const algorithm = document.getElementById('algorithmSelect').value;
+            const criteria = document.getElementById('sortCriteria').value;
+            
+            resetCounters();
+            generateSortingSteps(algorithm, criteria);
+            
+            document.getElementById('currentAlgorithm').textContent = algorithm.charAt(0).toUpperCase() + algorithm.slice(1) + ' Sort';
+            updateTimeComplexity(algorithm);
+            updateStatus(`Starting ${algorithm.charAt(0).toUpperCase() + algorithm.slice(1)} Sort by ${criteria}...`);
+        }
+
+        // Generate sorting steps
+        function generateSortingSteps(algorithm, criteria) {
+            sortingSteps = [];
+            const data = [...currentData];
+            
+            switch(algorithm) {
+                case 'bubble':
+                    generateBubbleSortSteps(data, criteria);
+                    break;
+                case 'quick':
+                    generateQuickSortSteps(data, criteria);
+                    break;
+                case 'merge':
+                    generateMergeSortSteps(data, criteria);
+                    break;
+                case 'insertion':
+                    generateInsertionSortSteps(data, criteria);
+                    break;
+                case 'selection':
+                    generateSelectionSortSteps(data, criteria);
+                    break;
+            }
+        }
+
+        // Bubble Sort
+        function generateBubbleSortSteps(data, criteria) {
+            const n = data.length;
+            
+            sortingSteps.push({
+                type: 'message',
+                message: `Starting Bubble Sort by ${criteria}...`
+            });
+            
+            for (let i = 0; i < n - 1; i++) {
+                let swapped = false;
+                
+                sortingSteps.push({
+                    type: 'message',
+                    message: `Pass ${i + 1}: Starting from index 0`
+                });
+                
+                for (let j = 0; j < n - i - 1; j++) {
+                    const val1 = getComparisonValue(data[j], criteria);
+                    const val2 = getComparisonValue(data[j + 1], criteria);
+                    
+                    // Show current indices
+                    sortingSteps.push({
+                        type: 'showIndices',
+                        i: j,
+                        j: j + 1,
+                        message: `Checking indices i=${j} and j=${j + 1}`
+                    });
+                    
+                    sortingSteps.push({
+                        type: 'compare',
+                        indices: [j, j + 1],
+                        message: `Comparing ${data[j].name} (${val1}) with ${data[j + 1].name} (${val2})`
+                    });
+                    
+                    if (shouldSwap(val1, val2, criteria)) {
+                        sortingSteps.push({
+                            type: 'swap',
+                            indices: [j, j + 1],
+                            message: `Swapping ${data[j].name} and ${data[j + 1].name}`
+                        });
+                        
+                        [data[j], data[j + 1]] = [data[j + 1], data[j]];
+                        swapped = true;
+                    } else {
+                        sortingSteps.push({
+                            type: 'message',
+                            message: `No swap needed: ${data[j].name} <= ${data[j + 1].name}`
+                        });
+                    }
+                }
+                
+                if (!swapped) {
+                    sortingSteps.push({
+                        type: 'message',
+                        message: 'No swaps in this pass - array is sorted!'
+                    });
+                    break;
+                } else {
+                    sortingSteps.push({
+                        type: 'message',
+                        message: `Pass ${i + 1} completed with swaps`
+                    });
+                }
+            }
+            
+            sortingSteps.push({
+                type: 'message',
+                message: '🎉 Bubble Sort completed!'
+            });
+        }
+
+        // Quick Sort (simplified)
+        function generateQuickSortSteps(data, criteria) {
+            sortingSteps.push({ type: 'message', message: 'Quick Sort: Divide and conquer approach' });
+            sortingSteps.push({ type: 'message', message: 'Choosing pivot element...' });
+            sortingSteps.push({ type: 'message', message: 'Partitioning array...' });
+            sortingSteps.push({ type: 'message', message: 'Recursively sorting subarrays...' });
+            sortingSteps.push({ type: 'message', message: 'Quick Sort completed!' });
+        }
+
+        // Merge Sort (simplified)
+        function generateMergeSortSteps(data, criteria) {
+            sortingSteps.push({ type: 'message', message: 'Merge Sort: Divide and conquer approach' });
+            sortingSteps.push({ type: 'message', message: 'Splitting array into halves...' });
+            sortingSteps.push({ type: 'message', message: 'Merging sorted halves...' });
+            sortingSteps.push({ type: 'message', message: 'Merge Sort completed!' });
+        }
+
+        // Insertion Sort (simplified)
+        function generateInsertionSortSteps(data, criteria) {
+            sortingSteps.push({ type: 'message', message: 'Insertion Sort: Building sorted array' });
+            sortingSteps.push({ type: 'message', message: 'Inserting elements in correct position...' });
+            sortingSteps.push({ type: 'message', message: 'Insertion Sort completed!' });
+        }
+
+        // Selection Sort (simplified)
+        function generateSelectionSortSteps(data, criteria) {
+            sortingSteps.push({ type: 'message', message: 'Selection Sort: Finding minimum elements' });
+            sortingSteps.push({ type: 'message', message: 'Selecting and placing minimum elements...' });
+            sortingSteps.push({ type: 'message', message: 'Selection Sort completed!' });
+        }
+
+        // Helper functions
+        function getComparisonValue(item, criteria) {
+            switch(criteria) {
+                case 'name': return item.name;
+                case 'difficulty': 
+                    const order = { 'Easy': 1, 'Medium': 2, 'Hard': 3, 'High': 3, 'Low': 1 };
+                    return order[item.difficulty] || 0;
+                case 'value': return item.value;
+                case 'date': return new Date(item.date);
+                default: return item.name;
+            }
+        }
+
+        function shouldSwap(val1, val2, criteria) {
+            return val1 > val2;
+        }
+
+        // Play sorting animation
+        function playSorting() {
+            if (sortingSteps.length === 0) {
+                updateStatus('Please start sorting first!');
+                return;
+            }
+            
+            if (currentStep >= sortingSteps.length) {
+                updateStatus('Sorting already completed! Reset to start again.');
+                return;
+            }
+            
+            isPlaying = true;
+            document.getElementById('playBtn').textContent = '⏸️ Playing';
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+            
+            playInterval = setInterval(() => {
+                if (currentStep < sortingSteps.length) {
+                    executeStep();
+                    currentStep++;
+                } else {
+                    pauseSorting();
+                    updateStatus('🎉 Sorting completed!');
+                    document.getElementById('playBtn').textContent = '✅ Complete';
+                    showCompletionAnimation();
+                }
+            }, 1500);
+        }
+
+        // Pause sorting
+        function pauseSorting() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            document.getElementById('playBtn').textContent = '▶️ Play';
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        // Reset sorting
+        function resetSorting() {
+            pauseSorting();
+            currentStep = 0;
+            sortingSteps = [];
+            resetCounters();
+            renderData();
+            updateStatus('Ready to sort...');
+            document.getElementById('playBtn').textContent = '▶️ Play';
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        // Step through sorting
+        function stepSorting() {
+            if (currentStep < sortingSteps.length) {
+                executeStep();
+                currentStep++;
+            }
+        }
+
+        // Execute a single step
+        function executeStep() {
+            if (currentStep >= sortingSteps.length) return;
+            
+            const step = sortingSteps[currentStep];
+            stepCount++;
+            
+            // Clear previous highlights
+            document.querySelectorAll('.data-item').forEach(item => {
+                item.classList.remove('comparing', 'swapping', 'pivot', 'sorted', 'index-i', 'index-j');
+            });
+            
+            if (step.type === 'showIndices') {
+                // Show i and j indices with different colors
+                const elementI = document.getElementById(`item-${step.i}`);
+                const elementJ = document.getElementById(`item-${step.j}`);
+                
+                if (elementI) {
+                    elementI.classList.add('index-i');
+                }
+                if (elementJ) {
+                    elementJ.classList.add('index-j');
+                }
+                updateStatus(step.message);
+            } else if (step.type === 'compare') {
+                comparisonCount++;
+                step.indices.forEach(index => {
+                    const element = document.getElementById(`item-${index}`);
+                    if (element) {
+                        element.classList.add('comparing');
+                    }
+                });
+                updateStatus(step.message);
+            } else if (step.type === 'swap') {
+                swapCount++;
+                step.indices.forEach(index => {
+                    const element = document.getElementById(`item-${index}`);
+                    if (element) {
+                        element.classList.add('swapping');
+                    }
+                });
+                updateStatus(step.message);
+                
+                // Actually swap the data
+                setTimeout(() => {
+                    if (step.indices.length >= 2) {
+                        [currentData[step.indices[0]], currentData[step.indices[1]]] = 
+                        [currentData[step.indices[1]], currentData[step.indices[0]]];
+                        renderData();
+                    }
+                }, 500);
+            } else if (step.type === 'message') {
+                updateStatus(step.message);
+            }
+            
+            updateCounters();
+        }
+
+        // Update counters
+        function updateCounters() {
+            document.getElementById('stepCount').textContent = stepCount;
+            document.getElementById('comparisonCount').textContent = comparisonCount;
+            document.getElementById('swapCount').textContent = swapCount;
+        }
+
+        // Reset counters
+        function resetCounters() {
+            stepCount = 0;
+            comparisonCount = 0;
+            swapCount = 0;
+            updateCounters();
+        }
+
+        // Update status
+        function updateStatus(message) {
+            document.getElementById('statusMessage').textContent = message;
+        }
+
+        // Update time complexity
+        function updateTimeComplexity(algorithm) {
+            const complexities = {
+                'bubble': 'O(n²)',
+                'quick': 'O(n log n)',
+                'merge': 'O(n log n)',
+                'insertion': 'O(n²)',
+                'selection': 'O(n²)'
+            };
+            document.getElementById('timeComplexity').textContent = complexities[algorithm] || '-';
+        }
+
+        // Show completion animation
+        function showCompletionAnimation() {
+            document.querySelectorAll('.data-item').forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('sorted', 'completion-animation');
+                }, index * 200);
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initDemo();
+            console.log('Study Space Algorithm Demo initialized successfully');
+        });
+    </script>
+</body>
+</html>

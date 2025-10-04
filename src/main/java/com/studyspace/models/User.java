@@ -3,9 +3,9 @@ package com.studyspace.models;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * User model representing a user in the Study Space application
- */
+//============ user model =============
+//this is where user data and statistics are stored
+
 public class User {
     private String id;
     private String fullName;

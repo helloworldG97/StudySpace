@@ -3,9 +3,9 @@ package com.studyspace.models;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * TodoItem model representing a task in the todo list
- */
+//============ todo item model =============
+//this is where task data and completion status are stored
+
 public class TodoItem {
     private String id;
     private String title;

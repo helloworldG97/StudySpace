@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * SceneManager - Singleton class for managing scene navigation
- */
+//============ scene manager =============
+//this is where application navigation and scene switching is handled
+
 public class SceneManager {
     private static SceneManager instance;
     private Stage primaryStage;

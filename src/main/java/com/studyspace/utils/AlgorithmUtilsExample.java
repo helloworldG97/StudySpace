@@ -3,12 +3,9 @@ package com.studyspace.utils;
 import com.studyspace.models.*;
 import java.util.*;
 
-/**
- * AlgorithmUtilsExample - Demonstrates how to use the AlgorithmUtils class
- * 
- * This class shows practical examples of using the AlgorithmUtils class
- * for sorting, searching, and filtering data in the Study Space application.
- */
+//============ algorithm examples =============
+//this is where algorithm usage examples and demonstrations are provided
+
 public class AlgorithmUtilsExample {
     
     /**

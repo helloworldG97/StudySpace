@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CodeProblem model representing a coding challenge
- */
+//============ code problem model =============
+//this is where programming challenges and test cases are stored
+
 public class CodeProblem {
     private String id;
     private String title;

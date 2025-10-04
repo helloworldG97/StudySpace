@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * SnakeGameView - A fully functional Snake game for taking breaks
- */
+//============ snake game view =============
+//this is where the break time snake game is played
+
 public class SnakeGameView {
     
     private VBox mainContainer;

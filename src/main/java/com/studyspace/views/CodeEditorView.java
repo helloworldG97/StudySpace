@@ -10,9 +10,9 @@ import javafx.scene.layout.*;
 
 import java.util.List;
 
-/**
- * CodeEditorView - Code editor interface for solving programming problems
- */
+//============ code editor view =============
+//this is where programming problems are solved and code is written
+
 public class CodeEditorView {
     
     private final DataStore dataStore;

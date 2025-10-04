@@ -1,7 +1,9 @@
 package com.studyspace.models;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
+//============ activity model =============
+//this is where user activity tracking data is stored
 
 public class Activity {
     private String id;

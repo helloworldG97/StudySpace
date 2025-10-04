@@ -12,9 +12,9 @@ import javafx.scene.layout.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * ProfileSettingsView - User profile settings and editing interface
- */
+//============ profile settings view =============
+//this is where user profile information is managed and edited
+
 public class ProfileSettingsView {
     
     private final DataStore dataStore;
