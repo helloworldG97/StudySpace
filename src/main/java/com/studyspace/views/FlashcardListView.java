@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.studyspace.models.Flashcard;
 import com.studyspace.models.FlashcardDeck;
+import com.studyspace.models.Note;
 import com.studyspace.utils.DataStore;
 import com.studyspace.utils.IconUtils;
 import com.studyspace.utils.SceneManager;
@@ -143,12 +144,17 @@ public class FlashcardListView {
         importFlashcardButton.getStyleClass().add("secondary-button");
         importFlashcardButton.setOnAction(e -> showImportFlashcardDialog());
         
+        Button createFromNotesButton = new Button();
+        createFromNotesButton.setGraphic(IconUtils.createIconTextHBox("book", "Create from Notes"));
+        createFromNotesButton.getStyleClass().add("info-button");
+        createFromNotesButton.setOnAction(e -> showCreateFlashcardsFromNotesDialog());
+        
         Button createDeckButton = new Button();
         createDeckButton.setGraphic(IconUtils.createIconTextHBox("add", "Create Deck"));
         createDeckButton.getStyleClass().add("success-button");
         createDeckButton.setOnAction(e -> handleCreateNewDeck());
         
-        actionButtons.getChildren().addAll(importFlashcardButton, createDeckButton);
+        actionButtons.getChildren().addAll(importFlashcardButton, createFromNotesButton, createDeckButton);
         
         // Header layout
         HBox headerLayout = new HBox();
@@ -502,13 +508,12 @@ public class FlashcardListView {
      * Handles editing a flashcard deck
      */
     private void handleEditDeck(FlashcardDeck deck) {
-        sceneManager.showInfoDialog("Edit Deck", 
-            "Deck editing functionality will be available soon!\n\n" +
-            "You'll be able to:\n" +
-            "• Edit deck title and description\n" +
-            "• Add new flashcards\n" +
-            "• Edit existing flashcards\n" +
-            "• Organize cards by difficulty");
+        // Open the deck management view for editing
+        FlashcardDeckManagementView managementView = new FlashcardDeckManagementView(deck, this);
+
+        if (mainContainer.getParent() instanceof StackPane parent) {
+            parent.getChildren().setAll(managementView.getView());
+        }
     }
     
     /**
@@ -686,6 +691,253 @@ public class FlashcardListView {
         });
         
         dialog.showAndWait();
+    }
+    
+    /**
+     * Shows dialog to create flashcards from notes
+     */
+    private void showCreateFlashcardsFromNotesDialog() {
+        // Get all available notes
+        List<Note> availableNotes = new ArrayList<>(dataStore.getNotes());
+        
+        if (availableNotes.isEmpty()) {
+            sceneManager.showInfoDialog("No Notes Available", 
+                "You don't have any notes yet. Create some notes first before generating flashcards.");
+            return;
+        }
+        
+        // Create dialog for note selection and deck creation
+        Dialog<FlashcardDeck> dialog = new Dialog<>();
+        dialog.setTitle("Create Flashcards from Notes");
+        dialog.setHeaderText("Select notes to generate flashcards from and create a new deck");
+        
+        // Create content
+        VBox content = new VBox();
+        content.setSpacing(16);
+        content.setPadding(new Insets(20));
+        
+        Label instructionLabel = new Label("Select the notes you want to generate flashcards from:");
+        instructionLabel.getStyleClass().addAll("text-sm", "text-secondary");
+        
+        // Create list view for note selection
+        javafx.scene.control.ListView<Note> noteListView = new javafx.scene.control.ListView<>();
+        noteListView.getItems().addAll(availableNotes);
+        noteListView.setPrefHeight(200);
+        noteListView.setCellFactory(listView -> new javafx.scene.control.ListCell<Note>() {
+            @Override
+            protected void updateItem(Note note, boolean empty) {
+                super.updateItem(note, empty);
+                if (empty || note == null) {
+                    setText(null);
+                } else {
+                    setText(note.getTitle() + " - " + note.getSubject());
+                }
+            }
+        });
+        
+        // Allow multiple selection
+        noteListView.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
+        
+        // Deck creation form
+        VBox deckForm = createDeckCreationForm();
+        
+        content.getChildren().addAll(instructionLabel, noteListView, deckForm);
+        dialog.getDialogPane().setContent(content);
+        
+        // Add buttons
+        ButtonType createButtonType = new ButtonType("Create Deck from Notes", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(createButtonType, cancelButtonType);
+        
+        // Set result converter
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == createButtonType) {
+                List<Note> selectedNotes = new ArrayList<>(noteListView.getSelectionModel().getSelectedItems());
+                if (selectedNotes.isEmpty()) {
+                    sceneManager.showErrorDialog("No Notes Selected", "Please select at least one note to generate flashcards from.");
+                    return null;
+                }
+                return createFlashcardsFromNotes(selectedNotes);
+            }
+            return null;
+        });
+        
+        // Show dialog and handle result
+        dialog.showAndWait().ifPresent(newDeck -> {
+            if (newDeck != null) {
+                // Add the new deck to the list
+                decksList.add(newDeck);
+                dataStore.saveFlashcardDeck(newDeck);
+                loadFlashcardDecks();
+                
+                // Show success message
+                sceneManager.showInfoDialog("Deck Created", 
+                    "Successfully created flashcard deck '" + newDeck.getTitle() + "' with " + newDeck.getCardCount() + " flashcards!");
+                
+                // Refresh activity history
+                com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+            }
+        });
+    }
+    
+    /**
+     * Creates flashcards from selected notes
+     */
+    private FlashcardDeck createFlashcardsFromNotes(List<Note> selectedNotes) {
+        try {
+            // Get form data
+            String deckTitle = getDeckTitleFromForm();
+            String deckSubject = getDeckSubjectFromForm();
+            String deckDescription = getDeckDescriptionFromForm();
+            Flashcard.Difficulty deckDifficulty = getDeckDifficultyFromForm();
+            
+            if (deckTitle.trim().isEmpty()) {
+                sceneManager.showErrorDialog("Invalid Input", "Deck title cannot be empty.");
+                return null;
+            }
+            
+            // Create new deck
+            FlashcardDeck newDeck = new FlashcardDeck(deckTitle, deckDescription, deckSubject, deckDifficulty);
+            
+            int totalFlashcardsCreated = 0;
+            
+            for (Note note : selectedNotes) {
+                List<Flashcard> generatedFlashcards = generateFlashcardsFromNote(note);
+                
+                // Add generated flashcards to the deck
+                for (Flashcard flashcard : generatedFlashcards) {
+                    newDeck.addFlashcard(flashcard);
+                    totalFlashcardsCreated++;
+                }
+            }
+            
+            // Log activity
+            dataStore.logUserActivity("FLASHCARD_DECK_CREATED", 
+                "Created deck '" + newDeck.getTitle() + "' with " + totalFlashcardsCreated + " flashcards from " + selectedNotes.size() + " notes");
+            
+            return newDeck;
+            
+        } catch (Exception e) {
+            sceneManager.showErrorDialog("Creation Error", 
+                "Failed to create flashcards from notes: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Generates flashcards from a single note
+     */
+    private List<Flashcard> generateFlashcardsFromNote(Note note) {
+        List<Flashcard> flashcards = new ArrayList<>();
+        String content = note.getContent();
+        
+        // Split content into sections (by headers, bullet points, etc.)
+        String[] sections = content.split("\\n\\s*\\n|\\n\\s*[-*]\\s*|\\n\\s*\\d+\\.\\s*");
+        
+        for (String section : sections) {
+            section = section.trim();
+            if (section.length() > 20) { // Only process substantial sections
+                List<Flashcard> sectionFlashcards = generateFlashcardsFromSection(section, note.getTitle());
+                flashcards.addAll(sectionFlashcards);
+            }
+        }
+        
+        // If no flashcards were generated from sections, create a general one
+        if (flashcards.isEmpty() && content.length() > 50) {
+            String question = "What is the main topic of: " + note.getTitle() + "?";
+            String answer = content.length() > 200 ? content.substring(0, 200) + "..." : content;
+            flashcards.add(new Flashcard(question, answer, Flashcard.Difficulty.MEDIUM));
+        }
+        
+        return flashcards;
+    }
+    
+    /**
+     * Generates flashcards from a content section
+     */
+    private List<Flashcard> generateFlashcardsFromSection(String section, String noteTitle) {
+        List<Flashcard> flashcards = new ArrayList<>();
+        
+        // Look for question-answer patterns
+        java.util.regex.Pattern qaPattern = java.util.regex.Pattern.compile("(?:Q:|Question:)\\s*(.+?)\\s*(?:A:|Answer:)\\s*(.+?)(?=\\n|$)", java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher qaMatcher = qaPattern.matcher(section);
+        
+        while (qaMatcher.find()) {
+            String question = qaMatcher.group(1).trim();
+            String answer = qaMatcher.group(2).trim();
+            
+            if (question.length() > 5 && answer.length() > 5) {
+                flashcards.add(new Flashcard(question, answer, Flashcard.Difficulty.MEDIUM));
+            }
+        }
+        
+        // Look for definition patterns (term: definition)
+        java.util.regex.Pattern definitionPattern = java.util.regex.Pattern.compile("([A-Za-z][A-Za-z\\s]+?):\\s*(.+?)(?=\\n|$)", java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher definitionMatcher = definitionPattern.matcher(section);
+        
+        while (definitionMatcher.find()) {
+            String term = definitionMatcher.group(1).trim();
+            String definition = definitionMatcher.group(2).trim();
+            
+            if (term.length() > 2 && definition.length() > 10) {
+                String question = "What is " + term + "?";
+                flashcards.add(new Flashcard(question, definition, Flashcard.Difficulty.EASY));
+            }
+        }
+        
+        // Look for bullet points or numbered lists
+        java.util.regex.Pattern listPattern = java.util.regex.Pattern.compile("(?:^|\\n)\\s*[-*]\\s*(.+?)(?=\\n|$)", java.util.regex.Pattern.MULTILINE);
+        java.util.regex.Matcher listMatcher = listPattern.matcher(section);
+        
+        while (listMatcher.find()) {
+            String item = listMatcher.group(1).trim();
+            if (item.length() > 10) {
+                String question = "Explain: " + item;
+                String answer = "This is a key point from " + noteTitle + ": " + item;
+                flashcards.add(new Flashcard(question, answer, Flashcard.Difficulty.MEDIUM));
+            }
+        }
+        
+        return flashcards;
+    }
+    
+    /**
+     * Gets deck title from form
+     */
+    private String getDeckTitleFromForm() {
+        return titleField.getText().trim();
+    }
+    
+    /**
+     * Gets deck subject from form
+     */
+    private String getDeckSubjectFromForm() {
+        return subjectCombo.getValue() != null ? subjectCombo.getValue() : "Other";
+    }
+    
+    /**
+     * Gets deck description from form
+     */
+    private String getDeckDescriptionFromForm() {
+        return descriptionArea.getText().trim();
+    }
+    
+    /**
+     * Gets deck difficulty from form
+     */
+    private Flashcard.Difficulty getDeckDifficultyFromForm() {
+        if (difficultyGroup.getSelectedToggle() != null) {
+            RadioButton selectedButton = (RadioButton) difficultyGroup.getSelectedToggle();
+            String buttonId = selectedButton.getId();
+            if ("easyDifficulty".equals(buttonId)) {
+                return Flashcard.Difficulty.EASY;
+            } else if ("mediumDifficulty".equals(buttonId)) {
+                return Flashcard.Difficulty.MEDIUM;
+            } else if ("hardDifficulty".equals(buttonId)) {
+                return Flashcard.Difficulty.HARD;
+            }
+        }
+        return Flashcard.Difficulty.EASY; // Default
     }
     
     /**

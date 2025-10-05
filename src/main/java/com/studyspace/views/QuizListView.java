@@ -75,10 +75,6 @@ public class QuizListView {
         createFromNotesButton.getStyleClass().add("success-button");
         createFromNotesButton.setOnAction(e -> handleCreateFromNotes());
         
-        Button importQuizButton = new Button();
-        importQuizButton.setGraphic(IconUtils.createIconTextHBox("upload", "Import Quiz"));
-        importQuizButton.getStyleClass().add("secondary-button");
-        importQuizButton.setOnAction(e -> handleImportQuiz());
         
         // Sort dropdown (moved to right side) with enhanced icons
         HBox sortContainer = new HBox();
@@ -111,7 +107,7 @@ public class QuizListView {
         
         sortContainer.getChildren().addAll(sortIcon, sortLabel, sortComboBox);
         
-        actionBar.getChildren().addAll(createFromFlashcardsButton, createFromNotesButton, importQuizButton, sortContainer);
+        actionBar.getChildren().addAll(createFromFlashcardsButton, createFromNotesButton, sortContainer);
         
         // Quizzes grid - improved configuration
         quizzesGrid = new FlowPane();
@@ -510,12 +506,6 @@ public class QuizListView {
         showNotesSelectionDialog(notes);
     }
     
-    /**
-     * Handles importing a quiz from PDF
-     */
-    private void handleImportQuiz() {
-        showImportQuizDialog();
-    }
     
     /**
      * Gets the main view container
@@ -545,10 +535,6 @@ public class QuizListView {
     /**
      * Public method to test quiz creation and refresh
      */
-    public void testQuizCreation() {
-        System.out.println("=== TESTING QUIZ CREATION ===");
-        createQuizFromPDF();
-    }
     
     /**
      * Forces a complete refresh with layout updates
@@ -740,59 +726,6 @@ public class QuizListView {
         dialog.showAndWait();
     }
     
-    /**
-     * Shows import quiz dialog
-     */
-    private void showImportQuizDialog() {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Import Quiz from PDF");
-        dialog.setHeaderText("Upload a PDF file to automatically generate quiz questions and assessments from its content.");
-        
-        VBox content = new VBox();
-        content.setSpacing(16);
-        content.setPadding(new Insets(20));
-        
-        Label descriptionLabel = new Label("Transform your study materials into comprehensive quiz questions with multiple choice answers, true/false questions, and detailed explanations. Perfect for testing knowledge and exam preparation.");
-        descriptionLabel.setWrapText(true);
-        
-        VBox uploadArea = new VBox();
-        uploadArea.setSpacing(12);
-        uploadArea.setAlignment(Pos.CENTER);
-        uploadArea.setPadding(new Insets(40));
-        uploadArea.setStyle("-fx-border-color: #d1d5db; -fx-border-style: dashed; -fx-border-width: 2; -fx-border-radius: 8;");
-        
-        Label fileIcon = new Label();
-        fileIcon.setGraphic(IconUtils.createLargeIconView("file"));
-        
-        Label uploadText = new Label("Upload a PDF to generate quiz questions automatically");
-        
-        Button chooseFileButton = new Button();
-        chooseFileButton.setGraphic(IconUtils.createIconTextHBox("upload", "Choose PDF File"));
-        chooseFileButton.getStyleClass().add("secondary-button");
-        
-        uploadArea.getChildren().addAll(fileIcon, uploadText, chooseFileButton);
-        
-        content.getChildren().addAll(descriptionLabel, uploadArea);
-        
-        dialog.getDialogPane().setContent(content);
-        
-        ButtonType importButtonType = new ButtonType("Import Quiz", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        
-        dialog.getDialogPane().getButtonTypes().addAll(importButtonType, cancelButtonType);
-        
-        Button importButton = (Button) dialog.getDialogPane().lookupButton(importButtonType);
-        importButton.getStyleClass().add("success-button");
-        
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType == importButtonType) {
-                createQuizFromPDF();
-            }
-            return buttonType;
-        });
-        
-        dialog.showAndWait();
-    }
     
     /**
      * Creates a quiz from selected flashcard decks
@@ -926,99 +859,6 @@ public class QuizListView {
         }
     }
     
-    /**
-     * Creates a quiz from PDF import
-     */
-    private void createQuizFromPDF() {
-        try {
-            String title = "Quiz from PDF Import - " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, HH:mm"));
-            String description = "Generated from uploaded PDF document";
-            
-            Quiz newQuiz = new Quiz(title, description, "Imported Content", Flashcard.Difficulty.MEDIUM, 30);
-            
-            // Simulate PDF processing with sample questions
-            List<Question> questions = new ArrayList<>();
-            
-            questions.add(new Question(
-                "Based on the imported PDF content, which concept is most important?",
-                Arrays.asList("Key concept from PDF", "Distractor A", "Distractor B", "Distractor C"),
-                0,
-                "This question was generated from the main themes identified in your PDF document.",
-                Flashcard.Difficulty.MEDIUM
-            ));
-            
-            questions.add(new Question(
-                "What is the primary focus of the document?",
-                Arrays.asList("Primary focus area", "Secondary topic", "Unrelated concept", "Background information"),
-                0,
-                "Generated from the document's introduction and key sections.",
-                Flashcard.Difficulty.EASY
-            ));
-            
-            questions.add(new Question(
-                "Which statement best summarizes the document's conclusion?",
-                Arrays.asList("Main conclusion", "Partial conclusion", "Opposite view", "Unrelated statement"),
-                0,
-                "Extracted from the concluding sections of your PDF.",
-                Flashcard.Difficulty.HARD
-            ));
-            
-            questions.add(new Question(
-                "What methodology was discussed in the document?",
-                Arrays.asList("Systematic approach", "Random approach", "Theoretical only", "No methodology"),
-                0,
-                "Generated from the methodology section of your PDF.",
-                Flashcard.Difficulty.MEDIUM
-            ));
-            
-            questions.add(new Question(
-                "Which of the following best describes the document's findings?",
-                Arrays.asList("Comprehensive results", "Preliminary findings", "No clear results", "Contradictory data"),
-                0,
-                "Extracted from the results and discussion sections of your PDF.",
-                Flashcard.Difficulty.HARD
-            ));
-            
-            newQuiz.setQuestions(questions);
-            
-            // Save the quiz and ensure it's persisted
-            System.out.println("About to save quiz with ID: " + newQuiz.getId());
-            System.out.println("Quiz title: " + newQuiz.getTitle());
-            System.out.println("Quiz questions count: " + questions.size());
-            
-            dataStore.saveQuiz(newQuiz);
-            System.out.println("Quiz saved to DataStore");
-            
-            // Verify the quiz was saved
-            Quiz savedQuiz = dataStore.getQuiz(newQuiz.getId());
-            if (savedQuiz != null) {
-                System.out.println("Quiz successfully retrieved from DataStore: " + savedQuiz.getTitle());
-            } else {
-                System.err.println("ERROR: Quiz was not saved properly to DataStore!");
-            }
-            
-            // Check total quiz count
-            List<Quiz> allQuizzes = dataStore.getAllQuizzes();
-            System.out.println("Total quizzes in DataStore: " + allQuizzes.size());
-            for (Quiz q : allQuizzes) {
-                System.out.println("  - " + q.getTitle() + " (ID: " + q.getId() + ")");
-            }
-            
-            // Force refresh the UI immediately and then show dialog
-            forceCompleteRefresh();
-            
-            javafx.application.Platform.runLater(() -> {
-                sceneManager.showInfoDialog("Quiz Imported Successfully!", 
-                    "Created quiz '" + newQuiz.getTitle() + "' with " + questions.size() + " questions from your PDF.\n\n" +
-                    "The quiz is now available in your quiz list!");
-            });
-            
-        } catch (Exception e) {
-            System.err.println("Error creating quiz from PDF: " + e.getMessage());
-            e.printStackTrace();
-            sceneManager.showErrorDialog("Error", "Failed to import quiz from PDF: " + e.getMessage());
-        }
-    }
     
     /**
      * Handles deleting a quiz
@@ -1032,7 +872,7 @@ public class QuizListView {
         confirmDialog.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    dataStore.deleteQuiz(quiz);
+                    dataStore.deleteQuiz(quiz.getId());
                     refresh();
                     sceneManager.showInfoDialog("Quiz Deleted", 
                         "The quiz '" + quiz.getTitle() + "' has been successfully deleted.");

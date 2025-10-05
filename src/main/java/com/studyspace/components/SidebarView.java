@@ -989,24 +989,45 @@ public class SidebarView {
     }
     
     /**
-     * Creates the activity list section
+     * Creates the activity list section with optimized scrollable view
      */
     private VBox createActivityListSection() {
         VBox activityListSection = new VBox();
-        activityListSection.setSpacing(12);
+        activityListSection.setSpacing(8); // Reduced spacing
+        activityListSection.setPadding(new Insets(0, 0, 0, 0)); // Remove extra padding
         
-        // Selected date label
+        // Selected date label with compact styling
         Label selectedDateLabel = new Label();
-        selectedDateLabel.getStyleClass().addAll("text-base", "font-medium", "text-secondary");
+        selectedDateLabel.getStyleClass().addAll("text-sm", "font-medium", "text-secondary");
         selectedDateLabel.setId("selected-date-label");
+        selectedDateLabel.setPadding(new Insets(0, 0, 4, 0)); // Minimal padding
         
-        // Activity list container
+        // Activity list container with optimized spacing
         VBox activityListContainer = new VBox();
         activityListContainer.getStyleClass().add("home-activity-list");
-        activityListContainer.setSpacing(8);
+        activityListContainer.setSpacing(4); // Reduced spacing between activities
         activityListContainer.setId("home-activity-list");
+        activityListContainer.setPadding(new Insets(4, 0, 4, 0)); // Minimal padding
+        activityListContainer.setPrefWidth(300); // Match container width
+        activityListContainer.setMaxWidth(300); // Prevent width expansion
         
-        activityListSection.getChildren().addAll(selectedDateLabel, activityListContainer);
+        // Create scrollable container for activities with fixed dimensions
+        ScrollPane activityScrollPane = new ScrollPane(activityListContainer);
+        activityScrollPane.setFitToWidth(true);
+        activityScrollPane.setFitToHeight(false);
+        activityScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        activityScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        activityScrollPane.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+        
+        // Fixed dimensions to prevent container from enlarging
+        activityScrollPane.setPrefHeight(250); // Fixed height
+        activityScrollPane.setMinHeight(250); // Minimum height
+        activityScrollPane.setMaxHeight(250); // Maximum height - prevents enlargement
+        activityScrollPane.setPrefWidth(300); // Fixed width to match container
+        activityScrollPane.setMinWidth(300); // Minimum width
+        activityScrollPane.setMaxWidth(300); // Maximum width
+        
+        activityListSection.getChildren().addAll(selectedDateLabel, activityScrollPane);
         
         return activityListSection;
     }
@@ -1148,7 +1169,7 @@ public class SidebarView {
     }
     
     /**
-     * Updates the activity list for the selected date
+     * Updates the activity list for the selected date with enhanced recent activities view
      */
     private void updateActivityList() {
         System.out.println("🔍 Updating activity list for date: " + selectedDate);
@@ -1176,13 +1197,21 @@ public class SidebarView {
                 System.out.println("📊 Found " + activities.size() + " activities for user: " + currentUser.getId());
                 
                 if (activities.isEmpty()) {
-                    Label noActivityLabel = new Label("No activities for this date.");
-                    noActivityLabel.getStyleClass().addAll("text-sm", "text-muted");
-                    noActivityLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: normal; -fx-font-size: 12px;");
-                    noActivityLabel.setAlignment(Pos.CENTER);
-                    activityList.getChildren().add(noActivityLabel);
-                    System.out.println("📝 Added 'No activities' message");
+                    // Show recent activities from the last 3 days if no activities for selected date
+                    if (selectedDate.equals(LocalDate.now())) {
+                        showRecentActivities(activityList);
+                    } else {
+                        Label noActivityLabel = new Label("No activities for this date.");
+                        noActivityLabel.getStyleClass().addAll("text-sm", "text-muted");
+                        noActivityLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: normal; -fx-font-size: 12px;");
+                        noActivityLabel.setAlignment(Pos.CENTER);
+                        activityList.getChildren().add(noActivityLabel);
+                        System.out.println("📝 Added 'No activities' message");
+                    }
                 } else {
+                    // Sort activities by timestamp (most recent first)
+                    activities.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+                    
                     for (Activity activity : activities) {
                         activityList.getChildren().add(createHomeActivityItem(activity));
                         System.out.println("➕ Added activity: " + activity.getDescription());
@@ -1197,41 +1226,147 @@ public class SidebarView {
     }
     
     /**
-     * Creates an activity item for the home dashboard
+     * Shows recent activities from the last few days when no activities for today
+     */
+    private void showRecentActivities(VBox activityList) {
+        try {
+            // Get activities from the last 3 days
+            LocalDate startDate = LocalDate.now().minusDays(3);
+            List<Activity> recentActivities = new ArrayList<>();
+            
+            for (int i = 0; i < 3; i++) {
+                LocalDate date = startDate.plusDays(i);
+                List<Activity> dayActivities = dataStore.getActivitiesForUser(currentUser.getId(), date);
+                recentActivities.addAll(dayActivities);
+            }
+            
+            // Sort by timestamp (most recent first)
+            recentActivities.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+            
+            if (recentActivities.isEmpty()) {
+                Label noActivityLabel = new Label("No recent activities found.");
+                noActivityLabel.getStyleClass().addAll("text-sm", "text-muted");
+                noActivityLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: normal; -fx-font-size: 12px;");
+                noActivityLabel.setAlignment(Pos.CENTER);
+                activityList.getChildren().add(noActivityLabel);
+            } else {
+                // Limit to 15 most recent activities (increased for better space utilization)
+                int limit = Math.min(15, recentActivities.size());
+                for (int i = 0; i < limit; i++) {
+                    Activity activity = recentActivities.get(i);
+                    activityList.getChildren().add(createHomeActivityItem(activity));
+                    System.out.println("➕ Added recent activity: " + activity.getDescription());
+                }
+                
+                // Add a header to indicate these are recent activities
+                if (recentActivities.size() > 15) {
+                    Label moreLabel = new Label("... and " + (recentActivities.size() - 15) + " more recent activities");
+                    moreLabel.getStyleClass().addAll("text-xs", "text-muted");
+                    moreLabel.setStyle("-fx-text-fill: #9ca3af; -fx-font-style: italic; -fx-font-size: 9px;");
+                    moreLabel.setAlignment(Pos.CENTER);
+                    moreLabel.setPadding(new Insets(2, 0, 2, 0));
+                    activityList.getChildren().add(moreLabel);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error loading recent activities: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Creates a compact activity item optimized for space utilization
      */
     private HBox createHomeActivityItem(Activity activity) {
         HBox item = new HBox();
-        item.setSpacing(12);
+        item.setSpacing(8); // Reduced spacing
         item.setAlignment(Pos.CENTER_LEFT);
         item.getStyleClass().add("home-activity-item");
         
-        // Icon
+        // Compact padding and background styling
+        item.setPadding(new Insets(6, 8, 6, 8)); // Reduced padding
+        item.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 6; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-border-width: 1;");
+        item.setPrefHeight(50); // Fixed height for each activity item
+        item.setMaxHeight(50);
+        item.setPrefWidth(292); // Match container width minus padding
+        item.setMaxWidth(292); // Prevent width expansion
+        
+        // Compact icon with smaller styling
         Node icon = getActivityIcon(activity.getType());
         if (icon != null) {
-            item.getChildren().add(icon);
+            VBox iconContainer = new VBox();
+            iconContainer.setAlignment(Pos.CENTER);
+            iconContainer.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 12; -fx-padding: 4;"); // Smaller padding
+            iconContainer.setPrefSize(24, 24); // Fixed icon size
+            iconContainer.getChildren().add(icon);
+            item.getChildren().add(iconContainer);
         }
         
-        // Text container
+        // Compact text container
         VBox textContainer = new VBox();
-        textContainer.setSpacing(2);
+        textContainer.setSpacing(2); // Reduced spacing
+        textContainer.setMaxWidth(Double.MAX_VALUE);
         
-        // Enhanced description with activity type context
+        // Compact description with truncated text
         String enhancedDescription = getEnhancedActivityDescription(activity);
+        // Truncate long descriptions to fit better
+        if (enhancedDescription.length() > 60) {
+            enhancedDescription = enhancedDescription.substring(0, 57) + "...";
+        }
         Label descriptionLabel = new Label(enhancedDescription);
         descriptionLabel.getStyleClass().addAll("text-sm", "font-medium");
-        descriptionLabel.setStyle("-fx-text-fill: #000000; -fx-font-weight: bold; -fx-font-size: 12px;");
-        descriptionLabel.setWrapText(true);
+        descriptionLabel.setStyle("-fx-text-fill: #1f2937; -fx-font-weight: 600; -fx-font-size: 12px;");
+        descriptionLabel.setWrapText(false); // No wrapping for compact display
+        descriptionLabel.setMaxWidth(Double.MAX_VALUE);
         
-        // Time with more context
+        // Compact bottom row with time and type
+        HBox bottomRow = new HBox();
+        bottomRow.setSpacing(6);
+        bottomRow.setAlignment(Pos.CENTER_LEFT);
+        
+        // Compact time label
         String timeContext = formatTimestamp(activity.getTimestamp());
         Label timeLabel = new Label(timeContext);
         timeLabel.getStyleClass().addAll("text-xs", "text-muted");
-        timeLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: normal; -fx-font-size: 10px;");
+        timeLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: 400; -fx-font-size: 10px;");
         
-        textContainer.getChildren().addAll(descriptionLabel, timeLabel);
+        // Compact type badge
+        Label typeBadge = new Label(getActivityTypeDisplayName(activity.getType()));
+        typeBadge.setStyle("-fx-background-color: #dbeafe; -fx-text-fill: #1e40af; -fx-font-size: 9px; -fx-font-weight: 500; -fx-padding: 1 4 1 4; -fx-background-radius: 8;");
+        
+        bottomRow.getChildren().addAll(timeLabel, typeBadge);
+        textContainer.getChildren().addAll(descriptionLabel, bottomRow);
         item.getChildren().add(textContainer);
         
         return item;
+    }
+    
+    /**
+     * Gets a display name for the activity type
+     */
+    private String getActivityTypeDisplayName(ActivityType type) {
+        switch (type) {
+            case FLASHCARD_DECK_CREATED:
+            case FLASHCARDS_REVIEWED:
+                return "Flashcard";
+            case NOTES_ADDED:
+            case NOTE_EDITED:
+                return "Note";
+            case QUIZ_COMPLETED:
+            case QUIZ_TAKEN:
+                return "Quiz";
+            case TODO_ITEM_ADDED:
+            case TODO_ITEM_COMPLETED:
+                return "Todo";
+            case CODE_PROBLEM_SOLVED:
+            case CODE_PROBLEM_ATTEMPTED:
+                return "Code";
+            case STUDY_SESSION_STARTED:
+            case STUDY_SESSION_ENDED:
+                return "Study";
+            default:
+                return "Activity";
+        }
     }
     
     /**

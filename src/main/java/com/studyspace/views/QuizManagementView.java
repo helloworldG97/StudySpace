@@ -1,7 +1,6 @@
 package com.studyspace.views;
 
 import java.util.List;
-
 import com.studyspace.models.Question;
 import com.studyspace.models.Quiz;
 import com.studyspace.utils.DataStore;
@@ -281,11 +280,6 @@ public class QuizManagementView {
         actionSection.setSpacing(12);
         actionSection.setAlignment(Pos.CENTER_LEFT);
         
-        Button importFlashcardButton = new Button();
-        importFlashcardButton.setGraphic(IconUtils.createIconTextHBox("upload", "Import Quiz"));
-        importFlashcardButton.getStyleClass().add("secondary-button");
-        importFlashcardButton.setOnAction(e -> showImportFlashcardDialog());
-        
         Button addQuestionButton = new Button();
         addQuestionButton.setGraphic(IconUtils.createIconTextHBox("add", "Add Question"));
         addQuestionButton.getStyleClass().add("primary-button");
@@ -302,7 +296,7 @@ public class QuizManagementView {
         backButton.getStyleClass().add("secondary-button");
         backButton.setOnAction(e -> handleBackToQuizzes());
         
-        actionSection.getChildren().addAll(importFlashcardButton, addQuestionButton, startQuizButton, backButton);
+        actionSection.getChildren().addAll(addQuestionButton, startQuizButton, backButton);
         
         return actionSection;
     }
@@ -751,84 +745,7 @@ public class QuizManagementView {
         return question;
     }
     
-    /**
-     * Shows the Import PDF for Quiz dialog
-     */
-    private void showImportFlashcardDialog() {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Import PDF for Quiz");
-        dialog.setHeaderText("Upload a PDF file to automatically generate quiz questions and assessments from its content.");
-        
-        // Set dialog properties for proper close behavior
-        dialog.setResizable(true);
-        
-        // Create dialog content
-        VBox content = new VBox();
-        content.setSpacing(16);
-        content.setPadding(new Insets(20));
-        content.getStyleClass().add("dialog-content");
-        
-        // Description text
-        Label descriptionLabel = new Label("Transform your study materials into comprehensive quiz questions with multiple choice answers, true/false questions, and detailed explanations. Perfect for testing knowledge and exam preparation.");
-        descriptionLabel.getStyleClass().add("dialog-description");
-        descriptionLabel.setWrapText(true);
-        
-        // Upload area
-        VBox uploadArea = new VBox();
-        uploadArea.setSpacing(12);
-        uploadArea.setAlignment(Pos.CENTER);
-        uploadArea.getStyleClass().add("upload-area");
-        uploadArea.setPadding(new Insets(40));
-        uploadArea.setStyle("-fx-border-color: #d1d5db; -fx-border-style: dashed; -fx-border-width: 2; -fx-border-radius: 8;");
-        
-        Label fileIcon = new Label();
-        fileIcon.setGraphic(IconUtils.createLargeIconView("file"));
-        
-        Label uploadText = new Label("Upload a PDF to generate quiz questions automatically");
-        uploadText.getStyleClass().add("upload-text");
-        
-        Button chooseFileButton = new Button();
-        chooseFileButton.setGraphic(IconUtils.createIconTextHBox("upload", "Choose PDF File"));
-        chooseFileButton.getStyleClass().add("secondary-button");
-        
-        uploadArea.getChildren().addAll(fileIcon, uploadText, chooseFileButton);
-        
-        content.getChildren().addAll(descriptionLabel, uploadArea);
-        
-        // Set dialog content
-        dialog.getDialogPane().setContent(content);
-        
-        // Create custom button types
-        ButtonType importButtonType = new ButtonType("Import Quiz", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        
-        dialog.getDialogPane().getButtonTypes().addAll(importButtonType, cancelButtonType);
-        
-        // Style the buttons
-        Button importButton = (Button) dialog.getDialogPane().lookupButton(importButtonType);
-        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelButtonType);
-        
-        importButton.getStyleClass().add("success-button");
-        cancelButton.getStyleClass().add("secondary-button");
-        
-        // Handle button actions
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType == importButtonType) {
-                // Simulate PDF processing for quiz questions
-                SceneManager.getInstance().showInfoDialog("Success", 
-                    "Quiz questions generated successfully from PDF! New questions have been added to your quiz.");
-            }
-            return buttonType;
-        });
-        
-        // Handle window close (X button)
-        dialog.getDialogPane().getScene().getWindow().setOnCloseRequest(e -> {
-            dialog.setResult(cancelButtonType);
-            dialog.close();
-        });
-        
-        dialog.showAndWait();
-    }
+    
     
     /**
      * Gets the main view container

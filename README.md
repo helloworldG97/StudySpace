@@ -6,6 +6,25 @@ A comprehensive JavaFX-based learning management system designed to help student
 
 Study Space is a modern desktop application built with JavaFX that provides a complete learning ecosystem for students. The application features a beautiful glassmorphism UI design with multiple study tools and progress tracking capabilities.
 
+## 👥 Team
+
+Developed by passionate computer engineering students from the University of Mindanao:
+
+### 👨‍💻 **Daryl James Padogdog**
+- Computer Engineering Student
+- University of Mindanao
+
+### 👩‍💻 **Irish Cassandra Gulen**
+- Computer Engineering Student
+- University of Mindanao
+
+### 👩‍💻 **Kristina Cassandra Delos Santos**
+- Computer Engineering Student
+- University of Mindanao
+
+**About the Team:**
+We are a dedicated team of computer engineering students passionate about creating innovative learning solutions. Our goal is to empower students with modern, efficient, and engaging study tools that make learning more effective and enjoyable.
+
 ## ✨ Key Features
 
 ### 📚 Study Tools
@@ -145,22 +164,6 @@ The Study Space system includes interactive HTML visualizations that demonstrate
    - `index.html` - System Architecture Overview
 4. **The visualizations will load automatically in Chrome**
 
-#### Alternative Methods
-If you prefer using a local server:
-```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Node.js (if you have it installed)
-npx http-server
-
-# Using PHP (if you have it installed)
-php -S localhost:8000
-```
-
-Then open your browser and navigate to:
-- `http://localhost:8000/working-algorithm-demo.html` - Algorithm Demo
-- `http://localhost:8000/index.html` - System Overview
 
 ### 🎮 Using the Algorithm Demo
 
@@ -338,10 +341,6 @@ mvn clean javafx:jlink
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Team
-
-Developed by the Study Space development team at University of Mindanao.
 
 ## 🆘 Support
 

@@ -48,27 +48,10 @@ public class TodoListView extends VBox {
         this.todoItems = FXCollections.observableArrayList(dataStore.getTodoItems());
         this.filteredItems = new FilteredList<>(todoItems);
         
-        initializeSampleData();
         createView();
         setupEventHandlers();
     }
     
-    private void initializeSampleData() {
-        if (todoItems.isEmpty()) {
-            // Add sample todo items
-            todoItems.add(new TodoItem("Review JavaScript closures", "Go through flashcards and practice problems", 
-                TodoItem.Priority.HIGH, "Study", LocalDate.of(2024, 1, 20)));
-            todoItems.add(new TodoItem("Complete React project", "Finish the todo app component", 
-                TodoItem.Priority.MEDIUM, "Project", LocalDate.of(2024, 1, 22)));
-            todoItems.add(new TodoItem("Read CSS Grid documentation", "Learn about CSS Grid layout", 
-                TodoItem.Priority.LOW, "Learning", LocalDate.of(2024, 1, 18)));
-            todoItems.add(new TodoItem("Practice coding problems", "Solve 3 algorithm problems on LeetCode", 
-                TodoItem.Priority.HIGH, "Practice", LocalDate.of(2024, 1, 19)));
-            
-            // Mark one as completed
-            todoItems.get(2).setCompleted(true);
-        }
-    }
     
     private void createView() {
         setSpacing(24);
