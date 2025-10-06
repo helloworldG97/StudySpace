@@ -85,7 +85,84 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
             min-height: 600px;
-            overflow-x: auto;
+            overflow: auto;
+            position: relative;
+        }
+
+        .flowchart-zoom-container {
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+            width: fit-content;
+            min-width: 100%;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .zoom-btn:active {
+            transform: translateY(0);
+        }
+
+        .zoom-reset {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #8b5cf6;
+        }
+
+        .zoom-reset:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .zoom-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        /* Smooth zoom transitions */
+        .flowchart-zoom-container svg {
+            transition: none;
+        }
+
+        /* Pan functionality for zoomed content */
+        .flowchart-container.panning {
+            cursor: grabbing;
+        }
+
+        .flowchart-container.panning .flowchart-zoom-container {
+            cursor: grabbing;
         }
 
         .info-panel {
@@ -186,6 +263,30 @@
                 width: 100%;
                 max-width: 300px;
             }
+
+            .zoom-controls {
+                position: relative;
+                top: auto;
+                right: auto;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+
+            .zoom-indicator {
+                position: relative;
+                top: auto;
+                left: auto;
+                display: inline-block;
+                margin: 0 auto;
+            }
+        }
+
+        /* Touch support for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .zoom-btn {
+                padding: 12px 16px;
+                font-size: 16px;
+            }
         }
 
         /* Mermaid diagram styling */
@@ -206,30 +307,44 @@
     <div class="container">
         <div class="header">
             <h1>🚀 Study Space System Architecture</h1>
-            <p>Interactive Flowchart of the Learning Management System</p>
+            <p>Multi-User Learning Management System with AI Document Processing</p>
         </div>
 
         <div class="controls">
             <button class="btn active" onclick="showFlowchart('overview')">System Overview</button>
-            <button class="btn" onclick="showFlowchart('authentication')">Authentication Flow</button>
+            <button class="btn" onclick="showFlowchart('authentication')">User Authentication</button>
+            <button class="btn" onclick="showFlowchart('userisolation')">User Isolation</button>
+            <button class="btn" onclick="showFlowchart('aiprocessing')">AI Document Processing</button>
+            <button class="btn" onclick="showFlowchart('database')">Database Architecture</button>
             <button class="btn" onclick="showFlowchart('dataflow')">Data Flow</button>
             <button class="btn" onclick="showFlowchart('components')">Component Architecture</button>
             <button class="btn" onclick="showFlowchart('features')">Feature Modules</button>
         </div>
 
-        <div class="flowchart-container">
-            <div id="flowchart-content"></div>
+        <div class="flowchart-container" id="flowchart-container">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out (Ctrl + Mouse Wheel)">🔍-</button>
+                <button class="zoom-btn zoom-reset" onclick="resetZoom()" title="Reset Zoom (R)">⌂</button>
+                <button class="zoom-btn" onclick="zoomIn()" title="Zoom In (Ctrl + Mouse Wheel)">🔍+</button>
+            </div>
+            <div class="zoom-indicator" id="zoom-indicator">100%</div>
+            <div class="flowchart-zoom-container" id="flowchart-zoom-container">
+                <div id="flowchart-content"></div>
+            </div>
         </div>
 
         <div class="info-panel">
             <h3>📋 System Information</h3>
             <ul>
-                <li><strong>Application Type:</strong> JavaFX Desktop Application</li>
+                <li><strong>Application Type:</strong> Multi-User JavaFX Desktop Application</li>
                 <li><strong>Java Version:</strong> Java 21</li>
                 <li><strong>UI Framework:</strong> JavaFX 21</li>
+                <li><strong>Database:</strong> MySQL with User Isolation</li>
+                <li><strong>AI Processing:</strong> Python Flask API with Qwen3-coder LLM</li>
                 <li><strong>Build Tool:</strong> Maven</li>
-                <li><strong>Architecture:</strong> MVC Pattern with Singleton Data Store</li>
+                <li><strong>Architecture:</strong> MVC Pattern with Multi-User Data Store</li>
                 <li><strong>UI Design:</strong> Glassmorphism with Dark Theme</li>
+                <li><strong>Security:</strong> Complete User Isolation & Authentication</li>
             </ul>
         </div>
 
@@ -276,20 +391,28 @@
                 <p>Rich UI framework</p>
             </div>
             <div class="tech-item">
+                <h4>MySQL</h4>
+                <p>Relational database</p>
+            </div>
+            <div class="tech-item">
+                <h4>Python</h4>
+                <p>AI processing backend</p>
+            </div>
+            <div class="tech-item">
+                <h4>Flask</h4>
+                <p>REST API server</p>
+            </div>
+            <div class="tech-item">
+                <h4>Qwen3-coder</h4>
+                <p>AI language model</p>
+            </div>
+            <div class="tech-item">
                 <h4>Maven</h4>
                 <p>Build & dependency management</p>
             </div>
             <div class="tech-item">
                 <h4>CSS3</h4>
                 <p>Glassmorphism styling</p>
-            </div>
-            <div class="tech-item">
-                <h4>FXML</h4>
-                <p>UI markup language</p>
-            </div>
-            <div class="tech-item">
-                <h4>ControlsFX</h4>
-                <p>Additional UI controls</p>
             </div>
         </div>
     </div>
@@ -314,41 +437,156 @@
             }
         });
 
+        // Zoom functionality
+        let currentZoom = 1;
+        const zoomStep = 0.2;
+        const minZoom = 0.3;
+        const maxZoom = 3;
+        let isPanning = false;
+        let startX, startY, translateX = 0, translateY = 0;
+
+        function zoomIn() {
+            if (currentZoom < maxZoom) {
+                currentZoom += zoomStep;
+                applyZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > minZoom) {
+                currentZoom -= zoomStep;
+                applyZoom();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const container = document.getElementById('flowchart-zoom-container');
+            const indicator = document.getElementById('zoom-indicator');
+            if (container) {
+                container.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
+            }
+            if (indicator) {
+                indicator.textContent = Math.round(currentZoom * 100) + '%';
+            }
+        }
+
+        // Mouse wheel zoom
+        document.addEventListener('DOMContentLoaded', function() {
+            const flowchartContainer = document.getElementById('flowchart-container');
+            const zoomContainer = document.getElementById('flowchart-zoom-container');
+            
+            if (flowchartContainer && zoomContainer) {
+                // Mouse wheel zoom
+                flowchartContainer.addEventListener('wheel', function(e) {
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        if (e.deltaY < 0) {
+                            zoomIn();
+                        } else {
+                            zoomOut();
+                        }
+                    }
+                });
+
+                // Pan functionality
+                zoomContainer.addEventListener('mousedown', function(e) {
+                    if (currentZoom > 1) {
+                        isPanning = true;
+                        startX = e.clientX - translateX;
+                        startY = e.clientY - translateY;
+                        flowchartContainer.style.cursor = 'grabbing';
+                        flowchartContainer.classList.add('panning');
+                    }
+                });
+
+                document.addEventListener('mousemove', function(e) {
+                    if (isPanning) {
+                        e.preventDefault();
+                        translateX = e.clientX - startX;
+                        translateY = e.clientY - startY;
+                        applyZoom();
+                    }
+                });
+
+                document.addEventListener('mouseup', function() {
+                    if (isPanning) {
+                        isPanning = false;
+                        flowchartContainer.style.cursor = 'default';
+                        flowchartContainer.classList.remove('panning');
+                    }
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey) {
+                        switch(e.key) {
+                            case '=':
+                            case '+':
+                                e.preventDefault();
+                                zoomIn();
+                                break;
+                            case '-':
+                                e.preventDefault();
+                                zoomOut();
+                                break;
+                        }
+                    } else if (e.key === 'r' || e.key === 'R') {
+                        e.preventDefault();
+                        resetZoom();
+                    }
+                });
+            }
+        });
+
         // Flowchart definitions
         const flowcharts = {
             overview: `
                 graph TD
-                    A[🚀 Main.java<br/>Application Entry Point] --> B[🔐 AuthView<br/>Authentication Interface]
-                    B --> C{User Authentication}
+                    A[🚀 Main.java<br/>Application Entry Point] --> B[🔐 AuthView<br/>User Authentication]
+                    B --> C{User Login/Register}
                     C -->|Success| D[📱 SidebarView<br/>Main Application]
                     C -->|Failure| B
                     
                     D --> E[📚 Study Modules]
-                    E --> F[🃏 Flashcards]
-                    E --> G[📝 Notes]
-                    E --> H[✅ Quizzes]
+                    E --> F[🃏 AI Flashcards]
+                    E --> G[📝 Smart Notes]
+                    E --> H[✅ Interactive Quizzes]
                     E --> I[💻 Code Practice]
-                    E --> J[📋 Todo Lists]
+                    E --> J[📋 Task Management]
                     E --> K[🎮 Snake Game]
                     
-                    F --> L[📊 DataStore<br/>Singleton Pattern]
+                    F --> L[📊 MySQLDataStore<br/>User-Specific Data]
                     G --> L
                     H --> L
                     I --> L
                     J --> L
                     K --> L
                     
-                    L --> M[👤 User Model]
-                    L --> N[📄 Note Model]
-                    L --> O[🃏 Flashcard Model]
-                    L --> P[❓ Question Model]
-                    L --> Q[💻 CodeProblem Model]
-                    L --> R[📋 TodoItem Model]
+                    L --> M[🗄️ MySQL Database<br/>User Isolation]
+                    M --> N[👤 User Data]
+                    M --> O[📄 User Notes]
+                    M --> P[🃏 User Flashcards]
+                    M --> Q[❓ User Quizzes]
+                    M --> R[💻 User Code Problems]
+                    M --> S[📋 User Todo Items]
+                    
+                    T[🤖 AI Document Processor<br/>Python Flask API] --> F
+                    T --> G
+                    T --> U[📁 Document Upload<br/>PDF, DOC, PPT]
                     
                     style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
                     style B fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
                     style D fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
                     style L fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+                    style M fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style T fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
             `,
             
             authentication: `
@@ -362,150 +600,325 @@
                     F -->|Login| G[🔑 AuthController.loginUser]
                     F -->|Signup| H[📝 AuthController.registerUser]
                     
-                    G --> I{Valid Credentials?}
-                    H --> J{Email Available?}
+                    G --> I[🗄️ MySQLDataStore.authenticateUser]
+                    H --> J[🗄️ MySQLDataStore.registerUser]
                     
-                    I -->|Yes| K[✅ Authentication Success]
-                    I -->|No| L[❌ Show Error Message]
+                    I --> K{Valid Credentials?}
+                    J --> L{Email Available?}
                     
-                    J -->|Yes| M[👤 Create New User]
-                    J -->|No| N[❌ Email Already Exists]
+                    K -->|Yes| M[✅ Set Current User Session]
+                    K -->|No| N[❌ Show Error Message]
                     
-                    M --> K
-                    L --> E
+                    L -->|Yes| O[👤 Create New User in Database]
+                    L -->|No| P[❌ Email Already Exists]
+                    
+                    O --> M
                     N --> E
+                    P --> E
                     
-                    K --> O[🏠 Switch to SidebarView]
-                    O --> P[📱 Main Application Interface]
+                    M --> Q[🏠 Switch to SidebarView]
+                    Q --> R[📱 Main Application Interface<br/>User-Specific Content]
                     
                     style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
                     style B fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
-                    style K fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
-                    style P fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style M fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style R fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+            `,
+            
+            userisolation: `
+                graph TD
+                    A[👤 User A Login] --> B[🔐 Authentication Success]
+                    C[👤 User B Login] --> D[🔐 Authentication Success]
+                    
+                    B --> E[📊 User A Session<br/>user_id = 'user_001']
+                    D --> F[📊 User B Session<br/>user_id = 'user_002']
+                    
+                    E --> G[📚 User A Content Access]
+                    F --> H[📚 User B Content Access]
+                    
+                    G --> I[🗄️ Database Query<br/>WHERE user_id = 'user_001']
+                    H --> J[🗄️ Database Query<br/>WHERE user_id = 'user_002']
+                    
+                    I --> K[📄 User A Notes Only]
+                    I --> L[🃏 User A Flashcards Only]
+                    I --> M[✅ User A Quizzes Only]
+                    I --> N[📋 User A Todos Only]
+                    
+                    J --> O[📄 User B Notes Only]
+                    J --> P[🃏 User B Flashcards Only]
+                    J --> Q[✅ User B Quizzes Only]
+                    J --> R[📋 User B Todos Only]
+                    
+                    S[🛡️ Security Layer] --> I
+                    S --> J
+                    S --> T[❌ Cross-User Access Denied]
+                    
+                    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style C fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style E fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style F fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style S fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style T fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+            `,
+            
+            aiprocessing: `
+                graph TD
+                    A[📁 User Uploads Document<br/>PDF, DOC, PPT] --> B[📤 DocumentProcessingService]
+                    B --> C[🌐 HTTP POST to Python API<br/>localhost:5000/process]
+                    
+                    C --> D[🐍 Flask API Server<br/>api_server.py]
+                    D --> E[🤖 Document Processor<br/>document_processor.py]
+                    
+                    E --> F[📄 Extract Text from Document]
+                    F --> G[🧠 Qwen3-coder LLM Processing]
+                    
+                    G --> H[📚 Generate Flashcards<br/>10-30 cards with Q&A]
+                    G --> I[📝 Generate Study Notes<br/>Academic structure]
+                    
+                    H --> J[💾 Save to Database<br/>user_id = current_user]
+                    I --> J
+                    
+                    J --> K[📊 MySQLDataStore<br/>User-Specific Storage]
+                    K --> L[🗄️ MySQL Database<br/>flashcards & notes tables]
+                    
+                    L --> M[✅ Return Success Response]
+                    M --> N[📱 JavaFX UI Update<br/>Show New Content]
+                    
+                    O[⚙️ AI Configuration<br/>config.json] --> G
+                    P[🔧 Error Handling<br/>Fallback Mechanisms] --> E
+                    
+                    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style D fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style G fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style J fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+                    style N fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+            `,
+            
+            database: `
+                graph TD
+                    A[🗄️ MySQL Database<br/>studyspace_db] --> B[👤 users table<br/>id, full_name, email, password]
+                    
+                    B --> C[📄 notes table<br/>id, user_id, title, content]
+                    B --> D[🃏 flashcard_decks table<br/>id, user_id, title, description]
+                    B --> E[🃏 flashcards table<br/>id, deck_id, question, answer]
+                    B --> F[✅ quizzes table<br/>id, user_id, title, description]
+                    B --> G[❓ questions table<br/>id, quiz_id, question_text, options]
+                    B --> H[💻 code_problems table<br/>id, user_id, title, description]
+                    B --> I[📋 todo_items table<br/>id, user_id, title, description]
+                    B --> J[📁 user_files table<br/>id, user_id, file_name, file_path]
+                    B --> K[📊 activities table<br/>id, user_id, activity_type, description]
+                    
+                    L[🔐 Foreign Key Constraints<br/>ON DELETE CASCADE] --> C
+                    L --> D
+                    L --> F
+                    L --> H
+                    L --> I
+                    L --> J
+                    L --> K
+                    
+                    M[📈 Indexes for Performance<br/>idx_notes_user_id] --> C
+                    M --> D
+                    M --> F
+                    M --> H
+                    M --> I
+                    M --> J
+                    M --> K
+                    
+                    N[🛡️ User Isolation Queries<br/>WHERE user_id = ?] --> C
+                    N --> D
+                    N --> F
+                    N --> H
+                    N --> I
+                    N --> J
+                    N --> K
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style L fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style M fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style N fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
             `,
             
             dataflow: `
                 graph TD
                     A[👤 User Action] --> B[📱 View Layer]
                     B --> C[🎯 Event Handler]
-                    C --> D[📊 DataStore.getInstance]
+                    C --> D[📊 MySQLDataStore.getInstance]
                     
-                    D --> E{Data Operation}
-                    E -->|Create| F[➕ Add to Collection]
-                    E -->|Read| G[📖 Retrieve Data]
-                    E -->|Update| H[✏️ Modify Data]
-                    E -->|Delete| I[🗑️ Remove Data]
+                    D --> E[🔐 Check User Authentication]
+                    E --> F{Data Operation}
+                    F -->|Create| G[➕ INSERT with user_id]
+                    F -->|Read| H[📖 SELECT WHERE user_id = ?]
+                    F -->|Update| I[✏️ UPDATE WHERE user_id = ?]
+                    F -->|Delete| J[🗑️ DELETE WHERE user_id = ?]
                     
-                    F --> J[💾 Update DataStore]
-                    G --> J
-                    H --> J
-                    I --> J
+                    G --> K[🗄️ MySQL Database]
+                    H --> K
+                    I --> K
+                    J --> K
                     
-                    J --> K[🔄 Update UI]
-                    K --> L[📊 Activity Logging]
-                    L --> M[📈 Progress Tracking]
+                    K --> L[🔄 Update UI with User Data]
+                    L --> M[📊 Activity Logging]
+                    M --> N[📈 Progress Tracking]
                     
-                    N[🏗️ Models] --> D
-                    N --> O[👤 User Model]
-                    N --> P[📄 Note Model]
-                    N --> Q[🃏 Flashcard Model]
-                    N --> R[❓ Question Model]
-                    N --> S[💻 CodeProblem Model]
-                    N --> T[📋 TodoItem Model]
-                    N --> U[📊 Activity Model]
+                    O[🤖 AI Document Processing] --> P[📁 Document Upload]
+                    P --> Q[🐍 Python Flask API]
+                    Q --> R[🧠 Qwen3-coder LLM]
+                    R --> S[📚 Generate Content]
+                    S --> T[💾 Save with user_id]
+                    T --> K
+                    
+                    U[🏗️ Models] --> D
+                    U --> V[👤 User Model]
+                    U --> W[📄 Note Model]
+                    U --> X[🃏 Flashcard Model]
+                    U --> Y[❓ Question Model]
+                    U --> Z[💻 CodeProblem Model]
+                    U --> AA[📋 TodoItem Model]
+                    U --> BB[📊 Activity Model]
+                    U --> CC[📁 UserFile Model]
                     
                     style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
                     style D fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
-                    style J fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
-                    style N fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style K fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style O fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style U fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
             `,
             
             components: `
                 graph TD
-                    A[🏗️ Application Architecture] --> B[📱 Presentation Layer]
+                    A[🏗️ Multi-User Application Architecture] --> B[📱 Presentation Layer]
                     A --> C[🎯 Business Logic Layer]
                     A --> D[💾 Data Layer]
+                    A --> E[🤖 AI Processing Layer]
                     
-                    B --> E[🔐 AuthView]
-                    B --> F[📱 SidebarView]
-                    B --> G[🃏 FlashcardListView]
-                    B --> H[📝 NotesView]
-                    B --> I[✅ QuizListView]
-                    B --> J[💻 CodePracticeView]
-                    B --> K[📋 TodoListView]
-                    B --> L[🎮 SnakeGameView]
+                    B --> F[🔐 AuthView]
+                    B --> G[📱 SidebarView]
+                    B --> H[🃏 FlashcardListView]
+                    B --> I[📝 NotesView]
+                    B --> J[✅ QuizListView]
+                    B --> K[💻 CodePracticeView]
+                    B --> L[📋 TodoListView]
+                    B --> M[🎮 SnakeGameView]
                     
-                    C --> M[🎯 AuthController]
-                    C --> N[🔄 SceneManager]
-                    C --> O[🛠️ IconUtils]
+                    C --> N[🎯 AuthController]
+                    C --> O[🔄 SceneManager]
+                    C --> P[🛠️ IconUtils]
+                    C --> Q[📤 DocumentProcessingService]
                     
-                    D --> P[💾 DataStore]
-                    D --> Q[👤 User]
-                    D --> R[📄 Note]
-                    D --> S[🃏 Flashcard]
-                    D --> T[❓ Question]
-                    D --> U[💻 CodeProblem]
-                    D --> V[📋 TodoItem]
-                    D --> W[📊 Activity]
+                    D --> R[💾 MySQLDataStore]
+                    D --> S[🗄️ DatabaseConnection]
+                    D --> T[👤 User Model]
+                    D --> U[📄 Note Model]
+                    D --> V[🃏 Flashcard Model]
+                    D --> W[❓ Question Model]
+                    D --> X[💻 CodeProblem Model]
+                    D --> Y[📋 TodoItem Model]
+                    D --> Z[📊 Activity Model]
+                    D --> AA[📁 UserFile Model]
                     
-                    E --> M
+                    E --> BB[🐍 Python Flask API]
+                    E --> CC[🤖 Document Processor]
+                    E --> DD[🧠 Qwen3-coder LLM]
+                    E --> EE[⚙️ AI Configuration]
+                    
                     F --> N
-                    G --> P
-                    H --> P
-                    I --> P
-                    J --> P
-                    K --> P
-                    L --> P
+                    G --> O
+                    H --> R
+                    I --> R
+                    J --> R
+                    K --> R
+                    L --> R
+                    M --> R
+                    
+                    Q --> BB
+                    BB --> CC
+                    CC --> DD
+                    DD --> EE
+                    
+                    R --> S
+                    S --> FF[🗄️ MySQL Database<br/>User Isolation]
                     
                     style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
                     style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
                     style C fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
                     style D fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+                    style E fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
             `,
             
             features: `
                 graph TD
-                    A[🎯 Study Space Features] --> B[📚 Learning Tools]
-                    A --> C[🎮 Entertainment]
-                    A --> D[📊 Progress Tracking]
+                    A[🎯 Study Space Multi-User Features] --> B[📚 AI-Powered Learning Tools]
+                    A --> C[🔐 User Isolation & Security]
+                    A --> D[🎮 Entertainment]
+                    A --> E[📊 Progress Tracking]
                     
-                    B --> E[🃏 Flashcard System]
-                    B --> F[📝 Notes Management]
-                    B --> G[✅ Quiz System]
-                    B --> H[💻 Code Practice]
-                    B --> I[📋 Task Management]
+                    B --> F[🤖 AI Document Processing]
+                    B --> G[🃏 Smart Flashcard System]
+                    B --> H[📝 Intelligent Notes]
+                    B --> I[✅ Interactive Quizzes]
+                    B --> J[💻 Code Practice]
+                    B --> K[📋 Task Management]
                     
-                    E --> E1[📚 Create Decks]
-                    E --> E2[🎯 Study Sessions]
-                    E --> E3[📈 Progress Tracking]
+                    F --> F1[📁 Document Upload<br/>PDF, DOC, PPT]
+                    F --> F2[🧠 AI Content Generation]
+                    F --> F3[📚 Auto Flashcard Creation]
+                    F --> F4[📝 Auto Note Generation]
                     
-                    F --> F1[📝 Rich Text Notes]
-                    F --> F2[🏷️ Tag System]
-                    F --> F3[🔍 Search & Filter]
+                    G --> G1[🤖 AI-Generated Decks]
+                    G --> G2[📚 Manual Deck Creation]
+                    G --> G3[🎯 Study Sessions]
+                    G --> G4[📈 Progress Tracking]
                     
-                    G --> G1[❓ Multiple Choice]
-                    G --> G2[⏱️ Time Limits]
-                    G --> G3[📊 Score Tracking]
+                    H --> H1[🤖 AI-Generated Notes]
+                    H --> H2[📝 Rich Text Editor]
+                    H --> H3[🏷️ Category System]
+                    H --> H4[🔍 Search & Filter]
                     
-                    H --> H1[💻 Multi-Language Support]
-                    H --> H2[🧪 Test Cases]
-                    H --> H3[📈 Difficulty Levels]
+                    I --> I1[🤖 AI-Generated Quizzes]
+                    I --> I2[❓ Multiple Choice]
+                    I --> I3[⏱️ Time Limits]
+                    I --> I4[📊 Score Tracking]
                     
-                    I --> I1[📋 Priority System]
-                    I --> I2[📅 Due Dates]
-                    I --> I3[📊 Completion Stats]
+                    J --> J1[💻 Multi-Language Support]
+                    J --> J2[🧪 Test Cases]
+                    J --> J3[📈 Difficulty Levels]
                     
-                    C --> J[🐍 Snake Game]
-                    C --> K[🎯 Break Activities]
+                    K --> K1[📋 Priority System]
+                    K --> K2[📅 Due Dates]
+                    K --> K3[📊 Completion Stats]
                     
-                    D --> L[📊 Activity Logging]
-                    D --> M[📈 Statistics]
-                    D --> N[🏆 Achievements]
+                    C --> L[👤 User Registration]
+                    C --> M[🔐 Secure Authentication]
+                    C --> N[🛡️ Data Isolation]
+                    C --> O[🗄️ User-Specific Database]
+                    
+                    L --> L1[📧 Email Validation]
+                    L --> L2[🔑 Password Security]
+                    
+                    M --> M1[🔐 Session Management]
+                    M --> M2[🚪 Automatic Logout]
+                    
+                    N --> N1[📊 User-Specific Queries]
+                    N --> N2[❌ Cross-User Protection]
+                    N --> N3[🗑️ Cascade Deletion]
+                    
+                    O --> O1[🗄️ MySQL Database]
+                    O --> O2[🔗 Foreign Key Constraints]
+                    O --> O3[📈 Performance Indexes]
+                    
+                    D --> P[🐍 Snake Game]
+                    D --> Q[🎯 Break Activities]
+                    
+                    E --> R[📊 Activity Logging]
+                    E --> S[📈 User Statistics]
+                    E --> T[🏆 Achievements]
                     
                     style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
                     style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
-                    style C fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
-                    style D fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style C fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style D fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style E fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
             `
         };
 
