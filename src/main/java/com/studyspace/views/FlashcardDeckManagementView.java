@@ -2,7 +2,6 @@ package com.studyspace.views;
 
 import com.studyspace.models.Flashcard;
 import com.studyspace.models.FlashcardDeck;
-import com.studyspace.models.Note;
 import com.studyspace.utils.DataStore;
 import com.studyspace.utils.SceneManager;
 import com.studyspace.utils.IconUtils;
@@ -16,10 +15,6 @@ import javafx.scene.Parent;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 /**
  * FlashcardDeckManagementView - Manage flashcards within a deck
@@ -205,15 +200,8 @@ public class FlashcardDeckManagementView {
         addFlashcardButton.getStyleClass().add("primary-button");
         addFlashcardButton.setOnAction(e -> handleAddFlashcard());
         
-        Button importFromNotesButton = new Button();
-        importFromNotesButton.setGraphic(IconUtils.createIconTextHBox("book", "Import from Notes"));
-        importFromNotesButton.getStyleClass().add("info-button");
-        importFromNotesButton.setOnAction(e -> handleImportFromNotes());
-        
-        Button editDeckDetailsButton = new Button();
-        editDeckDetailsButton.setGraphic(IconUtils.createIconTextHBox("edit", "Edit Deck Details"));
-        editDeckDetailsButton.getStyleClass().add("secondary-button");
-        editDeckDetailsButton.setOnAction(e -> handleEditDeckDetails());
+        // Removed: Import from Notes button
+        // Removed: Edit Deck Details button
         
         Button studyButton = new Button();
         studyButton.setGraphic(IconUtils.createIconTextHBox("book", "Study Deck"));
@@ -221,17 +209,14 @@ public class FlashcardDeckManagementView {
         studyButton.setOnAction(e -> handleStudyDeck());
         studyButton.setDisable(deck.getCardCount() == 0);
         
-        Button deleteDeckButton = new Button();
-        deleteDeckButton.setGraphic(IconUtils.createIconView("trash"));
-        deleteDeckButton.getStyleClass().add("danger-button");
-        deleteDeckButton.setOnAction(e -> handleDeleteDeck());
+        // Removed: Delete Deck button (trash button)
         
         Button backButton = new Button();
         backButton.setGraphic(IconUtils.createIconTextHBox("home", "Back to Decks"));
         backButton.getStyleClass().add("secondary-button");
         backButton.setOnAction(e -> handleBackToDecks());
         
-        actionSection.getChildren().addAll(addFlashcardButton, importFromNotesButton, editDeckDetailsButton, studyButton, deleteDeckButton, backButton);
+        actionSection.getChildren().addAll(addFlashcardButton, studyButton, backButton);
         
         return actionSection;
     }
@@ -543,288 +528,17 @@ public class FlashcardDeckManagementView {
         });
     }
     
-    /**
-     * Handles editing deck details (title, description, subject, difficulty)
-     */
-    private void handleEditDeckDetails() {
-        Dialog<FlashcardDeck> dialog = new Dialog<>();
-        dialog.setTitle("Edit Deck Details");
-        dialog.setHeaderText("Edit deck information");
-        
-        // Create form content
-        VBox content = new VBox();
-        content.setSpacing(16);
-        content.setPadding(new Insets(20));
-        
-        // Title field
-        Label titleLabel = new Label("Deck Title:");
-        TextField titleField = new TextField(deck.getTitle());
-        titleField.setPromptText("Enter deck title");
-        
-        // Description field
-        Label descriptionLabel = new Label("Description:");
-        TextArea descriptionArea = new TextArea(deck.getDescription());
-        descriptionArea.setPromptText("Enter deck description");
-        descriptionArea.setPrefRowCount(3);
-        descriptionArea.setWrapText(true);
-        
-        // Subject field
-        Label subjectLabel = new Label("Subject:");
-        TextField subjectField = new TextField(deck.getSubject());
-        subjectField.setPromptText("Enter subject (e.g., JavaScript, Math, etc.)");
-        
-        // Difficulty selection
-        Label difficultyLabel = new Label("Difficulty:");
-        ComboBox<Flashcard.Difficulty> difficultyCombo = new ComboBox<>();
-        difficultyCombo.getItems().addAll(Flashcard.Difficulty.values());
-        difficultyCombo.setValue(deck.getDifficulty());
-        
-        content.getChildren().addAll(
-            titleLabel, titleField,
-            descriptionLabel, descriptionArea,
-            subjectLabel, subjectField,
-            difficultyLabel, difficultyCombo
-        );
-        
-        dialog.getDialogPane().setContent(content);
-        
-        // Add buttons
-        ButtonType saveButtonType = new ButtonType("Save Changes", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, cancelButtonType);
-        
-        // Set result converter
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType == saveButtonType) {
-                // Validate input
-                if (titleField.getText().trim().isEmpty()) {
-                    sceneManager.showErrorDialog("Invalid Input", "Deck title cannot be empty.");
-                    return null;
-                }
-                
-                // Update deck with new values
-                deck.setTitle(titleField.getText().trim());
-                deck.setDescription(descriptionArea.getText().trim());
-                deck.setSubject(subjectField.getText().trim());
-                deck.setDifficulty(difficultyCombo.getValue());
-                
-                // Save to data store
-                dataStore.saveFlashcardDeck(deck);
-                
-                // Log activity
-                dataStore.logUserActivity("FLASHCARD_DECK_CREATED", "Updated deck: " + deck.getTitle());
-                
-                return deck;
-            }
-            return null;
-        });
-        
-        // Show dialog and handle result
-        dialog.showAndWait().ifPresent(updatedDeck -> {
-            if (updatedDeck != null) {
-                // Refresh the UI to show updated information
-                refreshHeader();
-                sceneManager.showInfoDialog("Deck Updated", 
-                    "Deck details have been successfully updated!");
-            }
-        });
-    }
+    // Removed: handleEditDeckDetails method
     
-    /**
-     * Refreshes the header section with updated deck information
-     */
-    private void refreshHeader() {
-        // This would need to be implemented to refresh the header display
-        // For now, we'll just reload the entire view
-        initializeUI();
-    }
+    // Removed: refreshHeader method (no longer needed)
     
-    /**
-     * Handles importing flashcards from notes
-     */
-    private void handleImportFromNotes() {
-        // Get all available notes
-        List<Note> availableNotes = new ArrayList<>(dataStore.getNotes());
-        
-        if (availableNotes.isEmpty()) {
-            sceneManager.showInfoDialog("No Notes Available", 
-                "You don't have any notes yet. Create some notes first before importing flashcards.");
-            return;
-        }
-        
-        // Create dialog for note selection
-        Dialog<List<Note>> dialog = new Dialog<>();
-        dialog.setTitle("Import Flashcards from Notes");
-        dialog.setHeaderText("Select notes to generate flashcards from");
-        
-        // Create content
-        VBox content = new VBox();
-        content.setSpacing(16);
-        content.setPadding(new Insets(20));
-        
-        Label instructionLabel = new Label("Select the notes you want to generate flashcards from:");
-        instructionLabel.getStyleClass().addAll("text-sm", "text-secondary");
-        
-        // Create list view for note selection
-        ListView<Note> noteListView = new ListView<>();
-        noteListView.getItems().addAll(availableNotes);
-        noteListView.setPrefHeight(200);
-        noteListView.setCellFactory(listView -> new ListCell<Note>() {
-            @Override
-            protected void updateItem(Note note, boolean empty) {
-                super.updateItem(note, empty);
-                if (empty || note == null) {
-                    setText(null);
-                } else {
-                    setText(note.getTitle() + " - " + note.getSubject());
-                }
-            }
-        });
-        
-        // Allow multiple selection
-        noteListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        
-        content.getChildren().addAll(instructionLabel, noteListView);
-        dialog.getDialogPane().setContent(content);
-        
-        // Add buttons
-        ButtonType importButtonType = new ButtonType("Import Flashcards", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(importButtonType, cancelButtonType);
-        
-        // Set result converter
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType == importButtonType) {
-                return new ArrayList<>(noteListView.getSelectionModel().getSelectedItems());
-            }
-            return null;
-        });
-        
-        // Show dialog and handle result
-        dialog.showAndWait().ifPresent(selectedNotes -> {
-            if (selectedNotes != null && !selectedNotes.isEmpty()) {
-                createFlashcardsFromNotes(selectedNotes);
-            }
-        });
-    }
+    // Removed: handleImportFromNotes method
     
-    /**
-     * Creates flashcards from selected notes
-     */
-    private void createFlashcardsFromNotes(List<Note> selectedNotes) {
-        try {
-            int totalFlashcardsCreated = 0;
-            
-            for (Note note : selectedNotes) {
-                List<Flashcard> generatedFlashcards = generateFlashcardsFromNote(note);
-                
-                // Add generated flashcards to the deck
-                for (Flashcard flashcard : generatedFlashcards) {
-                    deck.addFlashcard(flashcard);
-                    flashcardsList.add(flashcard);
-                    totalFlashcardsCreated++;
-                }
-            }
-            
-            // Save the deck
-            dataStore.saveFlashcardDeck(deck);
-            
-            // Refresh the display
-            loadFlashcards();
-            
-            // Log activity
-            dataStore.logUserActivity("FLASHCARD_DECK_CREATED", 
-                "Imported " + totalFlashcardsCreated + " flashcards from " + selectedNotes.size() + " notes to deck: " + deck.getTitle());
-            
-            // Show success message
-            sceneManager.showInfoDialog("Import Successful", 
-                "Successfully imported " + totalFlashcardsCreated + " flashcards from " + selectedNotes.size() + " notes!");
-            
-            // Refresh activity history
-            com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
-            
-        } catch (Exception e) {
-            sceneManager.showErrorDialog("Import Error", 
-                "Failed to import flashcards from notes: " + e.getMessage());
-        }
-    }
+    // Removed: createFlashcardsFromNotes method (no longer needed)
     
-    /**
-     * Generates flashcards from a single note
-     */
-    private List<Flashcard> generateFlashcardsFromNote(Note note) {
-        List<Flashcard> flashcards = new ArrayList<>();
-        String content = note.getContent();
-        
-        // Split content into sections (by headers, bullet points, etc.)
-        String[] sections = content.split("\\n\\s*\\n|\\n\\s*[-*]\\s*|\\n\\s*\\d+\\.\\s*");
-        
-        for (String section : sections) {
-            section = section.trim();
-            if (section.length() > 20) { // Only process substantial sections
-                List<Flashcard> sectionFlashcards = generateFlashcardsFromSection(section, note.getTitle());
-                flashcards.addAll(sectionFlashcards);
-            }
-        }
-        
-        // If no flashcards were generated from sections, create a general one
-        if (flashcards.isEmpty() && content.length() > 50) {
-            String question = "What is the main topic of: " + note.getTitle() + "?";
-            String answer = content.length() > 200 ? content.substring(0, 200) + "..." : content;
-            flashcards.add(new Flashcard(question, answer, Flashcard.Difficulty.MEDIUM));
-        }
-        
-        return flashcards;
-    }
+    // Removed: generateFlashcardsFromNote method (no longer needed)
     
-    /**
-     * Generates flashcards from a content section
-     */
-    private List<Flashcard> generateFlashcardsFromSection(String section, String noteTitle) {
-        List<Flashcard> flashcards = new ArrayList<>();
-        
-        // Look for question-answer patterns
-        Pattern qaPattern = Pattern.compile("(?:Q:|Question:)\\s*(.+?)\\s*(?:A:|Answer:)\\s*(.+?)(?=\\n|$)", Pattern.DOTALL);
-        Matcher qaMatcher = qaPattern.matcher(section);
-        
-        while (qaMatcher.find()) {
-            String question = qaMatcher.group(1).trim();
-            String answer = qaMatcher.group(2).trim();
-            
-            if (question.length() > 5 && answer.length() > 5) {
-                flashcards.add(new Flashcard(question, answer, Flashcard.Difficulty.MEDIUM));
-            }
-        }
-        
-        // Look for definition patterns (term: definition)
-        Pattern definitionPattern = Pattern.compile("([A-Za-z][A-Za-z\\s]+?):\\s*(.+?)(?=\\n|$)", Pattern.DOTALL);
-        Matcher definitionMatcher = definitionPattern.matcher(section);
-        
-        while (definitionMatcher.find()) {
-            String term = definitionMatcher.group(1).trim();
-            String definition = definitionMatcher.group(2).trim();
-            
-            if (term.length() > 2 && definition.length() > 10) {
-                String question = "What is " + term + "?";
-                flashcards.add(new Flashcard(question, definition, Flashcard.Difficulty.EASY));
-            }
-        }
-        
-        // Look for bullet points or numbered lists
-        Pattern listPattern = Pattern.compile("(?:^|\\n)\\s*[-*]\\s*(.+?)(?=\\n|$)", Pattern.MULTILINE);
-        Matcher listMatcher = listPattern.matcher(section);
-        
-        while (listMatcher.find()) {
-            String item = listMatcher.group(1).trim();
-            if (item.length() > 10) {
-                String question = "Explain: " + item;
-                String answer = "This is a key point from " + noteTitle + ": " + item;
-                flashcards.add(new Flashcard(question, answer, Flashcard.Difficulty.MEDIUM));
-            }
-        }
-        
-        return flashcards;
-    }
+    // Removed: generateFlashcardsFromSection method (no longer needed)
     
     /**
      * Handles deleting a flashcard
@@ -895,27 +609,7 @@ public class FlashcardDeckManagementView {
     /**
      * Handles deleting the entire deck
      */
-    private void handleDeleteDeck() {
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Delete Deck");
-        confirmDialog.setHeaderText("Are you sure you want to delete this entire deck?");
-        confirmDialog.setContentText("Deck: " + deck.getTitle() + "\nCards: " + deck.getCardCount() + "\n\nThis action cannot be undone.");
-        
-        confirmDialog.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                try {
-                    dataStore.deleteFlashcardDeck(deck.getId());
-                    sceneManager.showInfoDialog("Deck Deleted", 
-                        "The flashcard deck '" + deck.getTitle() + "' has been successfully deleted.");
-                    
-                    // Return to the decks list
-                    handleBackToDecks();
-                } catch (Exception e) {
-                    sceneManager.showErrorDialog("Error", "Failed to delete deck: " + e.getMessage());
-                }
-            }
-        });
-    }
+    // Removed: handleDeleteDeck method
     
     /**
      * Creates the flashcard form

@@ -620,8 +620,7 @@ public class NotesView {
                 new javafx.stage.FileChooser.ExtensionFilter("PDF Files", "*.pdf"),
                 new javafx.stage.FileChooser.ExtensionFilter("Word Documents", "*.doc", "*.docx"),
                 new javafx.stage.FileChooser.ExtensionFilter("PowerPoint Presentations", "*.ppt", "*.pptx"),
-                new javafx.stage.FileChooser.ExtensionFilter("All Supported Files", "*.pdf", "*.doc", "*.docx", "*.ppt", "*.pptx"),
-                new javafx.stage.FileChooser.ExtensionFilter("All Files", "*.*")
+                new javafx.stage.FileChooser.ExtensionFilter("All Supported Files", "*.pdf", "*.doc", "*.docx", "*.ppt", "*.pptx")
             );
             
             javafx.stage.Window window = dialog.getDialogPane().getScene().getWindow();
@@ -662,10 +661,20 @@ public class NotesView {
      */
     private void processPDFForNotes(java.io.File pdfFile) {
         try {
-            // Show processing dialog
+            // Check if file type is supported
+            String fileName = pdfFile.getName().toLowerCase();
+            if (!fileName.endsWith(".pdf") && !fileName.endsWith(".doc") && 
+                !fileName.endsWith(".docx") && !fileName.endsWith(".ppt") && 
+                !fileName.endsWith(".pptx")) {
+                SceneManager.getInstance().showErrorDialog("Unsupported File Type", 
+                    "Please select a PDF, Word document (.doc/.docx), or PowerPoint presentation (.ppt/.pptx) file.");
+                return;
+            }
+            
+            // Show AI processing dialog
             Dialog<Boolean> processingDialog = new Dialog<>();
-            processingDialog.setTitle("Processing Document");
-            processingDialog.setHeaderText("Extracting content from document...");
+            processingDialog.setTitle("AI Document Processing");
+            processingDialog.setHeaderText("Processing your document with AI for Notes...");
             processingDialog.setResizable(false);
             
             VBox processingContent = new VBox();
@@ -673,7 +682,7 @@ public class NotesView {
             processingContent.setPadding(new Insets(20));
             processingContent.setAlignment(Pos.CENTER);
             
-            Label processingLabel = new Label("Analyzing document content and generating organized notes...");
+            Label processingLabel = new Label("🤖 AI is analyzing your document and generating intelligent notes...");
             processingLabel.getStyleClass().add("processing-text");
             
             ProgressBar progressBar = new ProgressBar();
@@ -708,17 +717,63 @@ public class NotesView {
             // Show processing dialog
             processingDialog.show();
             
-            // Simulate processing time
-            javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(2), e -> {
-                    if (processingDialog.isShowing()) {
-                        processingDialog.setResult(true);
-                        processingDialog.close();
-                        createNotesFromPDF(pdfFile.getName());
-                    }
-                })
-            );
-            timeline.play();
+            // Process document with AI service in background
+            javafx.concurrent.Task<com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult> task = 
+                new javafx.concurrent.Task<com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult>() {
+                @Override
+                protected com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult call() throws Exception {
+                    com.studyspace.utils.DocumentProcessingService service = 
+                        com.studyspace.utils.DocumentProcessingService.getInstance();
+                    return service.processDocument(pdfFile, "notes");
+                }
+            };
+            
+            task.setOnSucceeded(e -> {
+                if (processingDialog.isShowing()) {
+                    processingDialog.close();
+                }
+                
+                com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult result = task.getValue();
+                
+                if (result.isSuccess()) {
+                    // Refresh the notes list to show the new AI-generated content
+                    notesList.clear();
+                    notesList.addAll(dataStore.getNotes());
+                    loadNotes();
+                    
+                    // Show success message with details
+                    String successMessage = String.format(
+                        "✅ AI Processing Complete!\n\n" +
+                        "📝 Note: %s\n" +
+                        "📖 Subject: %s\n" +
+                        "📊 Difficulty: %s\n\n" +
+                        "Summary: %s\n\n" +
+                        "Your AI-generated note is now available in the Notes section!",
+                        result.getNoteTitle(),
+                        result.getSubject(),
+                        result.getDifficulty(),
+                        result.getSummary()
+                    );
+                    
+                    SceneManager.getInstance().showInfoDialog("AI Processing Complete", successMessage);
+                } else {
+                    SceneManager.getInstance().showErrorDialog("AI Processing Failed", 
+                        "Failed to process document: " + result.getMessage());
+                }
+            });
+            
+            task.setOnFailed(e -> {
+                if (processingDialog.isShowing()) {
+                    processingDialog.close();
+                }
+                SceneManager.getInstance().showErrorDialog("AI Processing Error", 
+                    "An error occurred while processing the document: " + task.getException().getMessage());
+            });
+            
+            // Start the task in a background thread
+            Thread processingThread = new Thread(task);
+            processingThread.setDaemon(true);
+            processingThread.start();
             
         } catch (Exception e) {
             SceneManager.getInstance().showErrorDialog("Import Error", 
@@ -727,8 +782,9 @@ public class NotesView {
     }
     
     /**
-     * Creates sample notes from document processing
+     * Creates sample notes from document processing (DEPRECATED - replaced with AI processing)
      */
+    @SuppressWarnings("unused")
     private void createNotesFromPDF(String fileName) {
         try {
             // Create sample notes based on document processing

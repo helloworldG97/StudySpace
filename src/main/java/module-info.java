@@ -3,6 +3,9 @@ module studyspace {
     requires transitive javafx.fxml;
     requires javafx.web;
     requires java.desktop;
+    requires java.sql;
+    requires java.logging;
+    requires java.net.http;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -11,6 +14,10 @@ module studyspace {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    
+    // JSON dependencies
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.core;
 
     // Export main packages
     exports com.studyspace;

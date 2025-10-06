@@ -732,11 +732,29 @@ public class QuizListView {
      */
     private void createQuizFromFlashcards(List<FlashcardDeck> selectedDecks) {
         try {
-            String title = "Quiz from Flashcards - " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, HH:mm"));
-            String description = "Generated from flashcard decks: " + 
-                selectedDecks.stream().map(FlashcardDeck::getTitle).reduce((a, b) -> a + ", " + b).orElse("");
+            // Extract identity information from the first deck or combine from multiple decks
+            String baseTitle = selectedDecks.get(0).getTitle();
+            String baseSubject = selectedDecks.get(0).getSubject();
+            Flashcard.Difficulty baseDifficulty = selectedDecks.get(0).getDifficulty();
             
-            Quiz newQuiz = new Quiz(title, description, "Mixed", Flashcard.Difficulty.MEDIUM, 30);
+            // If multiple decks, combine the information
+            if (selectedDecks.size() > 1) {
+                baseTitle = "Mixed Quiz from " + selectedDecks.size() + " Decks";
+                baseSubject = "Mixed Subjects";
+                // Use the highest difficulty level
+                baseDifficulty = selectedDecks.stream()
+                    .map(FlashcardDeck::getDifficulty)
+                    .max(Enum::compareTo)
+                    .orElse(Flashcard.Difficulty.MEDIUM);
+            }
+            
+            String title = baseTitle + " - Quiz";
+            String description = "Generated from flashcard deck(s): " + 
+                selectedDecks.stream().map(FlashcardDeck::getTitle).reduce((a, b) -> a + ", " + b).orElse("") +
+                "\nSubject: " + baseSubject + 
+                "\nDifficulty: " + baseDifficulty.toString();
+            
+            Quiz newQuiz = new Quiz(title, description, baseSubject, baseDifficulty, 30);
             
             List<Question> questions = new ArrayList<>();
             
@@ -795,11 +813,26 @@ public class QuizListView {
      */
     private void createQuizFromNotes(List<Note> selectedNotes) {
         try {
-            String title = "Quiz from Notes - " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, HH:mm"));
-            String description = "Generated from notes: " + 
-                selectedNotes.stream().map(Note::getTitle).reduce((a, b) -> a + ", " + b).orElse("");
+            // Extract identity information from the first note or combine from multiple notes
+            String baseTitle = selectedNotes.get(0).getTitle();
+            String baseSubject = selectedNotes.get(0).getSubject();
+            Flashcard.Difficulty baseDifficulty = Flashcard.Difficulty.MEDIUM; // Default difficulty for notes
             
-            Quiz newQuiz = new Quiz(title, description, "Mixed", Flashcard.Difficulty.MEDIUM, 25);
+            // If multiple notes, combine the information
+            if (selectedNotes.size() > 1) {
+                baseTitle = "Mixed Quiz from " + selectedNotes.size() + " Notes";
+                baseSubject = "Mixed Subjects";
+                // For multiple notes, use medium difficulty as default
+                baseDifficulty = Flashcard.Difficulty.MEDIUM;
+            }
+            
+            String title = baseTitle + " - Quiz";
+            String description = "Generated from note(s): " + 
+                selectedNotes.stream().map(Note::getTitle).reduce((a, b) -> a + ", " + b).orElse("") +
+                "\nSubject: " + baseSubject + 
+                "\nDifficulty: " + baseDifficulty.toString();
+            
+            Quiz newQuiz = new Quiz(title, description, baseSubject, baseDifficulty, 25);
             
             List<Question> questions = new ArrayList<>();
             

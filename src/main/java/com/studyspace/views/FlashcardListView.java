@@ -508,12 +508,88 @@ public class FlashcardListView {
      * Handles editing a flashcard deck
      */
     private void handleEditDeck(FlashcardDeck deck) {
-        // Open the deck management view for editing
-        FlashcardDeckManagementView managementView = new FlashcardDeckManagementView(deck, this);
-
-        if (mainContainer.getParent() instanceof StackPane parent) {
-            parent.getChildren().setAll(managementView.getView());
-        }
+        // Create a dialog for editing deck details
+        Dialog<FlashcardDeck> dialog = new Dialog<>();
+        dialog.setTitle("Edit Deck Details");
+        dialog.setHeaderText("Edit deck information");
+        
+        // Create form content
+        VBox content = new VBox();
+        content.setSpacing(16);
+        content.setPadding(new Insets(20));
+        
+        // Title field
+        Label titleLabel = new Label("Deck Title:");
+        TextField titleField = new TextField(deck.getTitle());
+        titleField.setPromptText("Enter deck title");
+        
+        // Description field
+        Label descriptionLabel = new Label("Description:");
+        TextArea descriptionArea = new TextArea(deck.getDescription());
+        descriptionArea.setPromptText("Enter deck description");
+        descriptionArea.setPrefRowCount(3);
+        descriptionArea.setWrapText(true);
+        
+        // Subject field
+        Label subjectLabel = new Label("Subject:");
+        TextField subjectField = new TextField(deck.getSubject());
+        subjectField.setPromptText("Enter subject (e.g., JavaScript, Math, etc.)");
+        
+        // Difficulty selection
+        Label difficultyLabel = new Label("Difficulty:");
+        ComboBox<Flashcard.Difficulty> difficultyCombo = new ComboBox<>();
+        difficultyCombo.getItems().addAll(Flashcard.Difficulty.values());
+        difficultyCombo.setValue(deck.getDifficulty());
+        
+        content.getChildren().addAll(
+            titleLabel, titleField,
+            descriptionLabel, descriptionArea,
+            subjectLabel, subjectField,
+            difficultyLabel, difficultyCombo
+        );
+        
+        dialog.getDialogPane().setContent(content);
+        
+        // Add buttons
+        ButtonType saveButtonType = new ButtonType("Save Changes", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, cancelButtonType);
+        
+        // Set result converter
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == saveButtonType) {
+                // Validate input
+                if (titleField.getText().trim().isEmpty()) {
+                    sceneManager.showErrorDialog("Invalid Input", "Deck title cannot be empty.");
+                    return null;
+                }
+                
+                // Update deck with new values
+                deck.setTitle(titleField.getText().trim());
+                deck.setDescription(descriptionArea.getText().trim());
+                deck.setSubject(subjectField.getText().trim());
+                deck.setDifficulty(difficultyCombo.getValue());
+                
+                // Save to data store
+                dataStore.saveFlashcardDeck(deck);
+                
+                // Log activity
+                dataStore.logUserActivity("FLASHCARD_DECK_CREATED", "Updated deck: " + deck.getTitle());
+                
+                return deck;
+            }
+            return null;
+        });
+        
+        // Show dialog and handle result
+        dialog.showAndWait().ifPresent(updatedDeck -> {
+            if (updatedDeck != null) {
+                // Refresh the deck list to show updated information
+                loadFlashcardDecks();
+                sceneManager.showInfoDialog("Deck Updated", 
+                    "Deck details have been successfully updated!");
+            }
+        });
     }
     
     /**
@@ -656,8 +732,7 @@ public class FlashcardListView {
                 new javafx.stage.FileChooser.ExtensionFilter("PDF Files", "*.pdf"),
                 new javafx.stage.FileChooser.ExtensionFilter("Word Documents", "*.doc", "*.docx"),
                 new javafx.stage.FileChooser.ExtensionFilter("PowerPoint Presentations", "*.ppt", "*.pptx"),
-                new javafx.stage.FileChooser.ExtensionFilter("All Supported Files", "*.pdf", "*.doc", "*.docx", "*.ppt", "*.pptx"),
-                new javafx.stage.FileChooser.ExtensionFilter("All Files", "*.*")
+                new javafx.stage.FileChooser.ExtensionFilter("All Supported Files", "*.pdf", "*.doc", "*.docx", "*.ppt", "*.pptx")
             );
             
             javafx.stage.Window window = dialog.getDialogPane().getScene().getWindow();
@@ -941,14 +1016,24 @@ public class FlashcardListView {
     }
     
     /**
-     * Processes the selected PDF file and creates flashcard deck
+     * Processes the selected document file using AI-powered processing
      */
     private void processPDFForFlashcards(java.io.File pdfFile) {
         try {
-            // Show processing dialog
+            // Check if file type is supported
+            String fileName = pdfFile.getName().toLowerCase();
+            if (!fileName.endsWith(".pdf") && !fileName.endsWith(".doc") && 
+                !fileName.endsWith(".docx") && !fileName.endsWith(".ppt") && 
+                !fileName.endsWith(".pptx")) {
+                sceneManager.showErrorDialog("Unsupported File Type", 
+                    "Please select a PDF, Word document (.doc/.docx), or PowerPoint presentation (.ppt/.pptx) file.");
+                return;
+            }
+            
+            // Show AI processing dialog
             Dialog<Boolean> processingDialog = new Dialog<>();
-            processingDialog.setTitle("Processing Document");
-            processingDialog.setHeaderText("Extracting content from document...");
+            processingDialog.setTitle("AI Document Processing");
+            processingDialog.setHeaderText("Processing your document with AI...");
             processingDialog.setResizable(false);
             
             VBox processingContent = new VBox();
@@ -956,7 +1041,7 @@ public class FlashcardListView {
             processingContent.setPadding(new Insets(20));
             processingContent.setAlignment(Pos.CENTER);
             
-            Label processingLabel = new Label("Analyzing document content and generating flashcard deck...");
+            Label processingLabel = new Label("🤖 AI is analyzing your document and generating intelligent flashcards...");
             processingLabel.getStyleClass().add("processing-text");
             
             ProgressBar progressBar = new ProgressBar();
@@ -991,21 +1076,68 @@ public class FlashcardListView {
             // Show processing dialog
             processingDialog.show();
             
-            // Simulate processing time
-            javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(2), e -> {
-                    if (processingDialog.isShowing()) {
-                        processingDialog.setResult(true);
-                        processingDialog.close();
-                        createFlashcardDeckFromPDF(pdfFile.getName());
-                    }
-                })
-            );
-            timeline.play();
+            // Process document with AI service in background
+            javafx.concurrent.Task<com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult> task = 
+                new javafx.concurrent.Task<com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult>() {
+                @Override
+                protected com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult call() throws Exception {
+                    com.studyspace.utils.DocumentProcessingService service = 
+                        com.studyspace.utils.DocumentProcessingService.getInstance();
+                    return service.processDocument(pdfFile, "flashcards");
+                }
+            };
+            
+            task.setOnSucceeded(e -> {
+                if (processingDialog.isShowing()) {
+                    processingDialog.close();
+                }
+                
+                com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult result = task.getValue();
+                
+                if (result.isSuccess()) {
+                    // Refresh the deck list to show the new AI-generated content
+                    loadFlashcardDecks();
+                    
+                    // Show success message with details
+                    String successMessage = String.format(
+                        "✅ AI Processing Complete!\n\n" +
+                        "📝 Note: %s\n" +
+                        "🃏 Deck: %s\n" +
+                        "📚 Flashcards: %d created\n" +
+                        "📖 Subject: %s\n" +
+                        "📊 Difficulty: %s\n\n" +
+                        "Summary: %s",
+                        result.getNoteTitle(),
+                        result.getDeckTitle(),
+                        result.getFlashcardsCreated(),
+                        result.getSubject(),
+                        result.getDifficulty(),
+                        result.getSummary()
+                    );
+                    
+                    sceneManager.showInfoDialog("AI Processing Complete", successMessage);
+                } else {
+                    sceneManager.showErrorDialog("AI Processing Failed", 
+                        "Failed to process document: " + result.getMessage());
+                }
+            });
+            
+            task.setOnFailed(e -> {
+                if (processingDialog.isShowing()) {
+                    processingDialog.close();
+                }
+                sceneManager.showErrorDialog("AI Processing Error", 
+                    "An error occurred while processing the document: " + task.getException().getMessage());
+            });
+            
+            // Start the task in a background thread
+            Thread processingThread = new Thread(task);
+            processingThread.setDaemon(true);
+            processingThread.start();
             
         } catch (Exception e) {
             sceneManager.showErrorDialog("Import Error", 
-                "Failed to process PDF file: " + e.getMessage());
+                "Failed to process document file: " + e.getMessage());
         }
     }
     

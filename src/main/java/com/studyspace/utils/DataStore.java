@@ -10,32 +10,19 @@ import java.util.Comparator;
 
 //============ data store =============
 //this is where all application data is managed and stored
+//Now uses MySQL database for persistence
 
 public class DataStore {
     private static DataStore instance;
-    
-    // Data storage
-    private Map<String, User> users;
-    private Map<String, FlashcardDeck> flashcardDecks;
-    private Map<String, Quiz> quizzes;
-    private Map<String, CodeProblem> codeProblems;
-    private Map<String, Note> notes;
-    private Map<String, TodoItem> todoItems;
-    private Map<String, Activity> activities;
-    
-    // Current session
-    private User currentUser;
-    
-    // Flag to prevent data re-initialization
-    private boolean dataInitialized = false;
+    private MySQLDataStore mysqlDataStore;
     
     private DataStore() {
-        initializeData();
+        this.mysqlDataStore = MySQLDataStore.getInstance();
     }
     
     public static DataStore getInstance() {
         if (instance == null) {
-            System.out.println("Creating new DataStore instance");
+            System.out.println("Creating new DataStore instance with MySQL backend");
             instance = new DataStore();
         } else {
             System.out.println("Using existing DataStore instance");
@@ -43,261 +30,202 @@ public class DataStore {
         return instance;
     }
     
-    private void initializeData() {
-        // Only initialize if not already done
-        if (dataInitialized) {
-            return;
-        }
-        
-        users = new HashMap<>();
-        flashcardDecks = new HashMap<>();
-        quizzes = new HashMap<>();
-        codeProblems = new HashMap<>();
-        notes = new HashMap<>();
-        todoItems = new HashMap<>();
-        activities = new HashMap<>();
-        
-        // No sample data - start with empty collections
-        dataInitialized = true;
-    }
-    
     // Authentication methods
     public boolean authenticateUser(String email, String password) {
-        System.out.println("Authenticating user: " + email);
-        System.out.println("Total users in store: " + users.size());
-        System.out.println("User keys: " + users.keySet());
-        
-        User user = users.get(email.toLowerCase());
-        if (user != null && user.getPassword().equals(password)) {
-            currentUser = user;
-            user.updateLastLogin();
-            System.out.println("Authentication successful for: " + user.getFullName());
-            return true;
-        }
-        System.out.println("Authentication failed for: " + email);
-        return false;
+        return mysqlDataStore.authenticateUser(email, password);
     }
     
     public User registerUser(String fullName, String email, String password) {
-        System.out.println("Registering user: " + email);
-        System.out.println("Total users before registration: " + users.size());
-        
-        if (users.containsKey(email.toLowerCase())) {
-            System.out.println("User already exists: " + email);
-            return null; // User already exists
-        }
-        
-        User newUser = new User(fullName, email.toLowerCase(), password);
-        users.put(newUser.getEmail(), newUser);
-        currentUser = newUser;
-        System.out.println("User registered successfully: " + newUser.getFullName());
-        System.out.println("Total users after registration: " + users.size());
-        return newUser;
+        return mysqlDataStore.registerUser(fullName, email, password);
     }
     
     public void logout() {
-        currentUser = null;
+        mysqlDataStore.logout();
     }
     
     public User getCurrentUser() {
-        return currentUser;
+        return mysqlDataStore.getCurrentUser();
     }
     
     public void setCurrentUser(User user) {
-        this.currentUser = user;
+        mysqlDataStore.setCurrentUser(user);
     }
     
-    /**
-     * Updates an existing user in the store
-     */
     public void updateUser(User user) {
-        if (user != null) {
-            users.put(user.getEmail(), user);
-            System.out.println("User updated: " + user.getFullName());
-        }
+        mysqlDataStore.updateUser(user);
     }
     
     public boolean isEmailTaken(String email) {
-        return users.containsKey(email.toLowerCase());
+        return mysqlDataStore.isEmailTaken(email);
     }
     
     // Data access methods
     public List<FlashcardDeck> getAllFlashcardDecks() {
-        return new ArrayList<>(flashcardDecks.values());
+        return mysqlDataStore.getAllFlashcardDecks();
     }
     
     public FlashcardDeck getFlashcardDeck(String id) {
-        return flashcardDecks.get(id);
+        return mysqlDataStore.getFlashcardDeck(id);
     }
     
     public void saveFlashcardDeck(FlashcardDeck deck) {
-        flashcardDecks.put(deck.getId(), deck);
+        mysqlDataStore.saveFlashcardDeck(deck);
     }
     
     public void deleteFlashcardDeck(String id) {
-        flashcardDecks.remove(id);
+        mysqlDataStore.deleteFlashcardDeck(id);
     }
     
     public List<Quiz> getAllQuizzes() {
-        return new ArrayList<>(quizzes.values());
+        return mysqlDataStore.getAllQuizzes();
     }
     
     public Quiz getQuiz(String id) {
-        return quizzes.get(id);
+        return mysqlDataStore.getQuiz(id);
     }
     
     public void saveQuiz(Quiz quiz) {
-        quizzes.put(quiz.getId(), quiz);
+        mysqlDataStore.saveQuiz(quiz);
     }
     
     public void deleteQuiz(String id) {
-        quizzes.remove(id);
+        mysqlDataStore.deleteQuiz(id);
     }
     
     public List<CodeProblem> getAllCodeProblems() {
-        return new ArrayList<>(codeProblems.values());
+        // Code problems not implemented in MySQL yet
+        return new ArrayList<>();
     }
     
     public CodeProblem getCodeProblem(String id) {
-        return codeProblems.get(id);
+        return null;
     }
     
     public void saveCodeProblem(CodeProblem problem) {
-        codeProblems.put(problem.getId(), problem);
+        // Not implemented yet
     }
     
     public void deleteCodeProblem(String id) {
-        codeProblems.remove(id);
+        // Not implemented yet
     }
     
     public List<Note> getAllNotes() {
-        return new ArrayList<>(notes.values());
+        return mysqlDataStore.getAllNotes();
     }
     
     public Note getNote(String id) {
-        return notes.get(id);
+        return mysqlDataStore.getNote(id);
     }
     
     public void saveNote(Note note) {
-        notes.put(note.getId(), note);
+        mysqlDataStore.saveNote(note);
     }
     
     public void deleteNote(String id) {
-        notes.remove(id);
+        mysqlDataStore.deleteNote(id);
     }
     
     public void addNote(Note note) {
-        notes.put(note.getId(), note);
+        mysqlDataStore.saveNote(note);
     }
     
     public void updateNote(Note note) {
-        notes.put(note.getId(), note);
+        mysqlDataStore.saveNote(note);
     }
     
     public List<Note> getNotes() {
-        return new ArrayList<>(notes.values());
+        return mysqlDataStore.getAllNotes();
     }
     
     public List<TodoItem> getTodoItems() {
-        return new ArrayList<>(todoItems.values());
+        return mysqlDataStore.getAllTodoItems();
     }
     
     public List<TodoItem> getAllTodoItems() {
-        return new ArrayList<>(todoItems.values());
+        return mysqlDataStore.getAllTodoItems();
     }
     
     public List<TodoItem> getActiveTodoItems() {
-        return todoItems.values().stream()
+        return mysqlDataStore.getAllTodoItems().stream()
                 .filter(todo -> !todo.isCompleted())
                 .collect(Collectors.toList());
     }
     
     public List<TodoItem> getCompletedTodoItems() {
-        return todoItems.values().stream()
+        return mysqlDataStore.getAllTodoItems().stream()
                 .filter(TodoItem::isCompleted)
                 .collect(Collectors.toList());
     }
     
     public TodoItem getTodoItem(String id) {
-        return todoItems.get(id);
+        return mysqlDataStore.getTodoItem(id);
     }
     
     public void saveTodoItem(TodoItem todoItem) {
-        todoItems.put(todoItem.getId(), todoItem);
+        mysqlDataStore.saveTodoItem(todoItem);
     }
     
     public void deleteTodoItem(String id) {
-        todoItems.remove(id);
+        mysqlDataStore.deleteTodoItem(id);
     }
     
     // Statistics methods
     public int getTotalFlashcards() {
-        return flashcardDecks.values().stream()
-                .mapToInt(FlashcardDeck::getCardCount)
-                .sum();
+        return mysqlDataStore.getTotalFlashcards();
     }
     
     public int getTotalQuizzes() {
-        return quizzes.size();
+        return mysqlDataStore.getTotalQuizzes();
     }
     
     public int getTotalCodeProblems() {
-        return codeProblems.size();
+        return 0; // Not implemented yet
     }
     
     public int getTotalNotes() {
-        return notes.size();
+        return mysqlDataStore.getTotalNotes();
     }
     
     public int getTotalTodoItems() {
-        return todoItems.size();
+        return mysqlDataStore.getTotalTodoItems();
     }
     
     public int getActiveTodoCount() {
-        return (int) todoItems.values().stream()
+        return (int) mysqlDataStore.getAllTodoItems().stream()
                 .filter(todo -> !todo.isCompleted())
                 .count();
     }
     
     public int getCompletedTodoCount() {
-        return (int) todoItems.values().stream()
+        return (int) mysqlDataStore.getAllTodoItems().stream()
                 .filter(TodoItem::isCompleted)
                 .count();
     }
     
     // Activity methods
     public void logUserActivity(String activityType, String description) {
-        if (currentUser != null) {
-            ActivityType type = ActivityType.valueOf(activityType);
-            Activity activity = new Activity(currentUser.getId(), type, description);
-            activities.put(activity.getId(), activity);
-            System.out.println("Activity logged: " + description);
-        }
+        mysqlDataStore.logUserActivity(activityType, description);
     }
     
     public void logActivity(Activity activity) {
         if (activity != null) {
-        activities.put(activity.getId(), activity);
-        System.out.println("Activity logged: " + activity.getDescription());
+            mysqlDataStore.logUserActivity(activity.getType().toString(), activity.getDescription());
         }
     }
     
     public List<Activity> getActivitiesForUser(String userId, LocalDate date) {
-        return activities.values().stream()
-                .filter(activity -> activity.getUserId().equals(userId) &&
-                                     activity.getTimestamp().toLocalDate().equals(date))
+        return mysqlDataStore.getAllActivitiesForUser(userId).stream()
+                .filter(activity -> activity.getTimestamp().toLocalDate().equals(date))
                 .sorted(Comparator.comparing(Activity::getTimestamp).reversed())
                 .collect(Collectors.toList());
     }
     
     public List<Activity> getAllActivitiesForUser(String userId) {
-        return activities.values().stream()
-                .filter(activity -> activity.getUserId().equals(userId))
-                .sorted(Comparator.comparing(Activity::getTimestamp).reversed())
-                .collect(Collectors.toList());
+        return mysqlDataStore.getAllActivitiesForUser(userId);
     }
     
     public Map<String, Activity> getActivities() {
-        return activities;
+        // Return empty map for compatibility
+        return new HashMap<>();
     }
 }
