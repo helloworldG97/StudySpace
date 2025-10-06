@@ -33,13 +33,16 @@ We are a dedicated team of computer engineering students passionate about creati
 - **Session Management**: Secure user sessions with automatic logout
 - **User-Specific Data**: Notes, flashcards, quizzes, todos, and files are completely private per user
 - **Cross-User Security**: Users cannot access, modify, or delete other users' content
+- **Profile Management**: Update personal information, change passwords, and manage account settings
+- **Account Deletion**: Secure account deletion with complete data removal
 
 ### 📚 Study Tools
 - **AI-Powered Flashcards**: Generate flashcards from uploaded documents (PDF, DOC, PPT, etc.)
 - **Smart Study Notes**: AI-generated structured notes from imported files
 - **Interactive Quizzes**: Take quizzes with multiple choice questions and time limits
-- **Code Practice**: Solve coding problems with multiple programming languages
 - **To-Do Lists**: Manage tasks and assignments with priority levels and due dates
+- **Progress Tracking**: Comprehensive study progress monitoring with weekly goals
+- **Study Statistics**: Real-time analytics and performance metrics
 
 ### 🤖 **AI Document Processing**
 - **Document Upload**: Support for PDF, DOC, DOCX, PPT, PPTX files
@@ -53,13 +56,19 @@ We are a dedicated team of computer engineering students passionate about creati
 - **Progress Tracking**: Monitor study sessions and achievements per user
 - **Activity Logging**: Track all learning activities and progress
 - **User Statistics**: Individual progress metrics and study analytics
+- **Weekly Goals**: Track progress towards study targets (Flashcard Decks, Notes, Quizzes, Daily Streak)
+- **Average Score Calculation**: Real-time average score calculation from quiz performance
+- **Global Refresh System**: Automatic UI updates when new content is created
 
 ### 🎨 User Interface
 - **Modern Glassmorphism Design**: Beautiful, modern UI with glass-like effects
 - **Responsive Layout**: Adaptive interface that works on different screen sizes
-- **Dark Theme**: Eye-friendly dark color scheme
+- **Dark Theme**: Eye-friendly dark color scheme with white text for better visibility
 - **Smooth Animations**: Fluid transitions and interactive elements
 - **User Dashboard**: Personalized home screen with user-specific content
+- **Scrollable Progress View**: Full progress dashboard with scroll functionality
+- **Enhanced Profile Settings**: Comprehensive user profile management with password changes
+- **Study Progress Overview**: Visual progress tracking with weekly goals and statistics
 
 ## 🏗️ Architecture
 
@@ -85,7 +94,6 @@ StudyAPPMain/
 │   │   ├── Note.java                 # Study notes model
 │   │   ├── Quiz.java                 # Quiz model
 │   │   ├── Question.java             # Quiz question model
-│   │   ├── CodeProblem.java          # Coding problem model
 │   │   ├── TodoItem.java             # Task model
 │   │   └── Activity.java             # Activity tracking model
 │   ├── views/                        # User interface views
@@ -95,9 +103,9 @@ StudyAPPMain/
 │   │   ├── NotesView.java            # Notes management
 │   │   ├── QuizListView.java         # Quiz management
 │   │   ├── QuizModeView.java         # Quiz taking interface
-│   │   ├── CodePracticeView.java     # Coding practice interface
 │   │   ├── TodoListView.java         # Task management
 │   │   ├── SnakeGameView.java        # Snake game
+│   │   ├── ProfileSettingsView.java  # User profile management
 │   │   └── AboutUsView.java          # About page
 │   ├── auth/                         # Authentication system
 │   │   ├── AuthController.java       # Authentication logic
@@ -303,13 +311,6 @@ These visualizations help users understand:
 - **Progress Tracking**: Track quiz performance and improvement
 - **User-Specific Quizzes**: Private quiz collections per user
 
-### 💻 **Code Practice Platform**
-- **Multiple Programming Languages**: Support for various coding languages
-- **Test Case Validation**: Automated code testing and validation
-- **Starter Code Templates**: Pre-written code templates for practice
-- **Difficulty Progression**: Beginner to advanced coding challenges
-- **Solution Tracking**: Monitor coding progress and achievements
-- **User-Specific Problems**: Private coding practice sessions
 
 ### 📋 **Task Management System**
 - **Priority-Based Organization**: High, medium, and low priority tasks
@@ -372,12 +373,12 @@ The application uses several external libraries:
 - **User-Specific Tables**: 
   - `notes` (user_id, title, content, category)
   - `flashcard_decks` (user_id, title, description, subject)
-  - `quizzes` (user_id, title, description, difficulty)
+  - `quizzes` (user_id, title, description, difficulty, best_score, times_taken)
   - `todo_items` (user_id, title, description, priority)
-  - `code_problems` (user_id, title, description, language)
   - `user_files` (user_id, file_name, file_path, file_type)
 - **Performance Optimization**: Indexed queries for fast user-specific data retrieval
 - **Data Integrity**: Foreign key constraints ensure data consistency
+- **User Statistics**: Track study progress, streaks, and performance metrics
 
 ### 📱 **Data Storage**
 - **Persistent Storage**: MySQL database for all user data
@@ -386,13 +387,12 @@ The application uses several external libraries:
 - **File Management**: User-specific file storage with metadata tracking
 
 ### 🎯 **Data Models**
-- **User**: Account information, statistics, and session data
+- **User**: Account information, statistics, and session data with profile management
 - **Flashcard**: Individual study cards with user ownership
 - **FlashcardDeck**: Collections of flashcards per user
 - **Note**: Study materials with user-specific content
-- **Quiz**: Assessment tools with user-specific questions
+- **Quiz**: Assessment tools with user-specific questions and score tracking
 - **Question**: Quiz questions linked to user-owned quizzes
-- **CodeProblem**: Programming challenges per user
 - **TodoItem**: Task management with user ownership
 - **Activity**: User activity tracking and logging
 - **UserFile**: File metadata and user ownership tracking
@@ -481,6 +481,36 @@ For support and questions:
 - **AI Configuration**: Configurable AI model settings and parameters
 - **Error Handling**: Robust error handling and fallback mechanisms
 
+## 🆕 Recent Updates & Improvements
+
+### ✨ **Latest Features (v2.0)**
+- **Enhanced Profile Management**: Complete user profile settings with password change functionality
+- **Account Deletion**: Secure account deletion with complete data removal and automatic logout
+- **Study Progress Overview**: Visual progress tracking with weekly goals and real-time statistics
+- **Average Score Calculation**: Real-time average score calculation from actual quiz performance
+- **Global Refresh System**: Automatic UI updates when new content is created across all views
+- **Scrollable Progress Dashboard**: Full progress view with scroll functionality for better navigation
+- **White Text Theme**: Enhanced visibility with white text on dark backgrounds
+- **Weekly Goal Tracking**: Progress monitoring for Flashcard Decks, Notes, Quizzes, and Daily Streak
+- **Password Security**: Secure password change with confirmation dialogs
+- **User Statistics**: Comprehensive study analytics and performance metrics
+
+### 🔧 **Technical Improvements**
+- **Database Schema Optimization**: Removed unused columns and optimized queries
+- **Error Handling**: Enhanced error handling and user feedback
+- **UI Responsiveness**: Improved scroll functionality and layout management
+- **Data Validation**: Enhanced form validation and user input handling
+- **Performance Optimization**: Faster data loading and UI updates
+- **Code Refactoring**: Cleaner code structure and better maintainability
+
+### 🐛 **Bug Fixes**
+- **Quiz Score Display**: Fixed quiz scores not showing after completion
+- **Progress View Loading**: Resolved progress dashboard loading issues
+- **Database Schema**: Fixed parameter mismatch errors in user updates
+- **UI Refresh**: Fixed content not updating automatically after creation
+- **Scroll Pane Issues**: Resolved scroll functionality in progress view
+- **Password Change**: Fixed password change confirmation and validation
+
 ## 🔮 Future Enhancements
 
 ### Planned Features
@@ -550,14 +580,13 @@ Student B (bob@university.edu):
 ### 📊 **User Data Structure**
 ```
 Database Tables with User Isolation:
-├── users (id, full_name, email, password, created_at)
+├── users (id, full_name, email, password, created_at, last_login_at, current_streak, total_study_hours)
 ├── notes (id, user_id, title, content, category)
 ├── flashcard_decks (id, user_id, title, description, subject)
 ├── flashcards (id, deck_id, question, answer)
-├── quizzes (id, user_id, title, description, difficulty)
+├── quizzes (id, user_id, title, description, difficulty, best_score, times_taken, last_taken)
 ├── questions (id, quiz_id, question_text, options)
 ├── todo_items (id, user_id, title, description, priority)
-├── code_problems (id, user_id, title, description, language)
 ├── user_files (id, user_id, file_name, file_path, file_type)
 └── activities (id, user_id, activity_type, description)
 ```
