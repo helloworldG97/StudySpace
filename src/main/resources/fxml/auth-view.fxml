@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import com.studyspace.components.PasswordFieldWithEye?>
 
 <StackPane prefHeight="540.0" prefWidth="352.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.studyspace.auth.AuthViewController">
    <children>
@@ -67,7 +68,7 @@
                               <VBox spacing="8.0" styleClass="field-container">
                                  <children>
                                     <Label styleClass="field-label" text="Password" />
-                                    <PasswordField fx:id="signInPassword" promptText="Enter your password" styleClass="form-field" />
+                                    <PasswordFieldWithEye fx:id="signInPassword" promptText="Enter your password" styleClass="password-field-container" />
                                  </children>
                               </VBox>
                               
@@ -113,7 +114,7 @@
                               <VBox spacing="8.0" styleClass="field-container">
                                  <children>
                                     <Label styleClass="field-label" text="Password" />
-                                    <PasswordField fx:id="signUpPassword" promptText="Create a password" styleClass="form-field" />
+                                    <PasswordFieldWithEye fx:id="signUpPassword" promptText="Create a password" styleClass="password-field-container" />
                                  </children>
                               </VBox>
                               

@@ -484,8 +484,9 @@ public class FlashcardDeckManagementView {
                 // Log activity
                 dataStore.logUserActivity("FLASHCARD_DECK_CREATED", "Added flashcard to deck: " + deck.getTitle());
                 
-            // Refresh activity history
-            com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                // Refresh activity history and all views
+                com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                com.studyspace.components.SidebarView.refreshAllViewsGlobally();
             }
         });
     }

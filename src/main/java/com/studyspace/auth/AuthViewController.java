@@ -2,6 +2,7 @@ package com.studyspace.auth;
 
 import com.studyspace.utils.SceneManager;
 import com.studyspace.utils.IconUtils;
+import com.studyspace.components.PasswordFieldWithEye;
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
@@ -38,14 +39,14 @@ public class AuthViewController implements Initializable {
     
     // Sign In form fields
     @FXML private TextField signInEmail;
-    @FXML private PasswordField signInPassword;
+    @FXML private PasswordFieldWithEye signInPassword;
     @FXML private Button signInButton;
     @FXML private Label signInError;
     
     // Sign Up form fields
     @FXML private TextField signUpFullName;
     @FXML private TextField signUpEmail;
-    @FXML private PasswordField signUpPassword;
+    @FXML private PasswordFieldWithEye signUpPassword;
     @FXML private Button signUpButton;
     @FXML private Label signUpError;
     

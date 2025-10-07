@@ -434,59 +434,6 @@ public class AlgorithmUtils {
         return sortedList;
     }
     
-    /**
-     * Sort code problems by various criteria
-     */
-    public static List<CodeProblem> sortCodeProblems(List<CodeProblem> problems, String sortOption) {
-        if (problems == null || sortOption == null) return problems;
-        
-        List<CodeProblem> sortedList = new ArrayList<>(problems);
-        
-        switch (sortOption) {
-            case "Title (A-Z)":
-                sortedList.sort((a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle()));
-                break;
-            case "Title (Z-A)":
-                sortedList.sort((a, b) -> b.getTitle().compareToIgnoreCase(a.getTitle()));
-                break;
-            case "Difficulty (Easy to Hard)":
-                sortedList.sort((a, b) -> a.getDifficulty().compareTo(b.getDifficulty()));
-                break;
-            case "Difficulty (Hard to Easy)":
-                sortedList.sort((a, b) -> b.getDifficulty().compareTo(a.getDifficulty()));
-                break;
-            case "Language (A-Z)":
-                sortedList.sort((a, b) -> a.getLanguage().compareToIgnoreCase(b.getLanguage()));
-                break;
-            case "Language (Z-A)":
-                sortedList.sort((a, b) -> b.getLanguage().compareToIgnoreCase(a.getLanguage()));
-                break;
-            case "Date Created (Newest)":
-                sortedList.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
-                break;
-            case "Date Created (Oldest)":
-                sortedList.sort((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()));
-                break;
-            case "Last Attempted (Recent)":
-                sortedList.sort((a, b) -> {
-                    if (a.getLastAttempted() == null && b.getLastAttempted() == null) return 0;
-                    if (a.getLastAttempted() == null) return 1;
-                    if (b.getLastAttempted() == null) return -1;
-                    return b.getLastAttempted().compareTo(a.getLastAttempted());
-                });
-                break;
-            case "Last Attempted (Oldest)":
-                sortedList.sort((a, b) -> {
-                    if (a.getLastAttempted() == null && b.getLastAttempted() == null) return 0;
-                    if (a.getLastAttempted() == null) return -1;
-                    if (b.getLastAttempted() == null) return 1;
-                    return a.getLastAttempted().compareTo(b.getLastAttempted());
-                });
-                break;
-        }
-        
-        return sortedList;
-    }
     
     /**
      * Sort todo items by various criteria
@@ -607,22 +554,6 @@ public class AlgorithmUtils {
             .collect(Collectors.toList());
     }
     
-    /**
-     * Filter code problems by search criteria
-     */
-    public static List<CodeProblem> filterCodeProblems(List<CodeProblem> problems, String searchText) {
-        if (problems == null || searchText == null || searchText.trim().isEmpty()) {
-            return problems;
-        }
-        
-        String lowerCaseFilter = searchText.toLowerCase();
-        return problems.stream()
-            .filter(problem -> 
-                problem.getTitle().toLowerCase().contains(lowerCaseFilter) ||
-                problem.getDescription().toLowerCase().contains(lowerCaseFilter) ||
-                problem.getLanguage().toLowerCase().contains(lowerCaseFilter))
-            .collect(Collectors.toList());
-    }
     
     /**
      * Filter todo items by search criteria

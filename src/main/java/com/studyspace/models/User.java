@@ -16,7 +16,6 @@ public class User {
     
     // Study statistics
     private int flashcardsStudied;
-    private int codeProblemsCompleted;
     private int quizzesTaken;
     private int currentStreak;
     private int totalStudyHours;
@@ -24,7 +23,6 @@ public class User {
     public User() {
         this.createdAt = LocalDateTime.now();
         this.flashcardsStudied = 0;
-        this.codeProblemsCompleted = 0;
         this.quizzesTaken = 0;
         this.currentStreak = 0;
         this.totalStudyHours = 0;
@@ -64,8 +62,6 @@ public class User {
     public int getFlashcardsStudied() { return flashcardsStudied; }
     public void setFlashcardsStudied(int flashcardsStudied) { this.flashcardsStudied = flashcardsStudied; }
     
-    public int getCodeProblemsCompleted() { return codeProblemsCompleted; }
-    public void setCodeProblemsCompleted(int codeProblemsCompleted) { this.codeProblemsCompleted = codeProblemsCompleted; }
     
     public int getQuizzesTaken() { return quizzesTaken; }
     public void setQuizzesTaken(int quizzesTaken) { this.quizzesTaken = quizzesTaken; }
@@ -85,9 +81,6 @@ public class User {
         this.flashcardsStudied++;
     }
     
-    public void incrementCodeProblemsCompleted() {
-        this.codeProblemsCompleted++;
-    }
     
     public void incrementQuizzesTaken() {
         this.quizzesTaken++;
@@ -137,7 +130,6 @@ public class User {
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 ", flashcardsStudied=" + flashcardsStudied +
-                ", codeProblemsCompleted=" + codeProblemsCompleted +
                 ", quizzesTaken=" + quizzesTaken +
                 ", currentStreak=" + currentStreak +
                 '}';

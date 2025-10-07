@@ -394,9 +394,14 @@ public class QuizModeView {
         // Update quiz and user statistics
         quiz.recordScore(finalScore);
         
+        // Save quiz to database with updated score
+        dataStore.saveQuiz(quiz);
+        
         User currentUser = dataStore.getCurrentUser();
         if (currentUser != null) {
             currentUser.incrementQuizzesTaken();
+            // Update user in database
+            dataStore.updateUser(currentUser);
         }
         
         // Log activity

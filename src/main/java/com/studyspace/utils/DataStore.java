@@ -3,7 +3,6 @@ package com.studyspace.utils;
 import com.studyspace.models.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Comparator;
@@ -92,22 +91,6 @@ public class DataStore {
         mysqlDataStore.deleteQuiz(id);
     }
     
-    public List<CodeProblem> getAllCodeProblems() {
-        // Code problems not implemented in MySQL yet
-        return new ArrayList<>();
-    }
-    
-    public CodeProblem getCodeProblem(String id) {
-        return null;
-    }
-    
-    public void saveCodeProblem(CodeProblem problem) {
-        // Not implemented yet
-    }
-    
-    public void deleteCodeProblem(String id) {
-        // Not implemented yet
-    }
     
     public List<Note> getAllNotes() {
         return mysqlDataStore.getAllNotes();
@@ -178,9 +161,6 @@ public class DataStore {
         return mysqlDataStore.getTotalQuizzes();
     }
     
-    public int getTotalCodeProblems() {
-        return 0; // Not implemented yet
-    }
     
     public int getTotalNotes() {
         return mysqlDataStore.getTotalNotes();
@@ -207,6 +187,15 @@ public class DataStore {
         mysqlDataStore.logUserActivity(activityType, description);
     }
     
+    // User management methods
+    public void deleteUser(String userId) {
+        mysqlDataStore.deleteUser(userId);
+    }
+    
+    public void updateUserPassword(String userId, String newPassword) {
+        mysqlDataStore.updateUserPassword(userId, newPassword);
+    }
+    
     public void logActivity(Activity activity) {
         if (activity != null) {
             mysqlDataStore.logUserActivity(activity.getType().toString(), activity.getDescription());
@@ -222,6 +211,10 @@ public class DataStore {
     
     public List<Activity> getAllActivitiesForUser(String userId) {
         return mysqlDataStore.getAllActivitiesForUser(userId);
+    }
+    
+    public void debugUserActivities(String userId) {
+        mysqlDataStore.debugUserActivities(userId);
     }
     
     public Map<String, Activity> getActivities() {

@@ -283,7 +283,7 @@ public class NotesManagementView {
         cardHeader.getChildren().addAll(contentSection, actionButtons);
         
         // Content preview
-        Label contentPreview = new Label(note.getContent());
+        Label contentPreview = new Label(note.getPreview());
         contentPreview.getStyleClass().add("note-content-preview");
         contentPreview.setWrapText(true);
         contentPreview.setMaxHeight(80);
@@ -355,8 +355,9 @@ public class NotesManagementView {
             // Log activity
             dataStore.logUserActivity("NOTES_ADDED", "Added note: " + note.getTitle());
             
-            // Refresh activity history
+            // Refresh activity history and all views
             com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+            com.studyspace.components.SidebarView.refreshAllViewsGlobally();
         });
     }
     

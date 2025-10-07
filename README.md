@@ -481,9 +481,91 @@ For support and questions:
 - **AI Configuration**: Configurable AI model settings and parameters
 - **Error Handling**: Robust error handling and fallback mechanisms
 
+## 🗄️ Database Management System
+
+### 🎯 **Interactive Database Administration**
+The Study Space system now includes a comprehensive database management tool (`load_users.bat`) that provides administrators with powerful tools to manage users and monitor system performance.
+
+### 📊 **Database Management Features**
+
+#### **1. User Overview & Statistics**
+- **View All Users**: Complete user listing with basic information
+- **Study Statistics**: Current streaks, study hours, flashcards studied, quizzes taken
+- **Performance Analytics**: Top performers and study activity summaries
+- **User Details**: Complete user information including passwords and timestamps
+
+#### **2. User Administration**
+- **Delete Users**: Secure user deletion with confirmation prompts
+- **User Management**: Easy identification and management of user accounts
+- **Data Cleanup**: Automatic cascade deletion of user data when accounts are removed
+- **Safety Features**: Double confirmation for destructive operations
+
+#### **3. Study Analytics Dashboard**
+- **Current Streaks**: View and compare user study streaks
+- **Study Hours Tracking**: Monitor total study time per user
+- **Activity Summary**: Flashcards studied and quizzes taken statistics
+- **Top Performers**: Ranked list of most active users
+- **Performance Metrics**: Comprehensive study progress analysis
+
+### 🚀 **How to Use the Database Manager**
+
+#### **Quick Start**
+1. **Double-click `load_users.bat`** in the project root directory
+2. **Choose from the interactive menu**:
+   - **Option 1**: View all users with basic info and study statistics
+   - **Option 2**: Delete a user (with safety confirmation)
+   - **Option 3**: View complete user details
+   - **Option 4**: View study streaks and performance analytics
+   - **Option 5**: Exit the system
+
+#### **Menu Options Explained**
+
+**Option 1 - View All Users**
+- Shows user overview with basic information
+- Displays study statistics in a separate section
+- Sorted by highest streaks and study hours
+
+**Option 2 - Delete User**
+- Lists current users for easy identification
+- Prompts for user ID to delete
+- **Safety confirmation** - must type "DELETE" to confirm
+- Permanently removes user and all associated data
+
+**Option 3 - View All Details**
+- Complete user information including all database columns
+- Useful for detailed analysis and debugging
+
+**Option 4 - View Study Streaks**
+- Dedicated streak analysis with multiple views
+- Current streaks sorted by highest
+- Study activity summary
+- Top performers with formatted summaries
+
+### 🔒 **Security Features**
+- **Confirmation Prompts**: All destructive operations require confirmation
+- **User Identification**: Clear user listing before deletion
+- **Data Validation**: Input validation for user IDs
+- **Safe Operations**: Non-destructive operations for viewing data
+
+### 📈 **Analytics Capabilities**
+- **Streak Tracking**: Monitor user study consistency
+- **Performance Metrics**: Track study hours and activity levels
+- **User Engagement**: Analyze user participation and progress
+- **System Health**: Monitor overall system usage and activity
+
+### 🛠️ **Technical Details**
+- **MySQL Integration**: Direct database queries for real-time data
+- **Batch Processing**: Efficient command-line interface
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **No Dependencies**: Pure batch file with MySQL command-line tools
+- **Real-Time Data**: Live database queries with current information
+
 ## 🆕 Recent Updates & Improvements
 
-### ✨ **Latest Features (v2.0)**
+### ✨ **Latest Features (v2.1)**
+- **Database Management System**: Interactive terminal-based database management with user-friendly interface
+- **User Administration Tools**: View all users, delete users, and monitor study statistics
+- **Study Streak Analytics**: Dedicated views for current streaks, study hours, and performance metrics
 - **Enhanced Profile Management**: Complete user profile settings with password change functionality
 - **Account Deletion**: Secure account deletion with complete data removal and automatic logout
 - **Study Progress Overview**: Visual progress tracking with weekly goals and real-time statistics

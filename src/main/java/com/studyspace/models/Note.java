@@ -112,11 +112,31 @@ public class Note {
             return "No content";
         }
         
+        // Clean up the content by removing excessive whitespace and newlines
         String cleanContent = content.replaceAll("\\s+", " ").trim();
+        
+        // For AI-generated content, try to find a good breaking point
         if (cleanContent.length() <= 100) {
             return cleanContent;
         }
-        return cleanContent.substring(0, 97) + "...";
+        
+        // Try to break at a sentence boundary if possible
+        String preview = cleanContent.substring(0, 97);
+        int lastPeriod = preview.lastIndexOf('.');
+        int lastSpace = preview.lastIndexOf(' ');
+        
+        // If we can break at a sentence, do that
+        if (lastPeriod > 50) {
+            return cleanContent.substring(0, lastPeriod + 1) + "...";
+        }
+        // Otherwise break at a word boundary
+        else if (lastSpace > 50) {
+            return cleanContent.substring(0, lastSpace) + "...";
+        }
+        // Fallback to character limit
+        else {
+            return preview + "...";
+        }
     }
     
     public String getTagsAsString() {

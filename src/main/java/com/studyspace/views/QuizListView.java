@@ -4,10 +4,10 @@ import com.studyspace.models.Quiz;
 import com.studyspace.models.FlashcardDeck;
 import com.studyspace.models.Flashcard;
 import com.studyspace.models.Note;
-import com.studyspace.models.Question;
 import com.studyspace.utils.DataStore;
 import com.studyspace.utils.SceneManager;
 import com.studyspace.utils.IconUtils;
+import com.studyspace.utils.QuizGenerationService;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -15,7 +15,6 @@ import javafx.scene.layout.*;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 //============ quiz list view =============
 //this is where quizzes are displayed and managed
@@ -24,6 +23,7 @@ public class QuizListView {
     
     private final DataStore dataStore;
     private final SceneManager sceneManager;
+    private final QuizGenerationService quizGenerationService;
     
     private VBox mainContainer;
     private ScrollPane scrollPane;
@@ -33,6 +33,7 @@ public class QuizListView {
     public QuizListView() {
         this.dataStore = DataStore.getInstance();
         this.sceneManager = SceneManager.getInstance();
+        this.quizGenerationService = new QuizGenerationService();
         
         initializeUI();
         loadQuizzes();
@@ -564,27 +565,28 @@ public class QuizListView {
     }
     
     /**
-     * Shows flashcard selection dialog for quiz creation
+     * Shows flashcard selection dialog for AI-powered quiz creation
      */
     private void showFlashcardSelectionDialog(List<FlashcardDeck> decks) {
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Create Quiz from Flashcards");
-        dialog.setHeaderText("Select flashcard decks to generate quiz questions from:");
+        dialog.setTitle("Create AI Quiz from Flashcards");
+        dialog.setHeaderText("Select flashcard decks and configure your AI-generated quiz:");
         
         VBox content = new VBox();
         content.setSpacing(16);
         content.setPadding(new Insets(20));
         
-        // Deck selection with enhanced icons
+        // AI-powered instruction
         HBox instructionContainer = new HBox();
         instructionContainer.setSpacing(8);
         instructionContainer.setAlignment(Pos.CENTER_LEFT);
         Label instructionIcon = new Label();
-        instructionIcon.setGraphic(IconUtils.createSmallIconView("cards"));
-        Label instructionLabel = new Label("Choose one or more flashcard decks to create quiz questions:");
+        instructionIcon.setGraphic(IconUtils.createSmallIconView("brain"));
+        Label instructionLabel = new Label("AI will analyze your flashcards and create intelligent quiz questions:");
         instructionLabel.setWrapText(true);
         instructionContainer.getChildren().addAll(instructionIcon, instructionLabel);
         
+        // Deck selection
         VBox decksList = new VBox();
         decksList.setSpacing(8);
         
@@ -610,13 +612,73 @@ public class QuizListView {
         
         ScrollPane scrollPane = new ScrollPane(decksList);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(200);
+        scrollPane.setPrefHeight(150);
         
-        content.getChildren().addAll(instructionContainer, scrollPane);
+        // Quiz configuration
+        VBox configContainer = new VBox();
+        configContainer.setSpacing(12);
+        
+        Label configLabel = new Label("Quiz Configuration:");
+        configLabel.getStyleClass().addAll("text-sm", "font-semibold");
+        
+        // Quiz title
+        HBox titleContainer = new HBox();
+        titleContainer.setSpacing(8);
+        titleContainer.setAlignment(Pos.CENTER_LEFT);
+        Label titleLabel = new Label("Quiz Title:");
+        TextField titleField = new TextField();
+        titleField.setPromptText("Enter quiz title...");
+        titleField.setPrefWidth(200);
+        titleContainer.getChildren().addAll(titleLabel, titleField);
+        
+        // Subject
+        HBox subjectContainer = new HBox();
+        subjectContainer.setSpacing(8);
+        subjectContainer.setAlignment(Pos.CENTER_LEFT);
+        Label subjectLabel = new Label("Subject:");
+        TextField subjectField = new TextField();
+        subjectField.setPromptText("Enter subject...");
+        subjectField.setPrefWidth(200);
+        subjectContainer.getChildren().addAll(subjectLabel, subjectField);
+        
+        // Difficulty
+        HBox difficultyContainer = new HBox();
+        difficultyContainer.setSpacing(8);
+        difficultyContainer.setAlignment(Pos.CENTER_LEFT);
+        Label difficultyLabel = new Label("Difficulty:");
+        ComboBox<Flashcard.Difficulty> difficultyCombo = new ComboBox<>();
+        difficultyCombo.getItems().addAll(Flashcard.Difficulty.values());
+        difficultyCombo.setValue(Flashcard.Difficulty.MEDIUM);
+        difficultyContainer.getChildren().addAll(difficultyLabel, difficultyCombo);
+        
+        // Question count
+        HBox questionCountContainer = new HBox();
+        questionCountContainer.setSpacing(8);
+        questionCountContainer.setAlignment(Pos.CENTER_LEFT);
+        Label questionCountLabel = new Label("Questions:");
+        ComboBox<Integer> questionCountCombo = new ComboBox<>();
+        questionCountCombo.getItems().addAll(5, 10, 15, 20, 25, 30);
+        questionCountCombo.setValue(15);
+        questionCountContainer.getChildren().addAll(questionCountLabel, questionCountCombo);
+        
+        // Time limit
+        HBox timeLimitContainer = new HBox();
+        timeLimitContainer.setSpacing(8);
+        timeLimitContainer.setAlignment(Pos.CENTER_LEFT);
+        Label timeLimitLabel = new Label("Time Limit (min):");
+        ComboBox<Integer> timeLimitCombo = new ComboBox<>();
+        timeLimitCombo.getItems().addAll(10, 15, 20, 30, 45, 60);
+        timeLimitCombo.setValue(20);
+        timeLimitContainer.getChildren().addAll(timeLimitLabel, timeLimitCombo);
+        
+        configContainer.getChildren().addAll(configLabel, titleContainer, subjectContainer, 
+                                           difficultyContainer, questionCountContainer, timeLimitContainer);
+        
+        content.getChildren().addAll(instructionContainer, scrollPane, configContainer);
         
         dialog.getDialogPane().setContent(content);
         
-        ButtonType createButtonType = new ButtonType("Create Quiz", ButtonBar.ButtonData.OK_DONE);
+        ButtonType createButtonType = new ButtonType("Generate AI Quiz", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         
         dialog.getDialogPane().getButtonTypes().addAll(createButtonType, cancelButtonType);
@@ -634,7 +696,20 @@ public class QuizListView {
                 }
                 
                 if (!selectedDecks.isEmpty()) {
-                    createQuizFromFlashcards(selectedDecks);
+                    String quizTitle = titleField.getText().trim();
+                    if (quizTitle.isEmpty()) {
+                        quizTitle = "AI Quiz from " + selectedDecks.size() + " Deck(s)";
+                    }
+                    
+                    String subject = subjectField.getText().trim();
+                    if (subject.isEmpty()) {
+                        subject = "Mixed Subjects";
+                    }
+                    
+                    createAIGeneratedQuizFromFlashcards(selectedDecks, quizTitle, subject, 
+                                                      difficultyCombo.getValue(), 
+                                                      timeLimitCombo.getValue(),
+                                                      questionCountCombo.getValue());
                 } else {
                     sceneManager.showInfoDialog("No Selection", "Please select at least one flashcard deck.");
                 }
@@ -646,26 +721,28 @@ public class QuizListView {
     }
     
     /**
-     * Shows notes selection dialog for quiz creation
+     * Shows notes selection dialog for AI-powered quiz creation
      */
     private void showNotesSelectionDialog(List<Note> notes) {
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Create Quiz from Notes");
-        dialog.setHeaderText("Select notes to generate quiz questions from:");
+        dialog.setTitle("Create AI Quiz from Notes");
+        dialog.setHeaderText("Select notes and configure your AI-generated quiz:");
         
         VBox content = new VBox();
         content.setSpacing(16);
         content.setPadding(new Insets(20));
         
+        // AI-powered instruction
         HBox instructionContainer = new HBox();
         instructionContainer.setSpacing(8);
         instructionContainer.setAlignment(Pos.CENTER_LEFT);
         Label instructionIcon = new Label();
-        instructionIcon.setGraphic(IconUtils.createSmallIconView("note"));
-        Label instructionLabel = new Label("Choose one or more notes to create quiz questions:");
+        instructionIcon.setGraphic(IconUtils.createSmallIconView("brain"));
+        Label instructionLabel = new Label("AI will analyze your notes and create intelligent quiz questions:");
         instructionLabel.setWrapText(true);
         instructionContainer.getChildren().addAll(instructionIcon, instructionLabel);
         
+        // Note selection
         VBox notesList = new VBox();
         notesList.setSpacing(8);
         
@@ -691,13 +768,73 @@ public class QuizListView {
         
         ScrollPane scrollPane = new ScrollPane(notesList);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(200);
+        scrollPane.setPrefHeight(150);
         
-        content.getChildren().addAll(instructionContainer, scrollPane);
+        // Quiz configuration
+        VBox configContainer = new VBox();
+        configContainer.setSpacing(12);
+        
+        Label configLabel = new Label("Quiz Configuration:");
+        configLabel.getStyleClass().addAll("text-sm", "font-semibold");
+        
+        // Quiz title
+        HBox titleContainer = new HBox();
+        titleContainer.setSpacing(8);
+        titleContainer.setAlignment(Pos.CENTER_LEFT);
+        Label titleLabel = new Label("Quiz Title:");
+        TextField titleField = new TextField();
+        titleField.setPromptText("Enter quiz title...");
+        titleField.setPrefWidth(200);
+        titleContainer.getChildren().addAll(titleLabel, titleField);
+        
+        // Subject
+        HBox subjectContainer = new HBox();
+        subjectContainer.setSpacing(8);
+        subjectContainer.setAlignment(Pos.CENTER_LEFT);
+        Label subjectLabel = new Label("Subject:");
+        TextField subjectField = new TextField();
+        subjectField.setPromptText("Enter subject...");
+        subjectField.setPrefWidth(200);
+        subjectContainer.getChildren().addAll(subjectLabel, subjectField);
+        
+        // Difficulty
+        HBox difficultyContainer = new HBox();
+        difficultyContainer.setSpacing(8);
+        difficultyContainer.setAlignment(Pos.CENTER_LEFT);
+        Label difficultyLabel = new Label("Difficulty:");
+        ComboBox<Flashcard.Difficulty> difficultyCombo = new ComboBox<>();
+        difficultyCombo.getItems().addAll(Flashcard.Difficulty.values());
+        difficultyCombo.setValue(Flashcard.Difficulty.MEDIUM);
+        difficultyContainer.getChildren().addAll(difficultyLabel, difficultyCombo);
+        
+        // Question count
+        HBox questionCountContainer = new HBox();
+        questionCountContainer.setSpacing(8);
+        questionCountContainer.setAlignment(Pos.CENTER_LEFT);
+        Label questionCountLabel = new Label("Questions:");
+        ComboBox<Integer> questionCountCombo = new ComboBox<>();
+        questionCountCombo.getItems().addAll(5, 10, 15, 20, 25, 30);
+        questionCountCombo.setValue(15);
+        questionCountContainer.getChildren().addAll(questionCountLabel, questionCountCombo);
+        
+        // Time limit
+        HBox timeLimitContainer = new HBox();
+        timeLimitContainer.setSpacing(8);
+        timeLimitContainer.setAlignment(Pos.CENTER_LEFT);
+        Label timeLimitLabel = new Label("Time Limit (min):");
+        ComboBox<Integer> timeLimitCombo = new ComboBox<>();
+        timeLimitCombo.getItems().addAll(10, 15, 20, 30, 45, 60);
+        timeLimitCombo.setValue(20);
+        timeLimitContainer.getChildren().addAll(timeLimitLabel, timeLimitCombo);
+        
+        configContainer.getChildren().addAll(configLabel, titleContainer, subjectContainer, 
+                                           difficultyContainer, questionCountContainer, timeLimitContainer);
+        
+        content.getChildren().addAll(instructionContainer, scrollPane, configContainer);
         
         dialog.getDialogPane().setContent(content);
         
-        ButtonType createButtonType = new ButtonType("Create Quiz", ButtonBar.ButtonData.OK_DONE);
+        ButtonType createButtonType = new ButtonType("Generate AI Quiz", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         
         dialog.getDialogPane().getButtonTypes().addAll(createButtonType, cancelButtonType);
@@ -715,7 +852,20 @@ public class QuizListView {
                 }
                 
                 if (!selectedNotes.isEmpty()) {
-                    createQuizFromNotes(selectedNotes);
+                    String quizTitle = titleField.getText().trim();
+                    if (quizTitle.isEmpty()) {
+                        quizTitle = "AI Quiz from " + selectedNotes.size() + " Note(s)";
+                    }
+                    
+                    String subject = subjectField.getText().trim();
+                    if (subject.isEmpty()) {
+                        subject = "Mixed Subjects";
+                    }
+                    
+                    createAIGeneratedQuizFromNotes(selectedNotes, quizTitle, subject, 
+                                                 difficultyCombo.getValue(), 
+                                                 timeLimitCombo.getValue(),
+                                                 questionCountCombo.getValue());
                 } else {
                     sceneManager.showInfoDialog("No Selection", "Please select at least one note.");
                 }
@@ -728,167 +878,158 @@ public class QuizListView {
     
     
     /**
-     * Creates a quiz from selected flashcard decks
+     * Creates an AI-generated quiz from selected flashcard decks
      */
-    private void createQuizFromFlashcards(List<FlashcardDeck> selectedDecks) {
+    private void createAIGeneratedQuizFromFlashcards(List<FlashcardDeck> selectedDecks, String quizTitle, 
+                                                    String subject, Flashcard.Difficulty difficulty, 
+                                                    int timeLimit, int questionCount) {
         try {
-            // Extract identity information from the first deck or combine from multiple decks
-            String baseTitle = selectedDecks.get(0).getTitle();
-            String baseSubject = selectedDecks.get(0).getSubject();
-            Flashcard.Difficulty baseDifficulty = selectedDecks.get(0).getDifficulty();
+            // Show progress dialog
+            Alert progressDialog = new Alert(Alert.AlertType.INFORMATION);
+            progressDialog.setTitle("Generating AI Quiz");
+            progressDialog.setHeaderText("AI is analyzing your flashcards and creating intelligent questions...");
+            progressDialog.setContentText("This may take a few moments. Please wait.");
+            progressDialog.show();
             
-            // If multiple decks, combine the information
-            if (selectedDecks.size() > 1) {
-                baseTitle = "Mixed Quiz from " + selectedDecks.size() + " Decks";
-                baseSubject = "Mixed Subjects";
-                // Use the highest difficulty level
-                baseDifficulty = selectedDecks.stream()
-                    .map(FlashcardDeck::getDifficulty)
-                    .max(Enum::compareTo)
-                    .orElse(Flashcard.Difficulty.MEDIUM);
-            }
-            
-            String title = baseTitle + " - Quiz";
-            String description = "Generated from flashcard deck(s): " + 
-                selectedDecks.stream().map(FlashcardDeck::getTitle).reduce((a, b) -> a + ", " + b).orElse("") +
-                "\nSubject: " + baseSubject + 
-                "\nDifficulty: " + baseDifficulty.toString();
-            
-            Quiz newQuiz = new Quiz(title, description, baseSubject, baseDifficulty, 30);
-            
-            List<Question> questions = new ArrayList<>();
-            
-            for (FlashcardDeck deck : selectedDecks) {
-                for (Flashcard flashcard : deck.getFlashcards()) {
-                    // Create a question from each flashcard
-                    Question question = new Question();
-                    question.setQuestionText(flashcard.getQuestion());
-                    
-                    // Create multiple choice options (correct answer + 3 distractors)
-                    List<String> options = new ArrayList<>();
-                    options.add(flashcard.getAnswer()); // Correct answer
-                    options.add("Alternative A");
-                    options.add("Alternative B");  
-                    options.add("Alternative C");
-                    
-                    question.setOptions(options);
-                    question.setCorrectOptionIndex(0); // First option is correct
-                    question.setExplanation("From flashcard: " + flashcard.getAnswer());
-                    question.setDifficulty(flashcard.getDifficulty());
-                    
-                    questions.add(question);
+            // Run AI generation in background thread
+            javafx.concurrent.Task<QuizGenerationService.QuizGenerationResult> task = new javafx.concurrent.Task<QuizGenerationService.QuizGenerationResult>() {
+                @Override
+                protected QuizGenerationService.QuizGenerationResult call() throws Exception {
+                    return quizGenerationService.generateQuizFromFlashcards(selectedDecks, quizTitle, subject, difficulty, timeLimit, questionCount);
                 }
-            }
+            };
             
-            newQuiz.setQuestions(questions);
-            
-            // Save the quiz and ensure it's persisted
-            dataStore.saveQuiz(newQuiz);
-            System.out.println("Quiz saved with ID: " + newQuiz.getId() + " and " + questions.size() + " questions");
-            
-            // Log activity
-            dataStore.logUserActivity("QUIZ_TAKEN", "Created quiz: " + newQuiz.getTitle());
-            
-            // Refresh activity history
-            com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
-            
-            // Force refresh the UI immediately and then show dialog
-            forceCompleteRefresh();
-            
-            javafx.application.Platform.runLater(() -> {
-                sceneManager.showInfoDialog("Quiz Created Successfully!", 
-                    "Created quiz '" + newQuiz.getTitle() + "' with " + questions.size() + " questions from your flashcards.\n\n" +
-                    "The quiz is now available in your quiz list!");
+            task.setOnSucceeded(e -> {
+                progressDialog.close();
+                QuizGenerationService.QuizGenerationResult result = task.getValue();
+                
+                if (result.isSuccess() && result.getQuiz() != null) {
+                    // Save the AI-generated quiz
+                    dataStore.saveQuiz(result.getQuiz());
+                    
+                    // Log activity
+                    dataStore.logUserActivity("QUIZ_CREATED", "Created AI quiz: " + result.getQuiz().getTitle());
+                    
+                    // Refresh activity history and all views
+                    com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                    com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+                    
+                    // Force refresh the UI
+                    forceCompleteRefresh();
+                    
+                    // Show success dialog
+                    javafx.application.Platform.runLater(() -> {
+                        sceneManager.showInfoDialog("AI Quiz Generated Successfully!", 
+                            "Created AI quiz '" + result.getQuiz().getTitle() + "' with " + 
+                            result.getQuiz().getQuestionCount() + " intelligent questions from your flashcards.\n\n" +
+                            "The quiz is now available in your quiz list!");
+                    });
+                } else {
+                    // Show error dialog
+                    javafx.application.Platform.runLater(() -> {
+                        sceneManager.showErrorDialog("AI Generation Failed", 
+                            "Failed to generate AI quiz: " + result.getMessage() + 
+                            "\n\nPlease check that the AI service is running and try again.");
+                    });
+                }
             });
             
+            task.setOnFailed(e -> {
+                progressDialog.close();
+                javafx.application.Platform.runLater(() -> {
+                    sceneManager.showErrorDialog("AI Generation Error", 
+                        "An error occurred while generating the AI quiz: " + task.getException().getMessage() +
+                        "\n\nPlease check that the AI service is running and try again.");
+                });
+            });
+            
+            // Start the task
+            Thread thread = new Thread(task);
+            thread.setDaemon(true);
+            thread.start();
+            
         } catch (Exception e) {
-            System.err.println("Error creating quiz from flashcards: " + e.getMessage());
+            System.err.println("Error creating AI quiz from flashcards: " + e.getMessage());
             e.printStackTrace();
-            sceneManager.showErrorDialog("Error", "Failed to create quiz from flashcards: " + e.getMessage());
+            sceneManager.showErrorDialog("Error", "Failed to create AI quiz from flashcards: " + e.getMessage());
         }
     }
     
     /**
-     * Creates a quiz from selected notes
+     * Creates an AI-generated quiz from selected notes
      */
-    private void createQuizFromNotes(List<Note> selectedNotes) {
+    private void createAIGeneratedQuizFromNotes(List<Note> selectedNotes, String quizTitle, 
+                                               String subject, Flashcard.Difficulty difficulty, 
+                                               int timeLimit, int questionCount) {
         try {
-            // Extract identity information from the first note or combine from multiple notes
-            String baseTitle = selectedNotes.get(0).getTitle();
-            String baseSubject = selectedNotes.get(0).getSubject();
-            Flashcard.Difficulty baseDifficulty = Flashcard.Difficulty.MEDIUM; // Default difficulty for notes
+            // Show progress dialog
+            Alert progressDialog = new Alert(Alert.AlertType.INFORMATION);
+            progressDialog.setTitle("Generating AI Quiz");
+            progressDialog.setHeaderText("AI is analyzing your notes and creating intelligent questions...");
+            progressDialog.setContentText("This may take a few moments. Please wait.");
+            progressDialog.show();
             
-            // If multiple notes, combine the information
-            if (selectedNotes.size() > 1) {
-                baseTitle = "Mixed Quiz from " + selectedNotes.size() + " Notes";
-                baseSubject = "Mixed Subjects";
-                // For multiple notes, use medium difficulty as default
-                baseDifficulty = Flashcard.Difficulty.MEDIUM;
-            }
-            
-            String title = baseTitle + " - Quiz";
-            String description = "Generated from note(s): " + 
-                selectedNotes.stream().map(Note::getTitle).reduce((a, b) -> a + ", " + b).orElse("") +
-                "\nSubject: " + baseSubject + 
-                "\nDifficulty: " + baseDifficulty.toString();
-            
-            Quiz newQuiz = new Quiz(title, description, baseSubject, baseDifficulty, 25);
-            
-            List<Question> questions = new ArrayList<>();
-            
-            for (Note note : selectedNotes) {
-                // Generate questions from note content
-                String[] sentences = note.getContent().split("[.!?]+");
-                
-                for (int i = 0; i < Math.min(sentences.length, 3); i++) { // Max 3 questions per note
-                    String sentence = sentences[i].trim();
-                    if (sentence.length() > 20) { // Only use substantial sentences
-                        Question question = new Question();
-                        question.setQuestionText("Based on the note '" + note.getTitle() + "': What does this refer to? \"" + 
-                            sentence.substring(0, Math.min(sentence.length(), 50)) + "...\"");
-                        
-                        List<String> options = Arrays.asList(
-                            sentence.length() > 50 ? sentence.substring(0, 50) + "..." : sentence,
-                            "Alternative concept A",
-                            "Alternative concept B", 
-                            "Alternative concept C"
-                        );
-                        
-                        question.setOptions(options);
-                        question.setCorrectOptionIndex(0);
-                        question.setExplanation("From note: " + note.getTitle() + " - " + sentence);
-                        question.setDifficulty(Flashcard.Difficulty.MEDIUM);
-                        
-                        questions.add(question);
-                    }
+            // Run AI generation in background thread
+            javafx.concurrent.Task<QuizGenerationService.QuizGenerationResult> task = new javafx.concurrent.Task<QuizGenerationService.QuizGenerationResult>() {
+                @Override
+                protected QuizGenerationService.QuizGenerationResult call() throws Exception {
+                    return quizGenerationService.generateQuizFromNotes(selectedNotes, quizTitle, subject, difficulty, timeLimit, questionCount);
                 }
-            }
+            };
             
-            newQuiz.setQuestions(questions);
-            
-            // Save the quiz and ensure it's persisted
-            dataStore.saveQuiz(newQuiz);
-            System.out.println("Quiz saved with ID: " + newQuiz.getId() + " and " + questions.size() + " questions");
-            
-            // Log activity
-            dataStore.logUserActivity("QUIZ_TAKEN", "Created quiz: " + newQuiz.getTitle());
-            
-            // Refresh activity history
-            com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
-            
-            // Force refresh the UI immediately and then show dialog
-            forceCompleteRefresh();
-            
-            javafx.application.Platform.runLater(() -> {
-                sceneManager.showInfoDialog("Quiz Created Successfully!", 
-                    "Created quiz '" + newQuiz.getTitle() + "' with " + questions.size() + " questions from your notes.\n\n" +
-                    "The quiz is now available in your quiz list!");
+            task.setOnSucceeded(e -> {
+                progressDialog.close();
+                QuizGenerationService.QuizGenerationResult result = task.getValue();
+                
+                if (result.isSuccess() && result.getQuiz() != null) {
+                    // Save the AI-generated quiz
+                    dataStore.saveQuiz(result.getQuiz());
+                    
+                    // Log activity
+                    dataStore.logUserActivity("QUIZ_CREATED", "Created AI quiz: " + result.getQuiz().getTitle());
+                    
+                    // Refresh activity history and all views
+                    com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                    com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+                    
+                    // Force refresh the UI
+                    forceCompleteRefresh();
+                    
+                    // Show success dialog
+                    javafx.application.Platform.runLater(() -> {
+                        sceneManager.showInfoDialog("AI Quiz Generated Successfully!", 
+                            "Created AI quiz '" + result.getQuiz().getTitle() + "' with " + 
+                            result.getQuiz().getQuestionCount() + " intelligent questions from your notes.\n\n" +
+                            "The quiz is now available in your quiz list!");
+                    });
+                } else {
+                    // Show error dialog
+                    javafx.application.Platform.runLater(() -> {
+                        sceneManager.showErrorDialog("AI Generation Failed", 
+                            "Failed to generate AI quiz: " + result.getMessage() + 
+                            "\n\nPlease check that the AI service is running and try again.");
+                    });
+                }
             });
             
+            task.setOnFailed(e -> {
+                progressDialog.close();
+                javafx.application.Platform.runLater(() -> {
+                    sceneManager.showErrorDialog("AI Generation Error", 
+                        "An error occurred while generating the AI quiz: " + task.getException().getMessage() +
+                        "\n\nPlease check that the AI service is running and try again.");
+                });
+            });
+            
+            // Start the task
+            Thread thread = new Thread(task);
+            thread.setDaemon(true);
+            thread.start();
+            
         } catch (Exception e) {
-            System.err.println("Error creating quiz from notes: " + e.getMessage());
+            System.err.println("Error creating AI quiz from notes: " + e.getMessage());
             e.printStackTrace();
-            sceneManager.showErrorDialog("Error", "Failed to create quiz from notes: " + e.getMessage());
+            sceneManager.showErrorDialog("Error", "Failed to create AI quiz from notes: " + e.getMessage());
         }
     }
     

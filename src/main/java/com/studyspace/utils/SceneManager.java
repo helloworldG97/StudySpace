@@ -24,7 +24,6 @@ public class SceneManager {
     public static final String FLASHCARD_STUDY_SCENE = "flashcard-study";
     public static final String QUIZ_LIST_SCENE = "quiz-list";
     public static final String QUIZ_MODE_SCENE = "quiz-mode";
-    public static final String CODE_PRACTICE_SCENE = "code-practice";
     public static final String NOTES_SCENE = "notes";
     public static final String TODO_SCENE = "todo";
     public static final String TIMER_SCENE = "timer";
@@ -36,7 +35,6 @@ public class SceneManager {
     private static final String FLASHCARD_STUDY_FXML = "/fxml/flashcard-study.fxml";
     private static final String QUIZ_LIST_FXML = "/fxml/quiz-list.fxml";
     private static final String QUIZ_MODE_FXML = "/fxml/quiz-mode.fxml";
-    private static final String CODE_PRACTICE_FXML = "/fxml/code-practice.fxml";
     private static final String NOTES_FXML = "/fxml/notes.fxml";
     private static final String TODO_FXML = "/fxml/todo.fxml";
     private static final String TIMER_FXML = "/fxml/timer.fxml";
@@ -121,8 +119,6 @@ public class SceneManager {
                 return QUIZ_LIST_FXML;
             case QUIZ_MODE_SCENE:
                 return QUIZ_MODE_FXML;
-            case CODE_PRACTICE_SCENE:
-                return CODE_PRACTICE_FXML;
             case NOTES_SCENE:
                 return NOTES_FXML;
             case TODO_SCENE:

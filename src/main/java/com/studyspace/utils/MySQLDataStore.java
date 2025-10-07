@@ -91,10 +91,10 @@ public class MySQLDataStore {
     
     public void updateUser(User user) {
         try {
-            String sql = "UPDATE users SET full_name = ?, flashcards_studied = ?, code_problems_completed = ?, " +
+            String sql = "UPDATE users SET full_name = ?, flashcards_studied = ?, " +
                         "quizzes_taken = ?, current_streak = ?, total_study_hours = ? WHERE id = ?";
             dbConnection.executeUpdate(sql, user.getFullName(), user.getFlashcardsStudied(), 
-                                    user.getCodeProblemsCompleted(), user.getQuizzesTaken(), 
+                                    user.getQuizzesTaken(), 
                                     user.getCurrentStreak(), user.getTotalStudyHours(), user.getId());
         } catch (SQLException e) {
             System.err.println("Update user error: " + e.getMessage());
@@ -110,6 +110,29 @@ public class MySQLDataStore {
             System.err.println("Check email error: " + e.getMessage());
         }
         return false;
+    }
+    
+    public void deleteUser(String userId) {
+        try {
+            // Delete user and all related data (cascade delete will handle related tables)
+            String sql = "DELETE FROM users WHERE id = ?";
+            dbConnection.executeUpdate(sql, userId);
+            System.out.println("User account deleted: " + userId);
+        } catch (SQLException e) {
+            System.err.println("Delete user error: " + e.getMessage());
+            throw new RuntimeException("Failed to delete user account", e);
+        }
+    }
+    
+    public void updateUserPassword(String userId, String newPassword) {
+        try {
+            String sql = "UPDATE users SET password = ? WHERE id = ?";
+            dbConnection.executeUpdate(sql, newPassword, userId);
+            System.out.println("Password updated for user: " + userId);
+        } catch (SQLException e) {
+            System.err.println("Update password error: " + e.getMessage());
+            throw new RuntimeException("Failed to update password", e);
+        }
     }
     
     // Flashcard Deck methods
@@ -550,13 +573,43 @@ public class MySQLDataStore {
             String sql = "SELECT * FROM activities WHERE user_id = ? ORDER BY timestamp DESC";
             ResultSet rs = dbConnection.executeQuery(sql, userId);
             
+            int count = 0;
             while (rs.next()) {
-                activities.add(mapResultSetToActivity(rs));
+                try {
+                    Activity activity = mapResultSetToActivity(rs);
+                    activities.add(activity);
+                    count++;
+                } catch (Exception e) {
+                    System.err.println("Error mapping activity for user " + userId + ": " + e.getMessage());
+                    // Continue processing other activities even if one fails
+                }
             }
+            System.out.println("Retrieved " + count + " activities for user: " + userId);
         } catch (SQLException e) {
-            System.err.println("Get activities error: " + e.getMessage());
+            System.err.println("Get activities error for user " + userId + ": " + e.getMessage());
+            e.printStackTrace();
         }
         return activities;
+    }
+    
+    /**
+     * Debug method to check what activity types exist in the database for a user
+     */
+    public void debugUserActivities(String userId) {
+        try {
+            String sql = "SELECT activity_type, COUNT(*) as count FROM activities WHERE user_id = ? GROUP BY activity_type ORDER BY count DESC";
+            ResultSet rs = dbConnection.executeQuery(sql, userId);
+            
+            System.out.println("=== Activity Types for User " + userId + " ===");
+            while (rs.next()) {
+                String activityType = rs.getString("activity_type");
+                int count = rs.getInt("count");
+                System.out.println(activityType + ": " + count + " activities");
+            }
+            System.out.println("=== End Activity Types ===");
+        } catch (SQLException e) {
+            System.err.println("Debug activities error: " + e.getMessage());
+        }
     }
     
     // Statistics methods
@@ -624,7 +677,6 @@ public class MySQLDataStore {
             user.setLastLoginAt(rs.getTimestamp("last_login_at").toLocalDateTime());
         }
         user.setFlashcardsStudied(rs.getInt("flashcards_studied"));
-        user.setCodeProblemsCompleted(rs.getInt("code_problems_completed"));
         user.setQuizzesTaken(rs.getInt("quizzes_taken"));
         user.setCurrentStreak(rs.getInt("current_streak"));
         user.setTotalStudyHours(rs.getInt("total_study_hours"));
@@ -734,7 +786,16 @@ public class MySQLDataStore {
         Activity activity = new Activity();
         activity.setId(rs.getString("id"));
         activity.setUserId(rs.getString("user_id"));
-        activity.setType(ActivityType.valueOf(rs.getString("activity_type")));
+        
+        // Safely convert activity type string to enum
+        String activityTypeStr = rs.getString("activity_type");
+        try {
+            activity.setType(ActivityType.valueOf(activityTypeStr));
+        } catch (IllegalArgumentException e) {
+            System.err.println("Unknown activity type: " + activityTypeStr + ", using UNKNOWN");
+            activity.setType(ActivityType.UNKNOWN);
+        }
+        
         activity.setDescription(rs.getString("description"));
         activity.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
         return activity;

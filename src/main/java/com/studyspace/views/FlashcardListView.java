@@ -652,8 +652,9 @@ public class FlashcardListView {
                 // Log activity
                 dataStore.logUserActivity("FLASHCARD_DECK_CREATED", "Created flashcard deck: " + newDeck.getTitle());
                 
-            // Refresh activity history
-            com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                // Refresh activity history and all views
+                com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                com.studyspace.components.SidebarView.refreshAllViewsGlobally();
             }
         });
     }
@@ -849,8 +850,12 @@ public class FlashcardListView {
                 sceneManager.showInfoDialog("Deck Created", 
                     "Successfully created flashcard deck '" + newDeck.getTitle() + "' with " + newDeck.getCardCount() + " flashcards!");
                 
-                // Refresh activity history
+                // Auto-open the flashcard practice view
+                autoOpenFlashcardPractice(newDeck);
+                
+                // Refresh activity history and all views
                 com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                com.studyspace.components.SidebarView.refreshAllViewsGlobally();
             }
         });
     }
@@ -1116,6 +1121,22 @@ public class FlashcardListView {
                     );
                     
                     sceneManager.showInfoDialog("AI Processing Complete", successMessage);
+                    
+                    // Auto-open the flashcard practice view for the newly created deck
+                    try {
+                        // Find the newly created deck by title
+                        FlashcardDeck newDeck = dataStore.getAllFlashcardDecks().stream()
+                            .filter(deck -> deck.getTitle().equals(result.getDeckTitle()))
+                            .findFirst()
+                            .orElse(null);
+                        
+                        if (newDeck != null) {
+                            autoOpenFlashcardPractice(newDeck);
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Error auto-opening AI-generated flashcard deck: " + ex.getMessage());
+                        // Don't show error to user, just log it
+                    }
                 } else {
                     sceneManager.showErrorDialog("AI Processing Failed", 
                         "Failed to process document: " + result.getMessage());
@@ -1231,8 +1252,9 @@ public class FlashcardListView {
             // Log activity for activity history
             dataStore.logUserActivity("FLASHCARD_CREATED", "Imported flashcard deck from " + fileType + " document: " + fileName);
             
-            // Refresh activity history to show the new activity
+            // Refresh activity history and all views to show the new activity
             com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+            com.studyspace.components.SidebarView.refreshAllViewsGlobally();
             
             // Show success message
             sceneManager.showInfoDialog("Import Successful!", 
@@ -1241,6 +1263,9 @@ public class FlashcardListView {
                 "• Cards: " + flashcards.size() + " flashcards generated\n" +
                 "• Content: Key concepts, definitions, and important details\n\n" +
                 "Your flashcard deck is now ready for study sessions!");
+            
+            // Auto-open the flashcard practice view
+            autoOpenFlashcardPractice(newDeck);
                 
         } catch (Exception e) {
             sceneManager.showErrorDialog("Import Error", 
@@ -1453,5 +1478,29 @@ public class FlashcardListView {
      */
     public void refresh() {
         loadFlashcardDecks();
+    }
+    
+    /**
+     * Automatically opens the flashcard practice view for a newly created deck
+     */
+    private void autoOpenFlashcardPractice(FlashcardDeck deck) {
+        try {
+            // Create and show flashcard practice view
+            FlashcardPracticeView practiceView = new FlashcardPracticeView(deck, this);
+            
+            // Replace current content with practice view
+            Pane parent = (Pane) mainContainer.getParent();
+            if (parent != null) {
+                parent.getChildren().clear();
+                parent.getChildren().add(practiceView.getView());
+            }
+        } catch (Exception e) {
+            System.err.println("Error auto-opening flashcard practice: " + e.getMessage());
+            e.printStackTrace();
+            // If auto-open fails, just show an error but don't crash
+            sceneManager.showErrorDialog("Auto-Open Failed", 
+                "Flashcard deck was created successfully, but couldn't open practice mode automatically. " +
+                "You can find your new deck in the list and click 'Practice' to start studying.");
+        }
     }
 }

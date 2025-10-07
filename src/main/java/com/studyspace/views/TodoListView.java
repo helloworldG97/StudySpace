@@ -648,6 +648,10 @@ public class TodoListView extends VBox {
                     dataStore.saveTodoItem(updatedItem); // Save to DataStore
                     // Log activity for new todo item
                     logActivity(ActivityType.TODO_ITEM_ADDED, "Added task: " + updatedItem.getTitle());
+                    
+                    // Refresh activity history and all views
+                    com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                    com.studyspace.components.SidebarView.refreshAllViewsGlobally();
                 }
                 updateTaskList();
                 updateProgress();

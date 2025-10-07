@@ -154,7 +154,7 @@ class DocumentProcessor:
             You are an intelligent educational content processor. Analyze the imported text carefully and create both comprehensive study notes and educational flashcards.
 
             Content to analyze:
-            {content[:50000]}  # Maximum content limit for complete document analysis
+            {content[:80000]}  # Maximum content limit for complete document analysis
             
             For STUDY NOTES, act as an educational content analyzer:
             - Read the imported file carefully and create a detailed, well-organized outline summarizing its key concepts and sections
@@ -221,7 +221,7 @@ class DocumentProcessor:
                     "options": {
                         "temperature": 0.3,
                         "top_p": 0.9,
-                        "max_tokens": 32000
+                        "max_tokens": 40000
                     }
                 },
                 timeout=300

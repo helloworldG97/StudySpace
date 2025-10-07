@@ -20,7 +20,6 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login_at TIMESTAMP NULL,
     flashcards_studied INT DEFAULT 0,
-    code_problems_completed INT DEFAULT 0,
     quizzes_taken INT DEFAULT 0,
     current_streak INT DEFAULT 0,
     total_study_hours INT DEFAULT 0
@@ -115,22 +114,6 @@ CREATE TABLE questions (
     FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
 );
 
--- Code Problems Table
-CREATE TABLE code_problems (
-    id VARCHAR(50) PRIMARY KEY,
-    user_id VARCHAR(50) NOT NULL,
-    title VARCHAR(200) NOT NULL,
-    description TEXT,
-    difficulty ENUM('EASY', 'MEDIUM', 'HARD') DEFAULT 'MEDIUM',
-    language VARCHAR(50) DEFAULT 'JavaScript',
-    starter_code TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_attempted TIMESTAMP NULL,
-    is_completed BOOLEAN DEFAULT FALSE,
-    attempts INT DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_code_problems_user_id (user_id)
-);
 
 -- Todo Items Table
 CREATE TABLE todo_items (
@@ -189,9 +172,6 @@ INSERT INTO quizzes (id, user_id, title, description, subject, difficulty) VALUE
 INSERT INTO questions (id, quiz_id, question_text, options, correct_option_index, explanation) VALUES
 ('q_001', 'quiz_001', 'What is Java?', '["Programming Language", "Database", "Operating System", "Browser"]', 0, 'Java is a programming language');
 
--- Sample Code Problem
-INSERT INTO code_problems (id, user_id, title, description, difficulty, language) VALUES
-('prob_001', 'user_001', 'Two Sum', 'Find two numbers that add up to target', 'MEDIUM', 'JavaScript');
 
 -- Sample Todo
 INSERT INTO todo_items (id, user_id, title, description, category, priority) VALUES

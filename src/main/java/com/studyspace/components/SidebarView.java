@@ -2,6 +2,7 @@ package com.studyspace.components;
 
 import com.studyspace.auth.AuthView;
 import com.studyspace.models.User;
+import com.studyspace.models.Quiz;
 import com.studyspace.utils.DataStore;
 import com.studyspace.utils.SceneManager;
 import com.studyspace.utils.IconUtils;
@@ -53,7 +54,6 @@ public class SidebarView {
     private HBox notesNav;
     private HBox flashcardsNav;
     private HBox quizzesNav;
-    private HBox codePracticeNav;
     private HBox todoNav;
     private HBox timerNav;
     private HBox progressNav;
@@ -106,6 +106,67 @@ public class SidebarView {
         } else {
             System.out.println("⚠️ No SidebarView instance available for global refresh");
         }
+    }
+    
+    /**
+     * Static method to refresh all views globally
+     */
+    public static void refreshAllViewsGlobally() {
+        if (currentInstance != null) {
+            System.out.println("🔄 Global refresh requested for all views");
+            currentInstance.refreshAllViews();
+        } else {
+            System.out.println("⚠️ No SidebarView instance available for global refresh");
+        }
+    }
+    
+    /**
+     * Refreshes all views in the application
+     */
+    private void refreshAllViews() {
+        // Refresh the current active view
+        if (activeNavItem != null) {
+            String currentSection = getCurrentSection();
+            System.out.println("🔄 Refreshing current section: " + currentSection);
+            
+            switch (currentSection.toLowerCase()) {
+                case "home":
+                    loadHomeView();
+                    break;
+                case "notes":
+                    loadNotesView();
+                    break;
+                case "flashcards":
+                    loadFlashcardsView();
+                    break;
+                case "quizzes":
+                    loadQuizzesView();
+                    break;
+                case "todo":
+                    loadTodoView();
+                    break;
+                case "timer":
+                    loadTimerView();
+                    break;
+                case "progress":
+                    loadProgressView();
+                    break;
+            }
+        }
+    }
+    
+    /**
+     * Gets the current active section
+     */
+    private String getCurrentSection() {
+        if (activeNavItem == homeNav) return "home";
+        if (activeNavItem == notesNav) return "notes";
+        if (activeNavItem == flashcardsNav) return "flashcards";
+        if (activeNavItem == quizzesNav) return "quizzes";
+        if (activeNavItem == todoNav) return "todo";
+        if (activeNavItem == timerNav) return "timer";
+        if (activeNavItem == progressNav) return "progress";
+        return "home";
     }
     
     /**
@@ -410,9 +471,7 @@ public class SidebarView {
         notesNav = createNavItemWithIcon("note", "Notes");
         flashcardsNav = createNavItemWithIcon("cards", "Flashcards");
         quizzesNav = createNavItemWithIcon("question", "Quizzes");
-        codePracticeNav = createNavItemWithIcon("code", "Code Practice");
-        
-        mainSection.getChildren().addAll(mainTitle, homeNav, notesNav, flashcardsNav, quizzesNav, codePracticeNav);
+        mainSection.getChildren().addAll(mainTitle, homeNav, notesNav, flashcardsNav, quizzesNav);
         
         // Study tools section
         VBox toolsSection = new VBox();
@@ -515,7 +574,6 @@ public class SidebarView {
         notesNav.setOnMouseClicked(e -> handleNavigation("notes", notesNav));
         flashcardsNav.setOnMouseClicked(e -> handleNavigation("flashcards", flashcardsNav));
         quizzesNav.setOnMouseClicked(e -> handleNavigation("quizzes", quizzesNav));
-        codePracticeNav.setOnMouseClicked(e -> handleNavigation("code-practice", codePracticeNav));
         todoNav.setOnMouseClicked(e -> handleNavigation("todo", todoNav));
         timerNav.setOnMouseClicked(e -> handleNavigation("timer", timerNav));
         progressNav.setOnMouseClicked(e -> handleNavigation("progress", progressNav));
@@ -570,9 +628,6 @@ public class SidebarView {
                 break;
             case "quizzes":
                 loadQuizzesView();
-                break;
-            case "code-practice":
-                loadCodePracticeView();
                 break;
             case "todo":
                 loadTodoView();
@@ -692,26 +747,6 @@ public class SidebarView {
         }
     }
     
-    /**
-     * Loads the code practice view with proper StackPane management
-     */
-    private void loadCodePracticeView() {
-        try {
-            contentArea.getChildren().clear();
-            
-            // Create the code practice view
-            com.studyspace.views.CodePracticeView codePracticeView = new com.studyspace.views.CodePracticeView();
-            VBox codePracticeViewContainer = codePracticeView.getView();
-            
-            // Add to StackPane with proper alignment
-            contentArea.getChildren().add(codePracticeViewContainer);
-            StackPane.setAlignment(codePracticeViewContainer, Pos.TOP_LEFT);
-            
-        } catch (Exception e) {
-            System.err.println("Error loading code practice view: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
     
     /**
      * Loads the todo view with proper StackPane management
@@ -757,11 +792,35 @@ public class SidebarView {
      * Loads the progress view
      */
     private void loadProgressView() {
-        contentArea.getChildren().clear();
-        
-        VBox progressView = createProgressDashboard();
-        
-        contentArea.getChildren().add(progressView);
+        try {
+            contentArea.getChildren().clear();
+            
+            VBox progressView = createProgressDashboard();
+            
+            // Add to StackPane with proper alignment
+            contentArea.getChildren().add(progressView);
+            StackPane.setAlignment(progressView, Pos.TOP_LEFT);
+            
+            System.out.println("Progress view loaded successfully");
+            
+        } catch (Exception e) {
+            System.err.println("Error loading progress view: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Show error message to user
+            VBox errorView = new VBox();
+            errorView.setAlignment(Pos.CENTER);
+            errorView.setSpacing(16);
+            
+            Label errorLabel = new Label("Error loading progress view");
+            errorLabel.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+            
+            Label detailsLabel = new Label("Please try again or contact support if the issue persists.");
+            detailsLabel.getStyleClass().addAll("text-base", "text-secondary");
+            
+            errorView.getChildren().addAll(errorLabel, detailsLabel);
+            contentArea.getChildren().add(errorView);
+        }
     }
     
     
@@ -1193,8 +1252,11 @@ public class SidebarView {
             activityList.getChildren().clear();
             
             if (currentUser != null) {
+                // Debug: Check what activities exist for this user
+                dataStore.debugUserActivities(currentUser.getId());
+                
                 List<Activity> activities = dataStore.getActivitiesForUser(currentUser.getId(), selectedDate);
-                System.out.println("📊 Found " + activities.size() + " activities for user: " + currentUser.getId());
+                System.out.println("📊 Found " + activities.size() + " activities for user: " + currentUser.getId() + " on date: " + selectedDate);
                 
                 if (activities.isEmpty()) {
                     // Show recent activities from the last 3 days if no activities for selected date
@@ -1347,12 +1409,15 @@ public class SidebarView {
     private String getActivityTypeDisplayName(ActivityType type) {
         switch (type) {
             case FLASHCARD_DECK_CREATED:
+            case FLASHCARD_CREATED:
             case FLASHCARDS_REVIEWED:
                 return "Flashcard";
             case NOTES_ADDED:
+            case NOTE_CREATED:
             case NOTE_EDITED:
                 return "Note";
             case QUIZ_COMPLETED:
+            case QUIZ_CREATED:
             case QUIZ_TAKEN:
                 return "Quiz";
             case TODO_ITEM_ADDED:
@@ -1364,6 +1429,12 @@ public class SidebarView {
             case STUDY_SESSION_STARTED:
             case STUDY_SESSION_ENDED:
                 return "Study";
+            case GAME_PLAYED:
+                return "Game";
+            case DOCUMENT_IMPORTED:
+                return "Import";
+            case UNKNOWN:
+                return "Activity";
             default:
                 return "Activity";
         }
@@ -1555,10 +1626,6 @@ public class SidebarView {
         quizzesButton.setOnAction(e -> handleNavigation("quizzes", quizzesNav));
         buttonContainer.getChildren().add(quizzesButton);
         
-        // Code Practice button (teal)
-        Button codeButton = createQuickAccessButton("code", "Code Practice", "#06b6d4");
-        codeButton.setOnAction(e -> handleNavigation("code-practice", codePracticeNav));
-        buttonContainer.getChildren().add(codeButton);
         
         // Todo List button (pink)
         Button todoButton = createQuickAccessButton("check", "To-Do List", "#ec4899");
@@ -1729,67 +1796,107 @@ public class SidebarView {
      * Creates the progress dashboard
      */
     private VBox createProgressDashboard() {
-        VBox dashboard = new VBox();
-        dashboard.setSpacing(32);
-        dashboard.getStyleClass().add("progress-dashboard");
-        dashboard.setPadding(new Insets(24));
-        
-        // Header section
-        VBox headerSection = new VBox();
-        headerSection.setSpacing(8);
-        
-        Label title = new Label("Progress Dashboard");
-        title.getStyleClass().addAll("progress-dashboard-title");
-        
-        Label subtitle = new Label("Track your learning journey and achievements");
-        subtitle.getStyleClass().addAll("progress-dashboard-subtitle");
-        
-        headerSection.getChildren().addAll(title, subtitle);
-        
-        // Statistics cards section
-        VBox statsSection = new VBox();
-        statsSection.setSpacing(24);
-        
-        // Top row - Main statistics
-        HBox topStatsRow = new HBox();
-        topStatsRow.setSpacing(20);
-        topStatsRow.setAlignment(Pos.CENTER_LEFT);
-        
-        VBox notesCard = createStatCard("📝", "Notes Created", String.valueOf(getNotesCount()), "#3b82f6");
-        VBox cardsCard = createStatCard("📚", "Cards Reviewed", String.valueOf(getCardsReviewedCount()), "#10b981");
-        VBox quizzesCard = createStatCard("❓", "Quizzes Taken", String.valueOf(getQuizzesTakenCount()), "#f59e0b");
-        
-        HBox.setHgrow(notesCard, Priority.ALWAYS);
-        HBox.setHgrow(cardsCard, Priority.ALWAYS);
-        HBox.setHgrow(quizzesCard, Priority.ALWAYS);
-        
-        topStatsRow.getChildren().addAll(notesCard, cardsCard, quizzesCard);
-        
-        // Bottom row - Additional statistics
-        HBox bottomStatsRow = new HBox();
-        bottomStatsRow.setSpacing(20);
-        bottomStatsRow.setAlignment(Pos.CENTER_LEFT);
-        
-        VBox averageScoreCard = createStatCard("📊", "Average Score", getAverageScoreFormatted(), "#ef4444");
-        VBox streakCard = createStatCard("🔥", "Current Streak", getCurrentStreakFormatted(), "#f97316");
-        VBox tasksCard = createStatCard("✅", "Tasks Completed", String.valueOf(getTasksCompletedCount()), "#06b6d4");
-        VBox decksCard = createStatCard("📖", "Decks Created", String.valueOf(getDecksCreatedCount()), "#ec4899");
-        
-        HBox.setHgrow(averageScoreCard, Priority.ALWAYS);
-        HBox.setHgrow(streakCard, Priority.ALWAYS);
-        HBox.setHgrow(tasksCard, Priority.ALWAYS);
-        HBox.setHgrow(decksCard, Priority.ALWAYS);
-        
-        bottomStatsRow.getChildren().addAll(averageScoreCard, streakCard, tasksCard, decksCard);
-        
-        statsSection.getChildren().addAll(topStatsRow, bottomStatsRow);
-        
-        // Progress overview section
-        VBox progressOverviewCard = createProgressOverviewCard();
-        
-        dashboard.getChildren().addAll(headerSection, statsSection, progressOverviewCard);
-        
-        return dashboard;
+        try {
+            VBox dashboard = new VBox();
+            dashboard.setSpacing(32);
+            dashboard.getStyleClass().add("progress-dashboard");
+            dashboard.setPadding(new Insets(24));
+            
+            // Header section
+            VBox headerSection = new VBox();
+            headerSection.setSpacing(8);
+            
+            Label title = new Label("Progress Dashboard");
+            title.getStyleClass().addAll("progress-dashboard-title");
+            
+            Label subtitle = new Label("Track your learning journey and achievements");
+            subtitle.getStyleClass().addAll("progress-dashboard-subtitle");
+            
+            headerSection.getChildren().addAll(title, subtitle);
+            
+            // Statistics cards section
+            VBox statsSection = new VBox();
+            statsSection.setSpacing(24);
+            
+            // Top row - Main statistics
+            HBox topStatsRow = new HBox();
+            topStatsRow.setSpacing(20);
+            topStatsRow.setAlignment(Pos.CENTER_LEFT);
+            
+            VBox notesCard = createStatCard("📝", "Notes Created", String.valueOf(getNotesCount()), "#3b82f6");
+            VBox cardsCard = createStatCard("📚", "Cards Reviewed", String.valueOf(getCardsReviewedCount()), "#10b981");
+            VBox quizzesCard = createStatCard("❓", "Quizzes Taken", String.valueOf(getQuizzesTakenCount()), "#f59e0b");
+            
+            HBox.setHgrow(notesCard, Priority.ALWAYS);
+            HBox.setHgrow(cardsCard, Priority.ALWAYS);
+            HBox.setHgrow(quizzesCard, Priority.ALWAYS);
+            
+            topStatsRow.getChildren().addAll(notesCard, cardsCard, quizzesCard);
+            
+            // Bottom row - Additional statistics
+            HBox bottomStatsRow = new HBox();
+            bottomStatsRow.setSpacing(20);
+            bottomStatsRow.setAlignment(Pos.CENTER_LEFT);
+            
+            VBox averageScoreCard = createStatCard("📊", "Average Score", getAverageScoreFormatted(), "#ef4444");
+            VBox streakCard = createStatCard("🔥", "Current Streak", getCurrentStreakFormatted(), "#f97316");
+            VBox tasksCard = createStatCard("✅", "Tasks Completed", String.valueOf(getTasksCompletedCount()), "#06b6d4");
+            VBox decksCard = createStatCard("📖", "Decks Created", String.valueOf(getDecksCreatedCount()), "#ec4899");
+            
+            HBox.setHgrow(averageScoreCard, Priority.ALWAYS);
+            HBox.setHgrow(streakCard, Priority.ALWAYS);
+            HBox.setHgrow(tasksCard, Priority.ALWAYS);
+            HBox.setHgrow(decksCard, Priority.ALWAYS);
+            
+            bottomStatsRow.getChildren().addAll(averageScoreCard, streakCard, tasksCard, decksCard);
+            
+            statsSection.getChildren().addAll(topStatsRow, bottomStatsRow);
+            
+            // Progress overview section
+            VBox progressOverviewCard = createProgressOverviewCard();
+            
+            // Create main content container
+            VBox mainContent = new VBox();
+            mainContent.setSpacing(32);
+            mainContent.getChildren().addAll(headerSection, statsSection, progressOverviewCard);
+            
+            // Wrap entire dashboard in ScrollPane
+            ScrollPane scrollPane = new ScrollPane(mainContent);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scrollPane.setStyle(
+                "-fx-background-color: transparent; " +
+                "-fx-border-color: transparent; " +
+                "-fx-padding: 0;"
+            );
+            
+            // Create container for scroll pane
+            VBox scrollContainer = new VBox();
+            scrollContainer.getChildren().add(scrollPane);
+            VBox.setVgrow(scrollPane, Priority.ALWAYS);
+            
+            return scrollContainer;
+            
+        } catch (Exception e) {
+            System.err.println("Error creating progress dashboard: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Return a simple error view
+            VBox errorView = new VBox();
+            errorView.setAlignment(Pos.CENTER);
+            errorView.setSpacing(16);
+            errorView.setPadding(new Insets(24));
+            
+            Label errorLabel = new Label("Unable to load progress dashboard");
+            errorLabel.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+            
+            Label detailsLabel = new Label("Please try refreshing the page or contact support if the issue persists.");
+            detailsLabel.getStyleClass().addAll("text-base", "text-secondary");
+            
+            errorView.getChildren().addAll(errorLabel, detailsLabel);
+            return errorView;
+        }
     }
     
     /**
@@ -1826,27 +1933,45 @@ public class SidebarView {
      * Gets the number of notes created
      */
     private int getNotesCount() {
-        return dataStore.getNotes().size();
+        try {
+            if (dataStore != null) {
+                return dataStore.getNotes().size();
+            }
+            return 0;
+        } catch (Exception e) {
+            System.err.println("Error getting notes count: " + e.getMessage());
+            return 0;
+        }
     }
     
     /**
      * Gets the number of cards reviewed
      */
     private int getCardsReviewedCount() {
-        if (currentUser != null) {
-            return currentUser.getFlashcardsStudied();
+        try {
+            if (currentUser != null) {
+                return currentUser.getFlashcardsStudied();
+            }
+            return 0;
+        } catch (Exception e) {
+            System.err.println("Error getting cards reviewed count: " + e.getMessage());
+            return 0;
         }
-        return 0;
     }
     
     /**
      * Gets the number of quizzes taken
      */
     private int getQuizzesTakenCount() {
-        if (currentUser != null) {
-            return currentUser.getQuizzesTaken();
+        try {
+            if (currentUser != null) {
+                return currentUser.getQuizzesTaken();
+            }
+            return 0;
+        } catch (Exception e) {
+            System.err.println("Error getting quizzes taken count: " + e.getMessage());
+            return 0;
         }
-        return 0;
     }
     
     
@@ -1854,17 +1979,50 @@ public class SidebarView {
      * Gets the average score formatted
      */
     private String getAverageScoreFormatted() {
-        // Calculate average score from quiz activities
-        List<Activity> quizActivities = dataStore.getActivities().values().stream()
-            .filter(activity -> activity.getType() == ActivityType.QUIZ_COMPLETED)
-            .collect(java.util.stream.Collectors.toList());
-        
-        if (quizActivities.isEmpty()) {
-            return "0.0%";
+        double average = getAverageScorePercentage();
+        return String.format("%.1f%%", average);
+    }
+    
+    /**
+     * Gets the average score percentage from actual quiz scores
+     */
+    private double getAverageScorePercentage() {
+        try {
+            if (dataStore == null) {
+                return 0.0;
+            }
+            
+            // Get all quizzes from the database
+            List<com.studyspace.models.Quiz> quizzes = dataStore.getAllQuizzes();
+            
+            if (quizzes.isEmpty()) {
+                return 0.0;
+            }
+            
+            // Calculate average from quizzes that have been taken (bestScore > 0)
+            List<com.studyspace.models.Quiz> takenQuizzes = quizzes.stream()
+                .filter(quiz -> quiz.getBestScore() > 0)
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (takenQuizzes.isEmpty()) {
+                return 0.0;
+            }
+            
+            // Calculate average score
+            double totalScore = takenQuizzes.stream()
+                .mapToInt(com.studyspace.models.Quiz::getBestScore)
+                .sum();
+            
+            double average = totalScore / takenQuizzes.size();
+            
+            System.out.println("Calculated average score: " + average + "% from " + takenQuizzes.size() + " quizzes");
+            
+            return average;
+            
+        } catch (Exception e) {
+            System.err.println("Error calculating average score: " + e.getMessage());
+            return 0.0;
         }
-        
-        // For now, return a sample average since we don't store actual scores
-        return "85.2%";
     }
     
     /**
@@ -1879,49 +2037,146 @@ public class SidebarView {
     }
     
     /**
+     * Gets the current streak days as integer
+     */
+    private int getCurrentStreakDays() {
+        if (currentUser != null) {
+            return currentUser.getCurrentStreak();
+        }
+        return 0;
+    }
+    
+    /**
      * Gets the number of tasks completed
      */
     private int getTasksCompletedCount() {
-        return (int) dataStore.getTodoItems().stream()
-            .filter(com.studyspace.models.TodoItem::isCompleted)
-            .count();
+        try {
+            if (dataStore != null) {
+                return (int) dataStore.getTodoItems().stream()
+                    .filter(com.studyspace.models.TodoItem::isCompleted)
+                    .count();
+            }
+            return 0;
+        } catch (Exception e) {
+            System.err.println("Error getting tasks completed count: " + e.getMessage());
+            return 0;
+        }
     }
     
     /**
      * Gets the number of decks created
      */
     private int getDecksCreatedCount() {
-        return dataStore.getAllFlashcardDecks().size();
+        try {
+            if (dataStore != null) {
+                return dataStore.getAllFlashcardDecks().size();
+            }
+            return 0;
+        } catch (Exception e) {
+            System.err.println("Error getting decks created count: " + e.getMessage());
+            return 0;
+        }
     }
     
     /**
      * Creates the progress overview card
      */
     private VBox createProgressOverviewCard() {
-        VBox card = new VBox();
-        card.getStyleClass().add("card");
-        card.setSpacing(16);
+        try {
+            VBox card = new VBox();
+            card.getStyleClass().add("card");
+            card.setSpacing(20);
+            card.setPadding(new Insets(24));
+            card.setStyle("-fx-background-color: #1f2937; -fx-background-radius: 12;");
+            
+            Label title = new Label("Study Progress Overview");
+            title.getStyleClass().addAll("text-xl", "font-semibold");
+            title.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 600;");
+            
+            VBox progressContainer = new VBox();
+            progressContainer.setSpacing(20);
+            
+            // Flashcard Deck Created Progress
+            VBox deckProgress = createWeeklyGoalProgress("Flashcard Deck Created", 
+                getDecksCreatedCount(), 10, "");
+            
+            // Notes Created Progress  
+            VBox notesProgress = createWeeklyGoalProgress("Notes Created",
+                getNotesCount(), 15, "");
+            
+            // Quizzes Taken Progress
+            VBox quizzesProgress = createWeeklyGoalProgress("Quizzes Taken",
+                getQuizzesTakenCount(), 5, "");
+            
+            // Daily Streak Progress
+            VBox streakProgress = createWeeklyGoalProgress("Daily Streak",
+                getCurrentStreakDays(), 7, "");
+            
+            // Average Score Progress
+            VBox averageScoreProgress = createWeeklyGoalProgress("Average Score",
+                (int) getAverageScorePercentage(), 100, "%");
+            
+            progressContainer.getChildren().addAll(deckProgress, notesProgress, quizzesProgress, streakProgress, averageScoreProgress);
+            
+            card.getChildren().addAll(title, progressContainer);
+            
+            return card;
+            
+        } catch (Exception e) {
+            System.err.println("Error creating progress overview card: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Return a simple card with error message
+            VBox errorCard = new VBox();
+            errorCard.getStyleClass().add("card");
+            errorCard.setSpacing(16);
+            errorCard.setAlignment(Pos.CENTER);
+            
+            Label title = new Label("Study Progress Overview");
+            title.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+            
+            Label errorLabel = new Label("Unable to load progress data");
+            errorLabel.getStyleClass().addAll("text-base", "text-secondary");
+            
+            errorCard.getChildren().addAll(title, errorLabel);
+            return errorCard;
+        }
+    }
+    
+    /**
+     * Creates a weekly goal progress item
+     */
+    private VBox createWeeklyGoalProgress(String title, int current, int target, String unit) {
+        VBox item = new VBox();
+        item.setSpacing(8);
         
-        Label title = new Label("Study Progress Overview");
-        title.getStyleClass().addAll("text-xl", "font-semibold", "text-primary");
+        // Title
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().addAll("text-sm", "font-medium");
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 500; -fx-text-fill: white;");
         
-        HBox progressContainer = new HBox();
-        progressContainer.setSpacing(24);
-        progressContainer.setAlignment(Pos.CENTER_LEFT);
+        // Progress value (e.g., "8 / 15")
+        String progressText = current + " / " + target + unit;
+        Label progressLabel = new Label(progressText);
+        progressLabel.getStyleClass().addAll("text-sm", "font-semibold");
+        progressLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: white;");
         
-        VBox jsProgress = createProgressItem("JavaScript Fundamentals", 0.85, "85%");
-        VBox pythonProgress = createProgressItem("Python Programming", 0.72, "72%");
-        VBox algoProgress = createProgressItem("Data Structures", 0.43, "43%");
+        // Progress bar
+        double progress = Math.min((double) current / target, 1.0);
+        ProgressBar progressBar = new ProgressBar(progress);
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+        progressBar.setPrefHeight(8);
+        progressBar.getStyleClass().add("weekly-goal-progress-bar");
+        progressBar.setStyle(
+            "-fx-background-color: #374151; " +
+            "-fx-background-radius: 4; " +
+            "-fx-border-radius: 4; " +
+            "-fx-accent: #8b5cf6;"
+        );
         
-        HBox.setHgrow(jsProgress, Priority.ALWAYS);
-        HBox.setHgrow(pythonProgress, Priority.ALWAYS);
-        HBox.setHgrow(algoProgress, Priority.ALWAYS);
+        item.getChildren().addAll(titleLabel, progressLabel, progressBar);
         
-        progressContainer.getChildren().addAll(jsProgress, pythonProgress, algoProgress);
-        
-        card.getChildren().addAll(title, progressContainer);
-        
-        return card;
+        return item;
     }
     
     /**
@@ -1953,6 +2208,43 @@ public class SidebarView {
         item.getChildren().addAll(header, progressBar);
         
         return item;
+    }
+    
+    /**
+     * Calculates the average score for a specific subject
+     */
+    private double calculateSubjectAverage(String subject) {
+        try {
+            if (dataStore == null) {
+                System.err.println("DataStore is null, cannot calculate subject average");
+                return 0.0;
+            }
+            
+            List<Quiz> quizzes = dataStore.getAllQuizzes();
+            if (quizzes == null || quizzes.isEmpty()) {
+                return 0.0;
+            }
+            
+            List<Quiz> subjectQuizzes = quizzes.stream()
+                .filter(quiz -> quiz != null && quiz.getSubject() != null)
+                .filter(quiz -> quiz.getSubject().toLowerCase().contains(subject.toLowerCase()))
+                .filter(quiz -> quiz.getBestScore() > 0) // Only quizzes that have been taken
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (subjectQuizzes.isEmpty()) {
+                return 0.0;
+            }
+            
+            double totalScore = subjectQuizzes.stream()
+                .mapToInt(Quiz::getBestScore)
+                .sum();
+            
+            return totalScore / subjectQuizzes.size();
+        } catch (Exception e) {
+            System.err.println("Error calculating subject average for " + subject + ": " + e.getMessage());
+            e.printStackTrace();
+            return 0.0;
+        }
     }
     
     /**

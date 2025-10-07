@@ -44,7 +44,8 @@ public class NoteStudyView {
         this.isHighlightMode = false;
         
         initializeUI();
-        showNote();
+        // Defer showNote() to avoid scene-related issues during construction
+        javafx.application.Platform.runLater(() -> showNote());
     }
     
     /**
@@ -116,18 +117,24 @@ public class NoteStudyView {
         container.setAlignment(Pos.TOP_LEFT);
         container.setSpacing(0);
         container.setPrefWidth(1200);
-        container.setPrefHeight(800);
+        container.setMinHeight(700); // Increased minimum height for better editing
+        container.setPrefHeight(800); // Set preferred height for better editing experience
         container.setPadding(new javafx.geometry.Insets(0));
         container.setStyle("-fx-background-color: white;");
         
         // Create a scrollable area for the content
         scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToHeight(false); // Allow content to expand beyond viewport
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.getStyleClass().add("readme-scroll-pane");
         scrollPane.setStyle("-fx-background-color: white;");
+        scrollPane.setMinHeight(500); // Set minimum height for the scroll pane
+        scrollPane.setPrefHeight(600); // Set preferred height for better editing
+        scrollPane.setMaxHeight(Double.MAX_VALUE); // Allow unlimited height
+        // Allow scroll pane to expand to fill available space
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
         
         // Note content with readme-like formatting
         noteContent = new Label();
@@ -135,7 +142,7 @@ public class NoteStudyView {
         noteContent.setWrapText(true);
         noteContent.setMaxWidth(1100);
         noteContent.setAlignment(Pos.TOP_LEFT);
-        noteContent.setMinHeight(700);
+        // Remove MinHeight constraint to allow content to expand naturally
         noteContent.setStyle("-fx-cursor: text;");
         
         // Add click handler for highlight mode
@@ -146,8 +153,10 @@ public class NoteStudyView {
         noteTextArea.getStyleClass().addAll("readme-text-area");
         noteTextArea.setWrapText(true);
         noteTextArea.setMaxWidth(1100);
-        noteTextArea.setMinHeight(700);
-        noteTextArea.setStyle("");
+        noteTextArea.setMinHeight(500); // Set a proper minimum height for editing
+        noteTextArea.setPrefHeight(600); // Set preferred height for better editing experience
+        noteTextArea.setMaxHeight(Double.MAX_VALUE); // Allow unlimited height for long content
+        noteTextArea.setStyle("-fx-font-size: 14px; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
         noteTextArea.setVisible(false);
         
         // Create content container
@@ -156,6 +165,8 @@ public class NoteStudyView {
         contentContainer.setPadding(new javafx.geometry.Insets(24));
         contentContainer.setStyle("-fx-background-color: white;");
         contentContainer.getChildren().add(noteContent);
+        // Allow content container to expand to fit all content
+        VBox.setVgrow(noteContent, Priority.ALWAYS);
         
         scrollPane.setContent(contentContainer);
         container.getChildren().add(scrollPane);
@@ -175,10 +186,42 @@ public class NoteStudyView {
             noteContent.getStyleClass().removeAll("note-highlight-mode", "note-focus-mode");
             noteContent.getStyleClass().add("note-normal-mode");
             
+            // Ensure the content is properly displayed and scrollable
+            refreshScrollPane();
+            
             // Update progress label
             progressLabel.setText("Document View Active");
             progressLabel.getStyleClass().removeAll("text-success", "text-warning");
             progressLabel.getStyleClass().add("text-success");
+        }
+    }
+    
+    /**
+     * Refreshes the scroll pane to ensure all content is visible
+     */
+    private void refreshScrollPane() {
+        // Force the scroll pane to recalculate its content size
+        scrollPane.requestLayout();
+        
+        // Ensure the content container expands to fit all content
+        VBox contentContainer = (VBox) scrollPane.getContent();
+        if (contentContainer != null) {
+            contentContainer.requestLayout();
+            
+            // Force the content to recalculate its size
+            if (isEditMode && noteTextArea.isVisible()) {
+                noteTextArea.requestLayout();
+            } else if (!isEditMode && noteContent.isVisible()) {
+                noteContent.requestLayout();
+            }
+        }
+        
+        // Reset scroll position to top
+        scrollPane.setVvalue(0);
+        
+        // Force a complete layout pass (only if scene is available)
+        if (scrollPane.getScene() != null) {
+            scrollPane.getScene().getRoot().requestLayout();
         }
     }
     
@@ -190,7 +233,7 @@ public class NoteStudyView {
             return "No content available.";
         }
         
-        // Add some basic formatting for better readability
+        // Clean up the content and ensure proper formatting
         StringBuilder formatted = new StringBuilder();
         String[] lines = content.split("\n");
         
@@ -199,12 +242,20 @@ public class NoteStudyView {
             if (trimmed.isEmpty()) {
                 formatted.append("\n");
             } else {
-                // Add proper spacing and formatting
+                // Preserve the original line structure and add proper spacing
                 formatted.append(trimmed).append("\n");
             }
         }
         
-        return formatted.toString();
+        // Ensure the content is properly formatted and not truncated
+        String result = formatted.toString();
+        
+        // Add some padding at the end to ensure all content is visible
+        if (!result.endsWith("\n\n")) {
+            result += "\n";
+        }
+        
+        return result;
     }
     
     /**
@@ -309,6 +360,14 @@ public class NoteStudyView {
             noteTextArea.setText(note.getContent());
             noteTextArea.setVisible(true);
             
+            // Configure text area for proper editing
+            noteTextArea.setMinHeight(500);
+            noteTextArea.setPrefHeight(600);
+            noteTextArea.setMaxHeight(Double.MAX_VALUE); // Allow unlimited height
+            
+            // Allow text area to expand to fit all content
+            VBox.setVgrow(noteTextArea, Priority.ALWAYS);
+            
             // Update button visibility
             editButton.setVisible(false);
             saveButton.setVisible(true);
@@ -321,6 +380,9 @@ public class NoteStudyView {
             
             // Focus on the text area
             noteTextArea.requestFocus();
+            
+            // Refresh scroll pane to ensure proper display
+            refreshScrollPane();
         }
     }
     
@@ -369,6 +431,9 @@ public class NoteStudyView {
         noteTextArea.setVisible(false);
         noteContent.setVisible(true);
         
+        // Ensure note content can expand to fit all content
+        VBox.setVgrow(noteContent, Priority.ALWAYS);
+        
         // Update button visibility
         editButton.setVisible(true);
         saveButton.setVisible(false);
@@ -379,8 +444,9 @@ public class NoteStudyView {
         progressLabel.getStyleClass().removeAll("text-success", "text-warning");
         progressLabel.getStyleClass().add("text-success");
         
-        // Refresh the content display
+        // Refresh the content display and scroll pane
         showNote();
+        refreshScrollPane();
     }
     
     /**

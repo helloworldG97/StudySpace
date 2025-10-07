@@ -3171,6 +3171,38 @@
 }
 
 /* ===================================================================
+   PASSWORD FIELD WITH EYE ICON STYLES
+   =================================================================== */
+
+/* Eye button styles */
+.eye-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+    -fx-padding: 8;
+    -fx-effect: none;
+}
+
+.eye-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 2, 0, 0, 1);
+}
+
+.eye-button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 1, 0, 0, 1);
+}
+
+/* Password field container */
+.password-field-container {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+/* ===================================================================
    PROFILE SETTINGS STYLES
    =================================================================== */
 

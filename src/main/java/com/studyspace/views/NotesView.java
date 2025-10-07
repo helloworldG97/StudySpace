@@ -413,7 +413,7 @@ public class NotesView {
         subjectBadge.getStyleClass().add("subject-badge");
         
         // Content preview
-        Label contentPreview = new Label(note.getContent());
+        Label contentPreview = new Label(note.getPreview());
         contentPreview.getStyleClass().add("note-content-preview");
         contentPreview.setWrapText(true);
         contentPreview.setMaxHeight(60); // Slightly increased but still limited
@@ -441,9 +441,14 @@ public class NotesView {
         studyButton.getStyleClass().add("success-button");
         studyButton.setOnAction(e -> {
             e.consume();
+            System.out.println("Study button clicked for note: " + note.getTitle());
             handleStudyNote(note);
         });
-        // Remove the mouse click handler to avoid event conflicts
+        studyButton.setOnMouseClicked(e -> {
+            e.consume();
+            System.out.println("Study button mouse clicked for note: " + note.getTitle());
+            handleStudyNote(note);
+        });
         
         studyButtons.getChildren().addAll(studyButton);
         
@@ -452,8 +457,8 @@ public class NotesView {
         // Add click handler for the entire card (opens readme-like view)
         noteCard.setOnMouseClicked(e -> {
             System.out.println("Card clicked - target: " + e.getTarget().getClass().getSimpleName());
-            // Only handle card click if not clicking on buttons
-            if (!(e.getTarget() instanceof Button)) {
+            // Only handle card click if not clicking on buttons or button children
+            if (e.getTarget() instanceof javafx.scene.Node && !isButtonOrChild((javafx.scene.Node) e.getTarget())) {
                 System.out.println("Not a button - calling handleViewNote");
                 handleViewNote(note);
             } else {
@@ -495,11 +500,22 @@ public class NotesView {
      * Handles studying a note
      */
     private void handleStudyNote(Note note) {
-        // Create a study view for the note
-        NoteStudyView studyView = new NoteStudyView(note, this);
+        System.out.println("=== handleStudyNote called ===");
+        System.out.println("Note: " + note.getTitle());
         
-        // Replace current content with study view using StackPane
-        mainContainer.getChildren().setAll(studyView.getView());
+        try {
+            // Create a study view for the note
+            NoteStudyView studyView = new NoteStudyView(note, this);
+            System.out.println("Created NoteStudyView");
+            
+            // Replace current content with study view using StackPane
+            mainContainer.getChildren().setAll(studyView.getView());
+            System.out.println("StackPane children count: " + mainContainer.getChildren().size());
+            System.out.println("=== handleStudyNote completed ===");
+        } catch (Exception e) {
+            System.err.println("Error in handleStudyNote: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -544,6 +560,20 @@ public class NotesView {
     private String formatDate(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm");
         return dateTime.format(formatter);
+    }
+    
+    /**
+     * Helper method to check if a node is a button or child of a button
+     */
+    private boolean isButtonOrChild(javafx.scene.Node node) {
+        javafx.scene.Node current = node;
+        while (current != null) {
+            if (current instanceof Button) {
+                return true;
+            }
+            current = current.getParent();
+        }
+        return false;
     }
     
     /**
@@ -882,8 +912,9 @@ public class NotesView {
             // Log activity for activity history
             dataStore.logUserActivity("NOTE_CREATED", "Imported 3 notes from " + fileType + " document: " + fileName);
             
-            // Refresh activity history to show the new activity
+            // Refresh activity history and all views to show the new activity
             com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+            com.studyspace.components.SidebarView.refreshAllViewsGlobally();
             
             // Show success message
             SceneManager.getInstance().showInfoDialog("Import Successful!", 
