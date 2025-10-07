@@ -504,6 +504,7 @@ The Study Space system now includes a comprehensive database management tool (`l
 - **Current Streaks**: View and compare user study streaks
 - **Study Hours Tracking**: Monitor total study time per user
 - **Activity Summary**: Flashcards studied and quizzes taken statistics
+- **Quiz Performance Analytics**: Individual quiz scores, average performance, and top quiz performers
 - **Top Performers**: Ranked list of most active users
 - **Performance Metrics**: Comprehensive study progress analysis
 
@@ -516,7 +517,8 @@ The Study Space system now includes a comprehensive database management tool (`l
    - **Option 2**: Delete a user (with safety confirmation)
    - **Option 3**: View complete user details
    - **Option 4**: View study streaks and performance analytics
-   - **Option 5**: Exit the system
+   - **Option 5**: View quiz performance analytics
+   - **Option 6**: Exit the system
 
 #### **Menu Options Explained**
 
@@ -541,6 +543,12 @@ The Study Space system now includes a comprehensive database management tool (`l
 - Study activity summary
 - Top performers with formatted summaries
 
+**Option 5 - View Quiz Performance**
+- Individual quiz scores with quiz titles
+- Quiz activity summary with average and best scores
+- Top quiz performers ranked by performance
+- Users with no quiz activity identification
+
 ### 🔒 **Security Features**
 - **Confirmation Prompts**: All destructive operations require confirmation
 - **User Identification**: Clear user listing before deletion
@@ -549,8 +557,10 @@ The Study Space system now includes a comprehensive database management tool (`l
 
 ### 📈 **Analytics Capabilities**
 - **Streak Tracking**: Monitor user study consistency
+- **Quiz Performance Analytics**: Individual quiz scores, average performance, and top quiz performers
 - **Performance Metrics**: Track study hours and activity levels
 - **User Engagement**: Analyze user participation and progress
+- **Quiz Participation**: Identify users who haven't taken quizzes and encourage participation
 - **System Health**: Monitor overall system usage and activity
 
 ### 🛠️ **Technical Details**
@@ -566,6 +576,7 @@ The Study Space system now includes a comprehensive database management tool (`l
 - **Database Management System**: Interactive terminal-based database management with user-friendly interface
 - **User Administration Tools**: View all users, delete users, and monitor study statistics
 - **Study Streak Analytics**: Dedicated views for current streaks, study hours, and performance metrics
+- **Quiz Performance Analytics**: Individual quiz scores, average performance tracking, and top quiz performers
 - **Enhanced Profile Management**: Complete user profile settings with password change functionality
 - **Account Deletion**: Secure account deletion with complete data removal and automatic logout
 - **Study Progress Overview**: Visual progress tracking with weekly goals and real-time statistics
