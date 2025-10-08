@@ -13,17 +13,20 @@ Developed by passionate computer engineering students from the University of Min
 ### 👨‍💻 **Daryl James Padogdog**
 - Computer Engineering Student
 - University of Mindanao
+- Lead Developer & System Architect
 
 ### 👩‍💻 **Irish Cassandra Gulen**
 - Computer Engineering Student
 - University of Mindanao
+- UI/UX Designer & Frontend Developer
 
 ### 👩‍💻 **Kristina Cassandra Delos Santos**
 - Computer Engineering Student
 - University of Mindanao
+- AI Integration Specialist & Backend Developer
 
 **About the Team:**
-We are a dedicated team of computer engineering students passionate about creating innovative learning solutions. Our goal is to empower students with modern, efficient, and engaging study tools that make learning more effective and enjoyable.
+We are a dedicated team of computer engineering students from the University of Mindanao, passionate about creating innovative learning solutions. Our diverse skills in system architecture, UI/UX design, and AI integration have enabled us to build a comprehensive learning management system that empowers students with modern, efficient, and engaging study tools. Our goal is to make learning more effective and enjoyable through technology.
 
 ## ✨ Key Features
 
@@ -211,7 +214,7 @@ The Study Space system includes interactive HTML visualizations that demonstrate
 - **Features**:
   - Color-coded algorithm visualization (Orange=Pivot, Blue=Index i, Green=Index j, Red=Swapping)
   - Real-time step-by-step process tracking
-  - Multiple data types: Flashcards, Notes, Quizzes, Code Problems, Todo Items
+  - Multiple data types: Flashcards, Notes, Quizzes, Todo Items
   - Sorting algorithms: Bubble Sort, Quick Sort, Merge Sort, Insertion Sort, Selection Sort
   - Performance metrics and complexity analysis
 
@@ -235,7 +238,7 @@ The Study Space system includes interactive HTML visualizations that demonstrate
 
 ### 🎮 Using the Algorithm Demo
 
-1. **Select Data Type**: Choose from Flashcards, Notes, Quizzes, Code Problems, or Todo Items
+1. **Select Data Type**: Choose from Flashcards, Notes, Quizzes, or Todo Items
 2. **Choose Algorithm**: Select from Bubble Sort, Quick Sort, Merge Sort, Insertion Sort, or Selection Sort
 3. **Pick Sort Criteria**: Sort by Name, Difficulty, Value, or Date
 4. **Start Visualization**: Click "Start Sorting" to generate the steps
