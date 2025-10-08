@@ -84,10 +84,12 @@ def process_document():
                 
                 if content_type in ['notes', 'both']:
                     response_data["note_title"] = result.get('note_title', 'Unknown')
+                    response_data["note_content"] = result.get('note_content', 'No content generated')
                 
                 if content_type in ['flashcards', 'both']:
                     response_data["deck_title"] = result.get('deck_title', 'Unknown')
                     response_data["flashcards_created"] = result.get('flashcards_created', 0)
+                    response_data["flashcards"] = result.get('flashcards', [])
                 
                 return jsonify({
                     "success": True,

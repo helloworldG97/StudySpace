@@ -625,14 +625,39 @@ III. Summary
         if content_type in ["notes", "both"]:
             response["note_title"] = llm_result.get('title', 'Unknown')
             response["note_id"] = llm_result.get('title', 'Unknown')
+            # Return the formatted study notes content, not raw JSON
+            response["note_content"] = llm_result.get('study_notes', 'No content generated')
         
         if content_type in ["flashcards", "both"]:
             response["deck_title"] = f"{llm_result.get('title', 'Unknown')} - Imported from {file_type}"
             structured_flashcards = llm_result.get('flashcards', [])
             if structured_flashcards:
                 response["flashcards_created"] = len(structured_flashcards)
+                response["flashcards"] = structured_flashcards  # Return formatted flashcards
             else:
-                response["flashcards_created"] = len(llm_result.get('definitions', [])) + len(llm_result.get('key_topics', []))
+                # Create flashcards from definitions and key topics
+                flashcards = []
+                definitions = llm_result.get('definitions', [])
+                key_topics = llm_result.get('key_topics', [])
+                
+                # Add flashcards from definitions
+                for definition in definitions[:25]:
+                    if ':' in definition:
+                        term, definition_text = definition.split(':', 1)
+                        flashcards.append({
+                            "question": f"What is {term.strip()}?",
+                            "answer": definition_text.strip()
+                        })
+                
+                # Add flashcards from key topics
+                for topic in key_topics[:15]:
+                    flashcards.append({
+                        "question": f"Explain {topic}",
+                        "answer": f"Key concept: {topic}"
+                    })
+                
+                response["flashcards_created"] = len(flashcards)
+                response["flashcards"] = flashcards
         
         return response
 

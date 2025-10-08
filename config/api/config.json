@@ -1,7 +1,0 @@
-{
-    "api": {
-        "host": "localhost",
-        "port": 8000,
-        "debug": true
-    }
-}
