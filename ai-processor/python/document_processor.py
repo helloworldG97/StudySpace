@@ -32,13 +32,57 @@ class DocumentProcessor:
     
     def __init__(self, config_file: str = "../../config/ai-processor/config.json"):
         """Initialize the document processor with configuration"""
-        self.config = self.load_config(config_file)
+        self.config = self.load_all_configs()
         self.db_connection = None
         self.llm_endpoint = self.config.get('llm_endpoint', 'http://localhost:11434')
         self.llm_model = self.config.get('llm_model', 'qwen3-coder:480b-cloud')
         
+    def load_all_configs(self) -> Dict:
+        """Load all configuration files and merge them"""
+        config_files = {
+            'ai-processor': '../../config/ai-processor/config.json',
+            'database': '../../config/database/config.json',
+            'api': '../../config/api/config.json'
+        }
+        
+        merged_config = {}
+        
+        for config_type, config_path in config_files.items():
+            try:
+                with open(config_path, 'r') as f:
+                    config_data = json.load(f)
+                    merged_config.update(config_data)
+                    logger.info(f"Loaded {config_type} configuration from {config_path}")
+            except FileNotFoundError:
+                logger.warning(f"Config file {config_path} not found, using defaults for {config_type}")
+                if config_type == 'database':
+                    merged_config['database'] = {
+                        "host": "localhost",
+                        "port": 3306,
+                        "user": "root",
+                        "password": "",
+                        "database": "studyspace_db"
+                    }
+                elif config_type == 'ai-processor':
+                    merged_config.update({
+                        'llm_endpoint': 'http://localhost:11434',
+                        'llm_model': 'qwen3-coder:480b-cloud',
+                        'output_dir': './processed_documents',
+                        'supported_formats': ['.pdf', '.ppt', '.pptx', '.doc', '.docx']
+                    })
+                elif config_type == 'api':
+                    merged_config['api'] = {
+                        "host": "localhost",
+                        "port": 8000,
+                        "debug": True
+                    }
+            except Exception as e:
+                logger.error(f"Error loading {config_type} configuration: {e}")
+        
+        return merged_config
+    
     def load_config(self, config_file: str) -> Dict:
-        """Load configuration from JSON file"""
+        """Load configuration from JSON file (legacy method)"""
         try:
             with open(config_file, 'r') as f:
                 return json.load(f)
