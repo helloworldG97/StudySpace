@@ -218,7 +218,18 @@ The Study Space system includes interactive HTML visualizations that demonstrate
   - Sorting algorithms: Bubble Sort, Quick Sort, Merge Sort, Insertion Sort, Selection Sort
   - Performance metrics and complexity analysis
 
-#### 2. **Index Page** (`index.html`)
+#### 2. **TimSort Algorithm Visualization** (`timsort_visualization.html`)
+- **Purpose**: Interactive demonstration of Java's TimSort algorithm using Study Space data
+- **Features**:
+  - Real-time TimSort algorithm simulation with step-by-step visualization
+  - Multiple data types: Flashcard Decks, Flashcards, Notes, Mixed Data
+  - Phase-by-phase demonstration: Identify Runs → Merge Runs → Final Merge
+  - Performance metrics: Comparisons, Swaps, Merges, Execution Time
+  - Interactive controls: Start, Pause, Step, Reset functionality
+  - Educational content explaining TimSort characteristics and complexity
+  - Color-coded visualization with animation effects for comparisons and swaps
+
+#### 3. **Index Page** (`index.html`)
 - **Purpose**: Main landing page with system overview and navigation
 - **Features**:
   - System architecture overview
@@ -232,12 +243,14 @@ The Study Space system includes interactive HTML visualizations that demonstrate
 2. **Navigate to the project root directory**
 3. **Double-click on the HTML files:**
    - `working-algorithm-demo.html` - Interactive Algorithm Demo
+   - `timsort_visualization.html` - TimSort Algorithm Visualization
    - `index.html` - System Architecture Overview
 4. **The visualizations will load automatically in Chrome**
 
 
-### 🎮 Using the Algorithm Demo
+### 🎮 Using the Algorithm Demos
 
+#### **Working Algorithm Demo**
 1. **Select Data Type**: Choose from Flashcards, Notes, Quizzes, or Todo Items
 2. **Choose Algorithm**: Select from Bubble Sort, Quick Sort, Merge Sort, Insertion Sort, or Selection Sort
 3. **Pick Sort Criteria**: Sort by Name, Difficulty, Value, or Date
@@ -250,14 +263,28 @@ The Study Space system includes interactive HTML visualizations that demonstrate
    - 🔴 **Red**: Elements being swapped
    - 🟡 **Yellow**: Elements being compared
 
+#### **TimSort Visualization**
+1. **Select Data Type**: Choose from Flashcard Decks, Flashcards, Notes, or Mixed Data
+2. **Start TimSort**: Click "Start TimSort" to begin the algorithm simulation
+3. **Watch Phases**: Observe the three phases:
+   - **Phase 1**: Identify Runs (finding already sorted sequences)
+   - **Phase 2**: Merge Runs (combining sorted sequences)
+   - **Phase 3**: Final Merge (complete sorting process)
+4. **Control Execution**: Use Start, Pause, Step, or Reset controls
+5. **Monitor Performance**: Track comparisons, swaps, merges, and execution time
+6. **Learn TimSort**: Read the educational content about TimSort characteristics
+
 ### 🎯 Educational Value
 
 These visualizations help users understand:
-- **Algorithm Complexity**: See how different algorithms perform
+- **Algorithm Complexity**: See how different algorithms perform (O(n²) vs O(n log n))
+- **TimSort Characteristics**: Learn about Java's default sorting algorithm
 - **Data Organization**: Understand how Study Space sorts and searches data
-- **Step-by-Step Process**: Visualize each comparison and swap
-- **Performance Metrics**: Track comparisons, swaps, and time complexity
+- **Step-by-Step Process**: Visualize each comparison, swap, and merge operation
+- **Performance Metrics**: Track comparisons, swaps, merges, and time complexity
 - **Real Data Context**: See algorithms working with actual Study Space data types
+- **Hybrid Algorithms**: Understand how TimSort combines merge sort and insertion sort
+- **Stable Sorting**: Learn about algorithms that maintain relative order of equal elements
 
 ### 🔧 Technical Details
 
@@ -575,7 +602,13 @@ The Study Space system now includes a comprehensive database management tool (`l
 
 ## 🆕 Recent Updates & Improvements
 
-### ✨ **Latest Features (v2.1)**
+### ✨ **Latest Features (v2.2)**
+- **TimSort Algorithm Visualization**: Interactive HTML demonstration of Java's TimSort algorithm using Study Space data
+- **Algorithm Education**: Step-by-step visualization of TimSort phases (Identify Runs → Merge Runs → Final Merge)
+- **Performance Metrics**: Real-time tracking of comparisons, swaps, merges, and execution time
+- **Multiple Data Types**: Visualize TimSort with Flashcard Decks, Flashcards, Notes, and Mixed Data
+- **Interactive Controls**: Start, Pause, Step, and Reset functionality for algorithm learning
+- **Educational Content**: Comprehensive explanation of TimSort characteristics and complexity
 - **Database Management System**: Interactive terminal-based database management with user-friendly interface
 - **User Administration Tools**: View all users, delete users, and monitor study statistics
 - **Study Streak Analytics**: Dedicated views for current streaks, study hours, and performance metrics
