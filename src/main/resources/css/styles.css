@@ -2165,6 +2165,7 @@
     -fx-font-size: 14px;
     -fx-text-fill: #ffffff;
     -fx-alignment: center-left;
+    -fx-wrap-text: true;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 2);
 }
 

@@ -395,6 +395,7 @@ public class QuizManagementView {
             String prefix = (char)('A' + i) + ". ";
             Label optionLabel = new Label(prefix + option);
             optionLabel.getStyleClass().addAll("text-sm", "text-muted");
+            optionLabel.setWrapText(true);
             optionsSection.getChildren().add(optionLabel);
         }
         
