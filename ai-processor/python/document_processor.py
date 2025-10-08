@@ -435,6 +435,19 @@ III. Summary
             logger.error(f"Error processing with LLM: {e}")
             return None
     
+    def get_file_creation_date(self, file_path: str) -> datetime:
+        """Get the creation date of a file"""
+        try:
+            # Get file stats
+            file_stat = os.stat(file_path)
+            # Use the earliest of creation time or modification time
+            creation_time = min(file_stat.st_ctime, file_stat.st_mtime)
+            return datetime.fromtimestamp(creation_time)
+        except Exception as e:
+            logger.warning(f"Could not get file creation date for {file_path}: {e}")
+            # Fallback to current time if file date can't be determined
+            return datetime.now()
+    
     def save_to_database(self, file_path: str, content: str, file_type: str, llm_result: Dict, content_type: str = "both", user_id: str = None) -> bool:
         """Save processed content to database based on content type"""
         try:
@@ -455,6 +468,9 @@ III. Summary
             # Extract file name without extension
             file_name = Path(file_path).stem
             
+            # Get file creation date for proper timestamping
+            file_creation_time = self.get_file_creation_date(file_path)
+            
             # Create note entry only if content_type includes notes
             if content_type in ["notes", "both"]:
                 note_query = """
@@ -467,8 +483,8 @@ III. Summary
                     llm_result.get('title', file_name),
                     llm_result.get('study_notes', content[:20000]),
                     llm_result.get('subject', 'General'),
-                    datetime.now(),
-                    datetime.now(),
+                    file_creation_time,
+                    file_creation_time,
                     False
                 )
                 cursor.execute(note_query, note_values)
@@ -487,7 +503,7 @@ III. Summary
                     llm_result.get('summary', f"Content imported from {file_type} file"),
                     llm_result.get('subject', 'General'),
                     llm_result.get('difficulty', 'MEDIUM'),
-                    datetime.now(),
+                    file_creation_time,
                     None,
                     0
                 )
@@ -512,7 +528,7 @@ III. Summary
                             flashcard_data.get('question', ''),
                             flashcard_data.get('answer', ''),
                             llm_result.get('difficulty', 'MEDIUM'),
-                            datetime.now(),
+                            file_creation_time,
                             None,
                             0,
                             False
@@ -536,7 +552,7 @@ III. Summary
                                 f"What is {term.strip()}?",
                                 definition_text.strip(),
                                 llm_result.get('difficulty', 'MEDIUM'),
-                                datetime.now(),
+                                file_creation_time,
                                 None,
                                 0,
                                 False
@@ -558,7 +574,7 @@ III. Summary
                             f"Explain: {topic}",
                             f"This is a key topic from the {file_type} document: {topic}",
                             llm_result.get('difficulty', 'MEDIUM'),
-                            datetime.now(),
+                            file_creation_time,
                             None,
                             0,
                             False
