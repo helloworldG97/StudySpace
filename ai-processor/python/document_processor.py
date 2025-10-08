@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class DocumentProcessor:
     """Main class for document processing and LLM integration"""
     
-    def __init__(self, config_file: str = "config.json"):
+    def __init__(self, config_file: str = "../../config/ai-processor/config.json"):
         """Initialize the document processor with configuration"""
         self.config = self.load_config(config_file)
         self.db_connection = None
@@ -596,7 +596,7 @@ def main():
     """Main function for command line usage"""
     parser = argparse.ArgumentParser(description='Process documents for Study Space')
     parser.add_argument('file_path', help='Path to the document file')
-    parser.add_argument('--config', default='config.json', help='Configuration file path')
+    parser.add_argument('--config', default='../../config/ai-processor/config.json', help='Configuration file path')
     parser.add_argument('--output', help='Output directory for processed files')
     
     args = parser.parse_args()

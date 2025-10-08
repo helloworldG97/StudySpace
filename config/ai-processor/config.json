@@ -1,0 +1,6 @@
+{
+    "llm_endpoint": "http://localhost:11434",
+    "llm_model": "qwen3-coder:480b-cloud",
+    "output_dir": "./processed_documents",
+    "supported_formats": [".pdf", ".ppt", ".pptx", ".doc", ".docx"]
+}
