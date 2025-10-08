@@ -14,6 +14,8 @@ import javafx.scene.Parent;
 import javafx.util.Duration;
 
 import java.util.List;
+import java.util.Collections;
+import java.util.ArrayList;
 
 /**
  * QuizModeView - Interactive quiz taking interface with timer and scoring
@@ -44,6 +46,8 @@ public class QuizModeView {
     private int totalQuestions;
     private Timeline timer;
     private int timeRemaining; // in seconds
+    private List<String> shuffledOptions; // Store shuffled options for current question
+    private int correctAnswerIndex; // Store the correct answer index after shuffling
     
     public QuizModeView(Quiz quiz, QuizListView parentView) {
         this.dataStore = DataStore.getInstance();
@@ -232,10 +236,18 @@ public class QuizModeView {
         selectedOptionIndex = -1;
         isAnswered = false;
         
-        // Create option buttons
-        List<String> options = currentQuestion.getOptions();
-        for (int i = 0; i < options.size(); i++) {
-            Button optionButton = createOptionButton(options.get(i), i);
+        // Shuffle options to randomize answer positions
+        List<String> originalOptions = currentQuestion.getOptions();
+        shuffledOptions = new ArrayList<>(originalOptions);
+        Collections.shuffle(shuffledOptions);
+        
+        // Find the new position of the correct answer after shuffling
+        String correctAnswer = currentQuestion.getCorrectAnswer();
+        correctAnswerIndex = shuffledOptions.indexOf(correctAnswer);
+        
+        // Create option buttons with shuffled options
+        for (int i = 0; i < shuffledOptions.size(); i++) {
+            Button optionButton = createOptionButton(shuffledOptions.get(i), i);
             optionsContainer.getChildren().add(optionButton);
         }
         
@@ -296,7 +308,8 @@ public class QuizModeView {
         if (selectedOptionIndex == -1 || isAnswered) return;
         
         Question currentQuestion = questions.get(currentQuestionIndex);
-        boolean isCorrect = currentQuestion.isCorrectAnswer(selectedOptionIndex);
+        // Use the shuffled correct answer index instead of the original
+        boolean isCorrect = (selectedOptionIndex == correctAnswerIndex);
         
         if (isCorrect) {
             correctAnswers++;
@@ -330,9 +343,10 @@ public class QuizModeView {
         for (int i = 0; i < optionsContainer.getChildren().size(); i++) {
             Button button = (Button) optionsContainer.getChildren().get(i);
             
-            if (i == question.getCorrectOptionIndex()) {
+            // Use the shuffled correct answer index
+            if (i == correctAnswerIndex) {
                 button.getStyleClass().add("correct");
-            } else if (i == selectedOptionIndex && i != question.getCorrectOptionIndex()) {
+            } else if (i == selectedOptionIndex && i != correctAnswerIndex) {
                 button.getStyleClass().add("incorrect");
             }
             
@@ -353,8 +367,9 @@ public class QuizModeView {
         resultLabel.getStyleClass().addAll("text-lg", "font-semibold", 
             wasCorrect ? "text-success" : "text-error");
         
-        // Correct answer
-        Label correctAnswerLabel = new Label("Correct Answer: " + question.getCorrectAnswer());
+        // Correct answer (use shuffled options)
+        String correctAnswerText = shuffledOptions.get(correctAnswerIndex);
+        Label correctAnswerLabel = new Label("Correct Answer: " + correctAnswerText);
         correctAnswerLabel.getStyleClass().addAll("text-sm", "font-medium", "text-primary");
         
         // Explanation

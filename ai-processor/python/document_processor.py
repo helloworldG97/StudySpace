@@ -157,17 +157,97 @@ class DocumentProcessor:
             {content[:80000]}  # Maximum content limit for complete document analysis
             
             For STUDY NOTES, act as an educational content analyzer:
-            - Read the imported file carefully and create a detailed, well-organized outline summarizing its key concepts and sections
-            - Identify the main topics and present them as clear, bolded section headers
-            - Under each main topic, include concise bullet points or short paragraphs explaining:
-              * Core ideas or definitions
-              * Historical or conceptual background
-              * Examples or case studies (if any)
-              * Importance or impact on society or environment (if applicable)
-            - Preserve the logical flow of the document (from overview → development → impact → solutions)
-            - If the file contains laws, events, or key terms, highlight them with their significance
-            - Use an academic yet easy-to-understand tone, suitable for students
-            - Format as: Title, I. Overview, II. Historical Development, III. Core Concepts or Principles, IV. Impacts or Applications, V. Case Studies/Examples, VI. Conclusion/Future Directions
+            You are an academic document analyzer designed to create detailed educational outlines and study guides from any imported text file.
+
+            Read the entire document carefully, then generate a structured, comprehensive outline summarizing the most important topics, definitions, theories, causes/effects, and related laws or examples.
+
+            Your goals:
+
+            Identify and clearly present all main topics and subtopics.
+
+            Summarize key concepts using short, clear bullet points or concise paragraphs.
+
+            Extract definitions, theories, historical developments, and laws/regulations relevant to the document.
+
+            Maintain a logical and academic flow (overview → development → key concepts → laws → issues → causes/effects → conclusion).
+
+            Use clear section headers and a readable study-guide style format.
+
+            Output Format Example
+            Title: [Auto-detect or summarize the title]
+
+            I. Overview  
+            - Brief summary of the document's main topic or theme.
+
+            II. Historical Development  
+            - Key milestones, events, or changes related to the topic.  
+
+            III. Key Terms / Concepts  
+            - [Term]: [Concise definition or explanation]  
+            - Environmental Awareness: A sense of responsibility towards preserving the environment for a sustainable future.  
+            - Environmentalism: A movement aimed at protecting the environment from human impacts.  
+            - Pro-Environmental Behavior (PEB): Actions individuals take to protect the environment.  
+            - Green Consumerism: Buying eco-friendly and sustainable products.
+
+            IV. Fundamental Theories / Models  
+            | Theory/Model | Description |  
+            |---------------|-------------|  
+            | Ecological Awareness | Understanding the impact of human actions on nature. |  
+            | Sustainable Development | Meeting present needs without harming future generations. |  
+            | Climate Change | Long-term shifts in weather patterns caused by human activities. |  
+
+            V. Key Historical Developments  
+            - Indus Civilization (3000 BC): Established waste management standards.  
+            - Industrial Revolution: Beginning of formal environmentalism due to pollution.  
+            - Clean Air Act (1956): Reduced air pollution and improved public health.  
+
+            VI. Key Regulations / Legislation  
+            | Regulation/Legislation | Description |  
+            |-------------------------|-------------|  
+            | Presidential Decree 1586 | Establishes the Environmental Impact Statement System. |  
+            | RA 6969 | Toxic Substances and Hazardous Waste Act (1990). |  
+            | RA 849 | Philippine Clean Air Act (1999). |  
+            | RA 9003 | Ecological Solid Waste Management Act (2000). |  
+            | RA 9275 | Clean Water Act (2004). |  
+
+            VII. Key Environmental Issues  
+            - Climate Change: Long-term global temperature rise.  
+            - Stratospheric Ozone Depletion: Thinning of ozone layer from chemicals like CFCs.  
+            - Acid Deposition: Acid rain harming soil and ecosystems.  
+
+            VIII. Facts to Memorize  
+            - Environmentalism aims to reduce human environmental impact.  
+            - The ozone layer protects Earth from harmful UV radiation.  
+            - Thermal inversion causes smog and air pollution near the ground.  
+
+            IX. Cause and Effect Relationships  
+            | Cause | Effect |  
+            |--------|--------|  
+            | Industrial Revolution | Pollution → Birth of environmentalism. |  
+            | Deforestation | Climate change and biodiversity loss. |  
+            | Use of CFCs | Ozone layer depletion. |  
+            | Burning fossil fuels | Acid rain formation and soil damage. |  
+            | Thermal inversion | Air pollution trapped → health problems. |  
+
+            X. Reference Information  
+            - Clean Air Act: Regulates air pollution globally.  
+            - WWF and RSPB: Organizations focused on environmental protection.  
+            - Green Consumerism: Choosing sustainable brands and products.  
+
+            XI. Conclusion / Future Directions  
+            - Summary of what can be done for sustainability.  
+            - Role of education, activism, and technology in protecting the environment.  
+
+
+            Output Requirements:
+
+            Format sections in a clean, academic style.
+
+            Use bullet points or tables for clarity.
+
+            Ensure no information is lost from the source text, only summarized.
+
+            Maintain educational tone (like a study guide or review sheet).
             
             For FLASHCARDS, act as an intelligent flashcard generator:
             - Identify key points – Extract important definitions, dates, laws, processes, causes and effects, examples, and important people or events
@@ -181,7 +261,7 @@ class DocumentProcessor:
                 "summary": "string",
                 "key_topics": ["topic1", "topic2", ...],
                 "definitions": ["term1: definition1", "term2: definition2", ...],
-                "study_notes": "Title: [Automatically extract or summarize document title]\\n\\nI. Overview\\n- Short summary of the topic\\n\\nII. Historical Development\\n- Key events, movements, or milestones\\n\\nIII. Core Concepts or Principles\\n- Definitions and explanations\\n\\nIV. Impacts or Applications\\n- Effects, importance, and relevance\\n\\nV. Case Studies / Examples\\n- Real-world examples or laws mentioned\\n\\nVI. Conclusion / Future Directions\\n- Summary and outlook",
+                "study_notes": "Title: [Auto-detect or summarize the title]\\n\\nI. Overview\\n- Brief summary of the document's main topic or theme.\\n\\nII. Historical Development\\n- Key milestones, events, or changes related to the topic.\\n\\nIII. Key Terms / Concepts\\n- [Term]: [Concise definition or explanation]\\n\\nIV. Fundamental Theories / Models\\n| Theory/Model | Description |\\n|---------------|-------------|\\n\\nV. Key Historical Developments\\n- [Event/Date]: [Description]\\n\\nVI. Key Regulations / Legislation\\n| Regulation/Legislation | Description |\\n|-------------------------|-------------|\\n\\nVII. Key Environmental Issues\\n- [Issue]: [Description]\\n\\nVIII. Facts to Memorize\\n- [Important fact]\\n\\nIX. Cause and Effect Relationships\\n| Cause | Effect |\\n|--------|--------|\\n\\nX. Reference Information\\n- [Reference]: [Description]\\n\\nXI. Conclusion / Future Directions\\n- Summary of what can be done for sustainability.\\n- Role of education, activism, and technology in protecting the environment.",
                 "difficulty": "Easy|Medium|Hard",
                 "subject": "string",
                 "flashcards": [
@@ -239,17 +319,67 @@ class DocumentProcessor:
                     if json_start != -1 and json_end != -1:
                         json_str = llm_response[json_start:json_end]
                         parsed_response = json.loads(json_str)
+                        logger.info("Successfully parsed JSON response from LLM")
                         return parsed_response
-                except json.JSONDecodeError:
-                    logger.warning("LLM response is not valid JSON, using fallback")
+                    else:
+                        logger.warning("No JSON structure found in LLM response")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"LLM response is not valid JSON: {e}")
+                    # Try to find and extract JSON more carefully
+                    try:
+                        # Look for the first complete JSON object
+                        brace_count = 0
+                        start_idx = -1
+                        for i, char in enumerate(llm_response):
+                            if char == '{':
+                                if start_idx == -1:
+                                    start_idx = i
+                                brace_count += 1
+                            elif char == '}':
+                                brace_count -= 1
+                                if brace_count == 0 and start_idx != -1:
+                                    json_str = llm_response[start_idx:i+1]
+                                    parsed_response = json.loads(json_str)
+                                    logger.info("Successfully parsed JSON using brace counting")
+                                    return parsed_response
+                    except json.JSONDecodeError:
+                        logger.warning("Failed to parse JSON even with brace counting")
                 
-                # Fallback if JSON parsing fails
+                # Fallback if JSON parsing fails - create structured content from raw response
+                logger.warning("Using fallback content generation due to JSON parsing failure")
+                
+                # Try to extract meaningful content from the raw response
+                if len(llm_response) > 1000:
+                    fallback_notes = f"""Title: Document Analysis from {file_type}
+
+I. Overview
+- Content extracted from {file_type} document
+- Key information and concepts identified
+
+II. Key Concepts
+- Important topics and definitions from the document
+
+III. Summary
+{llm_response[:1000]}..."""
+                else:
+                    fallback_notes = f"""Title: Document Analysis from {file_type}
+
+I. Overview
+- Content extracted from {file_type} document
+- Key information and concepts identified
+
+II. Key Concepts
+- Important topics and definitions from the document
+
+III. Summary
+{llm_response}"""
+                
                 return {
-                    "title": f"Document from {file_type}",
+                    "title": f"Document Analysis from {file_type}",
                     "summary": llm_response[:200] + "..." if len(llm_response) > 200 else llm_response,
-                    "key_topics": ["General Topics"],
+                    "key_topics": ["Document Analysis", "Key Concepts"],
                     "definitions": [],
-                    "study_notes": llm_response,
+                    "study_notes": fallback_notes,
                     "difficulty": "Medium",
                     "subject": "General"
                 }

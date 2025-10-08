@@ -11,6 +11,7 @@ import com.studyspace.models.FlashcardDeck;
 import com.studyspace.models.Note;
 import com.studyspace.utils.DataStore;
 import com.studyspace.utils.IconUtils;
+import com.studyspace.utils.QuizGenerationService;
 import com.studyspace.utils.SceneManager;
 
 import javafx.collections.FXCollections;
@@ -24,7 +25,6 @@ import javafx.geometry.Pos;
 //this is where flashcard decks are displayed and managed
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -841,27 +841,15 @@ public class FlashcardListView {
         // Show dialog and handle result
         dialog.showAndWait().ifPresent(newDeck -> {
             if (newDeck != null) {
-                // Add the new deck to the list
-                decksList.add(newDeck);
-                dataStore.saveFlashcardDeck(newDeck);
-                loadFlashcardDecks();
-                
-                // Show success message
-                sceneManager.showInfoDialog("Deck Created", 
-                    "Successfully created flashcard deck '" + newDeck.getTitle() + "' with " + newDeck.getCardCount() + " flashcards!");
-                
-                // Auto-open the flashcard practice view
-                autoOpenFlashcardPractice(newDeck);
-                
-                // Refresh activity history and all views
-                com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
-                com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+                // The deck will be created and populated asynchronously
+                // It will be added to the list and saved when AI processing completes
+                // No need to add it here since it's not saved yet
             }
         });
     }
     
     /**
-     * Creates flashcards from selected notes
+     * Creates flashcards from selected notes using AI
      */
     private FlashcardDeck createFlashcardsFromNotes(List<Note> selectedNotes) {
         try {
@@ -876,25 +864,78 @@ public class FlashcardListView {
                 return null;
             }
             
+            // Show simple notification like quiz generation
+            sceneManager.showInfoDialog("Creating Flashcards", 
+                "Creating flashcards from your notes... We will notify you directly as we compile your flashcards.");
+            
             // Create new deck
             FlashcardDeck newDeck = new FlashcardDeck(deckTitle, deckDescription, deckSubject, deckDifficulty);
             
-            int totalFlashcardsCreated = 0;
-            
-            for (Note note : selectedNotes) {
-                List<Flashcard> generatedFlashcards = generateFlashcardsFromNote(note);
-                
-                // Add generated flashcards to the deck
-                for (Flashcard flashcard : generatedFlashcards) {
-                    newDeck.addFlashcard(flashcard);
-                    totalFlashcardsCreated++;
+            // Use AI to generate flashcards from notes in background thread
+            javafx.concurrent.Task<QuizGenerationService.FlashcardGenerationResult> task = 
+                new javafx.concurrent.Task<QuizGenerationService.FlashcardGenerationResult>() {
+                @Override
+                protected QuizGenerationService.FlashcardGenerationResult call() throws Exception {
+                    QuizGenerationService quizGenerationService = new QuizGenerationService();
+                    return quizGenerationService.generateFlashcardsFromNotes(selectedNotes, deckTitle, deckSubject, deckDifficulty);
                 }
-            }
+            };
             
-            // Log activity
-            dataStore.logUserActivity("FLASHCARD_DECK_CREATED", 
-                "Created deck '" + newDeck.getTitle() + "' with " + totalFlashcardsCreated + " flashcards from " + selectedNotes.size() + " notes");
+            task.setOnSucceeded(e -> {
+                QuizGenerationService.FlashcardGenerationResult result = task.getValue();
+                
+                System.out.println("=== Flashcard Generation Result ===");
+                System.out.println("Success: " + result.isSuccess());
+                System.out.println("Message: " + result.getMessage());
+                System.out.println("Flashcards count: " + (result.getFlashcards() != null ? result.getFlashcards().size() : "null"));
+                
+                if (result.isSuccess() && result.getFlashcards() != null) {
+                    // Add AI-generated flashcards to the deck
+                    for (Flashcard flashcard : result.getFlashcards()) {
+                        newDeck.addFlashcard(flashcard);
+                    }
+                    
+                    // Save the deck to the data store (THIS WAS MISSING!)
+                    System.out.println("Saving deck to data store: " + newDeck.getTitle() + " with " + newDeck.getCardCount() + " cards");
+                    dataStore.saveFlashcardDeck(newDeck);
+                    System.out.println("Deck saved successfully!");
+                    
+                    // Update the local deck list to include the new deck
+                    decksList.clear();
+                    decksList.addAll(dataStore.getAllFlashcardDecks());
+                    System.out.println("Updated local deck list. Total decks: " + decksList.size());
+                    
+                    // Refresh the deck list
+                    loadFlashcardDecks();
+                    
+                    // Log activity
+                    dataStore.logUserActivity("FLASHCARD_DECK_CREATED", 
+                        "Created deck '" + newDeck.getTitle() + "' with " + result.getFlashcards().size() + " AI-generated flashcards from " + selectedNotes.size() + " notes");
+                    
+                    // Show success message
+                    sceneManager.showInfoDialog("Flashcards Created Successfully", 
+                        "Created " + result.getFlashcards().size() + " flashcards from your notes!");
+                    
+                    // Refresh activity history and all views
+                    com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+                    com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+                } else {
+                    sceneManager.showErrorDialog("AI Generation Failed", 
+                        "Failed to generate flashcards: " + result.getMessage());
+                }
+            });
             
+            task.setOnFailed(e -> {
+                sceneManager.showErrorDialog("AI Generation Error", 
+                    "An error occurred while generating flashcards: " + task.getException().getMessage());
+            });
+            
+            // Start the task in a background thread
+            Thread processingThread = new Thread(task);
+            processingThread.setDaemon(true);
+            processingThread.start();
+            
+            // Return the deck immediately (it will be populated in the background)
             return newDeck;
             
         } catch (Exception e) {
@@ -1035,51 +1076,9 @@ public class FlashcardListView {
                 return;
             }
             
-            // Show AI processing dialog
-            Dialog<Boolean> processingDialog = new Dialog<>();
-            processingDialog.setTitle("AI Document Processing");
-            processingDialog.setHeaderText("Processing your document with AI...");
-            processingDialog.setResizable(false);
-            
-            VBox processingContent = new VBox();
-            processingContent.setSpacing(16);
-            processingContent.setPadding(new Insets(20));
-            processingContent.setAlignment(Pos.CENTER);
-            
-            Label processingLabel = new Label("🤖 AI is analyzing your document and generating intelligent flashcards...");
-            processingLabel.getStyleClass().add("processing-text");
-            
-            ProgressBar progressBar = new ProgressBar();
-            progressBar.setPrefWidth(300);
-            progressBar.setProgress(-1); // Indeterminate progress
-            
-            processingContent.getChildren().addAll(processingLabel, progressBar);
-            processingDialog.getDialogPane().setContent(processingContent);
-            
-            // Add cancel button
-            ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-            processingDialog.getDialogPane().getButtonTypes().add(cancelButtonType);
-            
-            // Style the cancel button
-            Button cancelButton = (Button) processingDialog.getDialogPane().lookupButton(cancelButtonType);
-            cancelButton.getStyleClass().add("secondary-button");
-            
-            // Handle cancel button and window close
-            processingDialog.setResultConverter(buttonType -> {
-                if (buttonType == cancelButtonType) {
-                    return false; // Processing cancelled
-                }
-                return true; // Processing completed
-            });
-            
-            // Handle window close (X button)
-            processingDialog.getDialogPane().getScene().getWindow().setOnCloseRequest(e -> {
-                processingDialog.setResult(false);
-                processingDialog.close();
-            });
-            
-            // Show processing dialog
-            processingDialog.show();
+            // Show simple notification like quiz generation
+            sceneManager.showInfoDialog("Creating Flashcards", 
+                "Creating flashcards from your document... We will notify you directly as we compile your flashcards.");
             
             // Process document with AI service in background
             javafx.concurrent.Task<com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult> task = 
@@ -1093,10 +1092,6 @@ public class FlashcardListView {
             };
             
             task.setOnSucceeded(e -> {
-                if (processingDialog.isShowing()) {
-                    processingDialog.close();
-                }
-                
                 com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult result = task.getValue();
                 
                 if (result.isSuccess()) {
@@ -1144,9 +1139,6 @@ public class FlashcardListView {
             });
             
             task.setOnFailed(e -> {
-                if (processingDialog.isShowing()) {
-                    processingDialog.close();
-                }
                 sceneManager.showErrorDialog("AI Processing Error", 
                     "An error occurred while processing the document: " + task.getException().getMessage());
             });

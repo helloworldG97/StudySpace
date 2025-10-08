@@ -701,51 +701,9 @@ public class NotesView {
                 return;
             }
             
-            // Show AI processing dialog
-            Dialog<Boolean> processingDialog = new Dialog<>();
-            processingDialog.setTitle("AI Document Processing");
-            processingDialog.setHeaderText("Processing your document with AI for Notes...");
-            processingDialog.setResizable(false);
-            
-            VBox processingContent = new VBox();
-            processingContent.setSpacing(16);
-            processingContent.setPadding(new Insets(20));
-            processingContent.setAlignment(Pos.CENTER);
-            
-            Label processingLabel = new Label("🤖 AI is analyzing your document and generating intelligent notes...");
-            processingLabel.getStyleClass().add("processing-text");
-            
-            ProgressBar progressBar = new ProgressBar();
-            progressBar.setPrefWidth(300);
-            progressBar.setProgress(-1); // Indeterminate progress
-            
-            processingContent.getChildren().addAll(processingLabel, progressBar);
-            processingDialog.getDialogPane().setContent(processingContent);
-            
-            // Add cancel button
-            ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-            processingDialog.getDialogPane().getButtonTypes().add(cancelButtonType);
-            
-            // Style the cancel button
-            Button cancelButton = (Button) processingDialog.getDialogPane().lookupButton(cancelButtonType);
-            cancelButton.getStyleClass().add("secondary-button");
-            
-            // Handle cancel button and window close
-            processingDialog.setResultConverter(buttonType -> {
-                if (buttonType == cancelButtonType) {
-                    return false; // Processing cancelled
-                }
-                return true; // Processing completed
-            });
-            
-            // Handle window close (X button)
-            processingDialog.getDialogPane().getScene().getWindow().setOnCloseRequest(e -> {
-                processingDialog.setResult(false);
-                processingDialog.close();
-            });
-            
-            // Show processing dialog
-            processingDialog.show();
+            // Show simple notification like quiz generation
+            SceneManager.getInstance().showInfoDialog("Creating Notes", 
+                "Creating notes from your document... We will notify you directly as we compile your notes.");
             
             // Process document with AI service in background
             javafx.concurrent.Task<com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult> task = 
@@ -759,10 +717,6 @@ public class NotesView {
             };
             
             task.setOnSucceeded(e -> {
-                if (processingDialog.isShowing()) {
-                    processingDialog.close();
-                }
-                
                 com.studyspace.utils.DocumentProcessingService.DocumentProcessingResult result = task.getValue();
                 
                 if (result.isSuccess()) {
@@ -793,9 +747,6 @@ public class NotesView {
             });
             
             task.setOnFailed(e -> {
-                if (processingDialog.isShowing()) {
-                    processingDialog.close();
-                }
                 SceneManager.getInstance().showErrorDialog("AI Processing Error", 
                     "An error occurred while processing the document: " + task.getException().getMessage());
             });
