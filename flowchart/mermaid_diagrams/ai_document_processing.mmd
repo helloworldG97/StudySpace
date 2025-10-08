@@ -1,0 +1,31 @@
+graph TD
+    A[📁 Document Upload] --> B[🔍 File Type Detection]
+    B --> C{Supported Format?}
+    C -->|Yes| D[📄 Content Extraction]
+    C -->|No| E[❌ Unsupported Format Error]
+    
+    D --> F[📝 Text Processing]
+    F --> G[🤖 AI Model Processing]
+    G --> H[🧠 Qwen3-coder LLM]
+    
+    H --> I[📊 Content Analysis]
+    I --> J[📚 Study Notes Generation]
+    I --> K[🃏 Flashcard Creation]
+    I --> L[❓ Quiz Generation]
+    
+    J --> M[📋 Structured Notes]
+    K --> N[🃏 Question-Answer Pairs]
+    L --> O[❓ Multiple Choice Questions]
+    
+    M --> P[💾 Database Storage]
+    N --> P
+    O --> P
+    
+    P --> Q[✅ Content Available to User]
+    
+    R[⚙️ AI Configuration] --> H
+    S[🔧 Error Handling] --> T[📊 Fallback Content Generation]
+    
+    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style H fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style Q fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff

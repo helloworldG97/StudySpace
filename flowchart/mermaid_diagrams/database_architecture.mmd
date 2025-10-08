@@ -1,0 +1,32 @@
+graph TD
+    A[🗄️ MySQL Database Schema] --> B[👤 Core Tables]
+    A --> C[📚 Content Tables]
+    A --> D[🔗 Relationship Tables]
+    A --> E[📊 Tracking Tables]
+    
+    B --> B1[👤 users<br/>id, full_name, email, password<br/>created_at, last_login_at<br/>current_streak, total_study_hours]
+    
+    C --> C1[📄 notes<br/>id, user_id, title, content<br/>category, created_at, updated_at, is_pinned]
+    C --> C2[🃏 flashcard_decks<br/>id, user_id, title, description<br/>subject, difficulty, created_at, last_studied, study_count]
+    C --> C3[🃏 flashcards<br/>id, deck_id, question, answer<br/>difficulty, created_at, last_studied, study_count, is_mastered]
+    C --> C4[❓ quizzes<br/>id, user_id, title, description<br/>difficulty, best_score, times_taken, last_taken]
+    C --> C5[❓ questions<br/>id, quiz_id, question_text, options<br/>correct_answer, explanation]
+    C --> C6[📋 todo_items<br/>id, user_id, title, description<br/>priority, due_date, is_completed, created_at]
+    C --> C7[📁 user_files<br/>id, user_id, file_name, file_path<br/>file_type, file_size, created_at]
+    
+    D --> D1[🔗 Foreign Key Constraints]
+    D1 --> D2[user_id → users.id]
+    D1 --> D3[deck_id → flashcard_decks.id]
+    D1 --> D4[quiz_id → quizzes.id]
+    
+    E --> E1[📊 activities<br/>id, user_id, activity_type<br/>description, timestamp]
+    
+    F[🛡️ User Isolation] --> G[📊 All Queries Filter by user_id]
+    G --> H[🔒 Complete Data Privacy]
+    
+    I[🗑️ Cascade Deletion] --> J[👤 User Deletion Triggers]
+    J --> K[🔄 Automatic Data Cleanup]
+    
+    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style H fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style K fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff

@@ -1,0 +1,30 @@
+graph TD
+    A[🚀 Study Space Launch] --> B{User Status}
+    B -->|New User| C[👤 User Registration]
+    B -->|Existing User| D[🔑 User Login]
+    B -->|Guest| E[📱 Guest Mode]
+    
+    C --> C1[📧 Email Validation]
+    C --> C2[🔑 Password Creation]
+    C --> C3[👤 Profile Setup]
+    C --> C4[✅ Account Creation]
+    
+    D --> D1[📧 Email Input]
+    D --> D2[🔑 Password Verification]
+    D --> D3{Authentication}
+    D3 -->|Success| F[🏠 Main Dashboard]
+    D3 -->|Failure| G[❌ Login Error]
+    
+    E --> H[📱 Limited Access]
+    H --> I[🔐 Prompt for Registration]
+    
+    F --> J[🛡️ Session Management]
+    J --> K[⏰ Auto Logout Timer]
+    J --> L[🔄 Session Refresh]
+    
+    G --> M[🔄 Retry Login]
+    M --> D
+    
+    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style F fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style G fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff

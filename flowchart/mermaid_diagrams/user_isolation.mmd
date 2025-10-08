@@ -1,0 +1,30 @@
+graph TD
+    A[👤 User Login] --> B[🛡️ User Session Created]
+    B --> C[🔐 User ID Authentication]
+    C --> D[📊 User-Specific Data Access]
+    
+    D --> E[📄 User Notes]
+    D --> F[🃏 User Flashcards]
+    D --> G[❓ User Quizzes]
+    D --> H[📋 User Tasks]
+    D --> I[📁 User Files]
+    
+    E --> J[🗄️ MySQL Database]
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    
+    J --> K[🔍 Database Queries with User ID Filter]
+    K --> L[📊 User-Specific Results]
+    L --> M[🛡️ Data Isolation Maintained]
+    
+    N[👤 Other Users] --> O[🚫 No Access to User Data]
+    O --> P[🛡️ Complete Isolation]
+    
+    Q[🗑️ User Account Deletion] --> R[🔄 Cascade Delete All User Data]
+    R --> S[✅ Complete Data Removal]
+    
+    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style M fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style P fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff

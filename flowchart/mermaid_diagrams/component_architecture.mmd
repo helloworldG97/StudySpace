@@ -1,0 +1,48 @@
+graph TD
+    A[🏗️ Study Space Architecture] --> B[📱 Presentation Layer]
+    A --> C[🎯 Business Logic Layer]
+    A --> D[💾 Data Access Layer]
+    A --> E[🤖 AI Processing Layer]
+    A --> F[🗄️ Database Layer]
+    
+    B --> B1[🔐 AuthView.java]
+    B --> B2[📱 SidebarView.java]
+    B --> B3[🃏 FlashcardListView.java]
+    B --> B4[📝 NotesView.java]
+    B --> B5[✅ QuizListView.java]
+    B --> B6[📋 TodoListView.java]
+    B --> B7[🎮 SnakeGameView.java]
+    B --> B8[👤 ProfileSettingsView.java]
+    
+    C --> C1[🎯 AuthController.java]
+    C --> C2[🔄 SceneManager.java]
+    C --> C3[🛠️ IconUtils.java]
+    C --> C4[📤 DocumentProcessingService.java]
+    C --> C5[📊 QuizGenerationService.java]
+    
+    D --> D1[💾 MySQLDataStore.java]
+    D --> D2[🗄️ DatabaseConnection.java]
+    D --> D3[📊 DataStore.java]
+    
+    E --> E1[🐍 Python Flask API]
+    E --> E2[🤖 document_processor.py]
+    E --> E3[🧠 Qwen3-coder LLM]
+    E --> E4[📄 PyPDF2, python-docx, python-pptx]
+    
+    F --> F1[🗄️ MySQL Database]
+    F --> F2[👤 users table]
+    F --> F3[📄 notes table]
+    F --> F4[🃏 flashcard_decks table]
+    F --> F5[🃏 flashcards table]
+    F --> F6[❓ quizzes table]
+    F --> F7[❓ questions table]
+    F --> F8[📋 todo_items table]
+    F --> F9[📁 user_files table]
+    F --> F10[📊 activities table]
+    
+    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+    style C fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+    style D fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style E fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+    style F fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
