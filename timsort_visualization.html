@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimSort Algorithm Visualization - Study Space</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header p {
+            color: #4a5568;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn.active {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .visualization-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+        }
+        
+        .data-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+        
+        .data-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 120px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .deck-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .flashcard-item {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .note-item {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .data-item.comparing {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        .data-item.swapping {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transform: scale(1.2);
+            animation: swapAnimation 0.5s ease-in-out;
+        }
+        
+        .data-item.sorted {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            opacity: 0.8;
+        }
+        
+        .data-item.merge-source {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .data-item.merge-target {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+        
+        @keyframes swapAnimation {
+            0% { transform: scale(1.2) rotate(0deg); }
+            50% { transform: scale(1.3) rotate(5deg); }
+            100% { transform: scale(1.2) rotate(0deg); }
+        }
+        
+        .algorithm-info {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .algorithm-info h3 {
+            color: #2d3748;
+            margin-top: 0;
+        }
+        
+        .step-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .metric-card .value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .run-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .run-info h4 {
+            color: #234e52;
+            margin-top: 0;
+        }
+        
+        .run-info p {
+            color: #2d3748;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 TimSort Algorithm Visualization</h1>
+            <p>Interactive demonstration using Study Space data (Decks, Flashcards, Notes)</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="selectDataType('decks')">🃏 Flashcard Decks</button>
+            <button class="btn" onclick="selectDataType('flashcards')">📚 Flashcards</button>
+            <button class="btn" onclick="selectDataType('notes')">📝 Notes</button>
+            <button class="btn" onclick="selectDataType('mixed')">🎯 Mixed Data</button>
+            <hr style="margin: 20px 0;">
+            <button class="btn" onclick="startTimSort()" id="startBtn">▶️ Start TimSort</button>
+            <button class="btn" onclick="pauseTimSort()" id="pauseBtn" disabled>⏸️ Pause</button>
+            <button class="btn" onclick="resetVisualization()" id="resetBtn">🔄 Reset</button>
+            <button class="btn" onclick="stepTimSort()" id="stepBtn" disabled>👆 Step</button>
+        </div>
+        
+        <div class="algorithm-info">
+            <h3>🧠 TimSort Algorithm Overview</h3>
+            <p><strong>TimSort</strong> is a hybrid stable sorting algorithm derived from merge sort and insertion sort. It's the default sorting algorithm used by Java's <code>Collections.sort()</code> and <code>List.sort()</code> methods.</p>
+            
+            <div class="run-info">
+                <h4>🎯 Current Run Information</h4>
+                <p><strong>Data Type:</strong> <span id="currentDataType">Flashcard Decks</span></p>
+                <p><strong>Data Size:</strong> <span id="currentDataSize">8 items</span></p>
+                <p><strong>Sort Criteria:</strong> <span id="currentSortCriteria">Title (A-Z)</span></p>
+                <p><strong>Algorithm Phase:</strong> <span id="currentPhase">Ready to Start</span></p>
+            </div>
+        </div>
+        
+        <div class="visualization-container">
+            <h3>📊 Data Visualization</h3>
+            <div class="data-container" id="dataContainer">
+                <!-- Data items will be dynamically generated -->
+            </div>
+            
+            <div class="step-info" id="stepInfo">
+                <strong>Step:</strong> <span id="currentStep">Ready to begin TimSort visualization</span><br>
+                <strong>Operation:</strong> <span id="currentOperation">Waiting for start...</span><br>
+                <strong>Comparison:</strong> <span id="currentComparison">None</span>
+            </div>
+        </div>
+        
+        <div class="performance-metrics">
+            <div class="metric-card">
+                <h4>⏱️ Comparisons</h4>
+                <div class="value" id="comparisonCount">0</div>
+            </div>
+            <div class="metric-card">
+                <h4>🔄 Swaps</h4>
+                <div class="value" id="swapCount">0</div>
+            </div>
+            <div class="metric-card">
+                <h4>📊 Merges</h4>
+                <div class="value" id="mergeCount">0</div>
+            </div>
+            <div class="metric-card">
+                <h4>⏰ Time (ms)</h4>
+                <div class="value" id="timeElapsed">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TimSort Visualization Implementation
+        class TimSortVisualization {
+            constructor() {
+                this.data = [];
+                this.originalData = [];
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentStep = 0;
+                this.comparisons = 0;
+                this.swaps = 0;
+                this.merges = 0;
+                this.startTime = 0;
+                this.stepDelay = 1000; // 1 second between steps
+                this.animationTimeout = null;
+            }
+            
+            // Sample data for different types
+            getSampleData(type) {
+                const data = {
+                    decks: [
+                        { name: "Java Basics", subject: "Programming", difficulty: "Easy", cards: 15, type: "deck" },
+                        { name: "Data Structures", subject: "Computer Science", difficulty: "Hard", cards: 25, type: "deck" },
+                        { name: "Algorithms", subject: "Computer Science", difficulty: "Medium", cards: 20, type: "deck" },
+                        { name: "Web Development", subject: "Programming", difficulty: "Medium", cards: 18, type: "deck" },
+                        { name: "Database Design", subject: "Computer Science", difficulty: "Hard", cards: 22, type: "deck" },
+                        { name: "Python Fundamentals", subject: "Programming", difficulty: "Easy", cards: 12, type: "deck" },
+                        { name: "Machine Learning", subject: "AI", difficulty: "Hard", cards: 30, type: "deck" },
+                        { name: "Mobile Development", subject: "Programming", difficulty: "Medium", cards: 16, type: "deck" }
+                    ],
+                    flashcards: [
+                        { question: "What is Java?", difficulty: "Easy", studied: 5, type: "flashcard" },
+                        { question: "What is OOP?", difficulty: "Easy", studied: 3, type: "flashcard" },
+                        { question: "What is a binary tree?", difficulty: "Hard", studied: 8, type: "flashcard" },
+                        { question: "What is recursion?", difficulty: "Medium", studied: 6, type: "flashcard" },
+                        { question: "What is a hash table?", difficulty: "Hard", studied: 7, type: "flashcard" },
+                        { question: "What is polymorphism?", difficulty: "Medium", studied: 4, type: "flashcard" },
+                        { question: "What is inheritance?", difficulty: "Medium", studied: 5, type: "flashcard" },
+                        { question: "What is encapsulation?", difficulty: "Medium", studied: 3, type: "flashcard" }
+                    ],
+                    notes: [
+                        { title: "Java Programming", subject: "Programming", length: 1200, type: "note" },
+                        { title: "Data Structures", subject: "Computer Science", length: 1800, type: "note" },
+                        { title: "Algorithms", subject: "Computer Science", length: 1500, type: "note" },
+                        { title: "Web Development", subject: "Programming", length: 2000, type: "note" },
+                        { title: "Database Design", subject: "Computer Science", length: 1600, type: "note" },
+                        { title: "Python Basics", subject: "Programming", length: 1000, type: "note" },
+                        { title: "Machine Learning", subject: "AI", length: 2500, type: "note" },
+                        { title: "Mobile Apps", subject: "Programming", length: 1400, type: "note" }
+                    ],
+                    mixed: [
+                        { name: "Java Basics", type: "deck", subject: "Programming" },
+                        { question: "What is OOP?", type: "flashcard", difficulty: "Easy" },
+                        { title: "Data Structures", type: "note", subject: "Computer Science" },
+                        { name: "Algorithms", type: "deck", subject: "Computer Science" },
+                        { question: "What is recursion?", type: "flashcard", difficulty: "Medium" },
+                        { title: "Web Development", type: "note", subject: "Programming" },
+                        { name: "Database Design", type: "deck", subject: "Computer Science" },
+                        { question: "What is a binary tree?", type: "flashcard", difficulty: "Hard" }
+                    ]
+                };
+                return data[type] || data.decks;
+            }
+            
+            selectDataType(type) {
+                this.data = this.getSampleData(type);
+                this.originalData = [...this.data];
+                this.resetMetrics();
+                this.renderData();
+                this.updateRunInfo(type);
+                
+                // Update active button
+                document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            updateRunInfo(type) {
+                const typeNames = {
+                    'decks': 'Flashcard Decks',
+                    'flashcards': 'Flashcards', 
+                    'notes': 'Notes',
+                    'mixed': 'Mixed Data'
+                };
+                
+                document.getElementById('currentDataType').textContent = typeNames[type] || 'Unknown';
+                document.getElementById('currentDataSize').textContent = this.data.length + ' items';
+                document.getElementById('currentSortCriteria').textContent = 'Title/Name (A-Z)';
+                document.getElementById('currentPhase').textContent = 'Ready to Start';
+            }
+            
+            renderData() {
+                const container = document.getElementById('dataContainer');
+                container.innerHTML = '';
+                
+                this.data.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = `data-item ${item.type}-item`;
+                    div.id = `item-${index}`;
+                    
+                    let content = '';
+                    if (item.name) {
+                        content = `<div style="font-weight: bold;">${item.name}</div>`;
+                        if (item.subject) content += `<div style="font-size: 0.8em; opacity: 0.8;">${item.subject}</div>`;
+                        if (item.cards) content += `<div style="font-size: 0.8em; opacity: 0.8;">${item.cards} cards</div>`;
+                    } else if (item.question) {
+                        content = `<div style="font-weight: bold;">${item.question}</div>`;
+                        if (item.difficulty) content += `<div style="font-size: 0.8em; opacity: 0.8;">${item.difficulty}</div>`;
+                        if (item.studied) content += `<div style="font-size: 0.8em; opacity: 0.8;">${item.studied} times</div>`;
+                    } else if (item.title) {
+                        content = `<div style="font-weight: bold;">${item.title}</div>`;
+                        if (item.subject) content += `<div style="font-size: 0.8em; opacity: 0.8;">${item.subject}</div>`;
+                        if (item.length) content += `<div style="font-size: 0.8em; opacity: 0.8;">${item.length} chars</div>`;
+                    }
+                    
+                    div.innerHTML = content;
+                    container.appendChild(div);
+                });
+            }
+            
+            async startTimSort() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                this.startTime = Date.now();
+                this.resetMetrics();
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('stepBtn').disabled = false;
+                document.getElementById('resetBtn').disabled = true;
+                
+                await this.simulateTimSort();
+                
+                this.isRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('stepBtn').disabled = true;
+                document.getElementById('resetBtn').disabled = false;
+                
+                this.updateStepInfo('TimSort completed successfully!', 'All data sorted', 'Final result');
+            }
+            
+            async simulateTimSort() {
+                // Simulate TimSort phases
+                await this.phase1_IdentifyRuns();
+                await this.phase2_MergeRuns();
+                await this.phase3_FinalMerge();
+            }
+            
+            async phase1_IdentifyRuns() {
+                this.updateStepInfo('Phase 1: Identifying runs', 'Scanning for already sorted sequences', 'Finding natural runs');
+                await this.delay(1000);
+                
+                // Simulate finding runs
+                for (let i = 0; i < this.data.length - 1; i++) {
+                    this.highlightItems([i, i + 1], 'comparing');
+                    this.comparisons++;
+                    this.updateMetrics();
+                    await this.delay(500);
+                    
+                    this.clearHighlights();
+                }
+            }
+            
+            async phase2_MergeRuns() {
+                this.updateStepInfo('Phase 2: Merging runs', 'Combining sorted sequences', 'Merge operation');
+                await this.delay(1000);
+                
+                // Simulate merge operations
+                const mergeCount = Math.ceil(this.data.length / 2);
+                for (let i = 0; i < mergeCount; i++) {
+                    const start = i * 2;
+                    const end = Math.min(start + 3, this.data.length);
+                    
+                    this.highlightItems([start, start + 1], 'merge-source');
+                    this.merges++;
+                    this.updateMetrics();
+                    await this.delay(800);
+                    
+                    this.clearHighlights();
+                }
+            }
+            
+            async phase3_FinalMerge() {
+                this.updateStepInfo('Phase 3: Final merge', 'Combining remaining runs', 'Final merge operation');
+                await this.delay(1000);
+                
+                // Simulate final merge and sorting
+                for (let i = 0; i < this.data.length - 1; i++) {
+                    for (let j = i + 1; j < this.data.length; j++) {
+                        this.highlightItems([i, j], 'comparing');
+                        this.comparisons++;
+                        this.updateMetrics();
+                        await this.delay(300);
+                        
+                        // Simulate swap if needed
+                        const item1 = this.data[i];
+                        const item2 = this.data[j];
+                        const shouldSwap = this.shouldSwap(item1, item2);
+                        
+                        if (shouldSwap) {
+                            this.highlightItems([i, j], 'swapping');
+                            await this.delay(500);
+                            
+                            // Perform swap
+                            [this.data[i], this.data[j]] = [this.data[j], this.data[i]];
+                            this.swaps++;
+                            this.updateMetrics();
+                            this.renderData();
+                            
+                            this.clearHighlights();
+                        } else {
+                            this.clearHighlights();
+                        }
+                        
+                        if (this.isPaused) {
+                            await this.waitForResume();
+                        }
+                    }
+                }
+            }
+            
+            shouldSwap(item1, item2) {
+                // Determine sort key based on item type
+                let key1, key2;
+                
+                if (item1.name) {
+                    key1 = item1.name.toLowerCase();
+                    key2 = item2.name.toLowerCase();
+                } else if (item1.question) {
+                    key1 = item1.question.toLowerCase();
+                    key2 = item2.question.toLowerCase();
+                } else if (item1.title) {
+                    key1 = item1.title.toLowerCase();
+                    key2 = item2.title.toLowerCase();
+                } else {
+                    return false;
+                }
+                
+                return key1 > key2;
+            }
+            
+            highlightItems(indices, className) {
+                indices.forEach(index => {
+                    const element = document.getElementById(`item-${index}`);
+                    if (element) {
+                        element.classList.add(className);
+                    }
+                });
+            }
+            
+            clearHighlights() {
+                document.querySelectorAll('.data-item').forEach(item => {
+                    item.classList.remove('comparing', 'swapping', 'merge-source', 'merge-target');
+                });
+            }
+            
+            updateStepInfo(step, operation, comparison) {
+                document.getElementById('currentStep').textContent = step;
+                document.getElementById('currentOperation').textContent = operation;
+                document.getElementById('currentComparison').textContent = comparison;
+            }
+            
+            updateMetrics() {
+                document.getElementById('comparisonCount').textContent = this.comparisons;
+                document.getElementById('swapCount').textContent = this.swaps;
+                document.getElementById('mergeCount').textContent = this.merges;
+                document.getElementById('timeElapsed').textContent = Date.now() - this.startTime;
+            }
+            
+            resetMetrics() {
+                this.comparisons = 0;
+                this.swaps = 0;
+                this.merges = 0;
+                this.startTime = 0;
+                this.updateMetrics();
+            }
+            
+            pauseTimSort() {
+                this.isPaused = true;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('startBtn').disabled = false;
+                this.updateStepInfo('Paused', 'Algorithm paused', 'Waiting for resume');
+            }
+            
+            async stepTimSort() {
+                if (!this.isRunning) return;
+                
+                // Single step execution
+                this.updateStepInfo('Step execution', 'Performing single step', 'Step-by-step mode');
+                await this.delay(100);
+            }
+            
+            resetVisualization() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.data = [...this.originalData];
+                this.resetMetrics();
+                this.renderData();
+                
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('stepBtn').disabled = true;
+                document.getElementById('resetBtn').disabled = false;
+                
+                this.updateStepInfo('Ready to begin TimSort visualization', 'Waiting for start...', 'None');
+                this.clearHighlights();
+            }
+            
+            async delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            async waitForResume() {
+                return new Promise(resolve => {
+                    const checkResume = () => {
+                        if (!this.isPaused) {
+                            resolve();
+                        } else {
+                            setTimeout(checkResume, 100);
+                        }
+                    };
+                    checkResume();
+                });
+            }
+        }
+        
+        // Initialize visualization
+        const timSortViz = new TimSortVisualization();
+        
+        // Initialize with flashcard decks
+        timSortViz.selectDataType('decks');
+        
+        // Global functions for button controls
+        function selectDataType(type) {
+            timSortViz.selectDataType(type);
+        }
+        
+        function startTimSort() {
+            timSortViz.startTimSort();
+        }
+        
+        function pauseTimSort() {
+            timSortViz.pauseTimSort();
+        }
+        
+        function resetVisualization() {
+            timSortViz.resetVisualization();
+        }
+        
+        function stepTimSort() {
+            timSortViz.stepTimSort();
+        }
+        
+        // Auto-start with flashcard decks
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial active button
+            document.querySelector('.btn').classList.add('active');
+        });
+    </script>
+</body>
+</html>
