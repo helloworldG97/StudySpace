@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 
 import java.io.InputStream;
 
@@ -17,7 +18,7 @@ import java.io.InputStream;
  * A custom password field component with an eye icon for show/hide functionality.
  * This component wraps a PasswordField and TextField, toggling between them when the eye icon is clicked.
  */
-public class PasswordFieldWithEye extends HBox {
+public class PasswordFieldWithEye extends StackPane {
     
     private PasswordField passwordField;
     private TextField textField;
@@ -54,27 +55,29 @@ public class PasswordFieldWithEye extends HBox {
         // Create eye button
         eyeButton = new Button();
         eyeButton.getStyleClass().add("eye-button");
-        eyeButton.setPrefWidth(40);
-        eyeButton.setPrefHeight(40);
-        eyeButton.setMinWidth(40);
-        eyeButton.setMinHeight(40);
-        eyeButton.setMaxWidth(40);
-        eyeButton.setMaxHeight(40);
+        eyeButton.setPrefWidth(32);
+        eyeButton.setPrefHeight(32);
+        eyeButton.setMinWidth(32);
+        eyeButton.setMinHeight(32);
+        eyeButton.setMaxWidth(32);
+        eyeButton.setMaxHeight(32);
         
         // Create eye icon
         eyeIcon = new ImageView();
-        eyeIcon.setFitWidth(20);
-        eyeIcon.setFitHeight(20);
+        eyeIcon.setFitWidth(16);
+        eyeIcon.setFitHeight(16);
         eyeIcon.setPreserveRatio(true);
         eyeButton.setGraphic(eyeIcon);
         
-        // Set up layout
-        HBox.setHgrow(passwordField, Priority.ALWAYS);
-        HBox.setHgrow(textField, Priority.ALWAYS);
+        // Position the eye button on the right side of the field
+        StackPane.setAlignment(eyeButton, javafx.geometry.Pos.CENTER_RIGHT);
+        eyeButton.setTranslateX(-8); // Move slightly inside the field
         
+        // Add all components to the stack pane
         this.getChildren().addAll(passwordField, textField, eyeButton);
-        this.setSpacing(8);
-        this.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        
+        // Add CSS class for styling
+        this.getStyleClass().add("password-field-with-eye");
     }
     
     /**

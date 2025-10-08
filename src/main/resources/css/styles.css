@@ -488,6 +488,11 @@
     -fx-min-height: 48;
 }
 
+/* Password field with eye button - add right padding for the eye icon */
+.password-field-with-eye .form-field {
+    -fx-padding: 16 50 16 20; /* top right bottom left - extra space on right for eye button */
+}
+
 .form-field:focused {
     -fx-border-color: #8b5cf6;
     -fx-border-width: 2;
