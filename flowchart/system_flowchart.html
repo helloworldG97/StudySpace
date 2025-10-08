@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Space - System Flowchart</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header p {
+            color: #4a5568;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        
+        .flowchart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        .section-title {
+            color: #2d3748;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .info-panel {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .info-panel h3 {
+            color: #2d3748;
+            margin-top: 0;
+        }
+        
+        .info-panel ul {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .tech-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tech-item h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .tech-item p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn.active {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Study Space System Flowchart</h1>
+            <p>Comprehensive Learning Management System Architecture</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn active" onclick="showFlowchart('overview')">System Overview</button>
+            <button class="btn" onclick="showFlowchart('authentication')">Authentication Flow</button>
+            <button class="btn" onclick="showFlowchart('userisolation')">User Isolation</button>
+            <button class="btn" onclick="showFlowchart('aiprocessing')">AI Document Processing</button>
+            <button class="btn" onclick="showFlowchart('database')">Database Architecture</button>
+            <button class="btn" onclick="showFlowchart('dataflow')">Data Flow</button>
+            <button class="btn" onclick="showFlowchart('components')">Component Architecture</button>
+            <button class="btn" onclick="showFlowchart('features')">Feature Modules</button>
+        </div>
+        
+        <div class="flowchart-container">
+            <div id="flowchart-content"></div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>📋 System Information</h3>
+            <ul>
+                <li><strong>Application Type:</strong> Multi-User JavaFX Desktop Application</li>
+                <li><strong>Java Version:</strong> Java 21</li>
+                <li><strong>UI Framework:</strong> JavaFX 21</li>
+                <li><strong>Database:</strong> MySQL with User Isolation</li>
+                <li><strong>AI Processing:</strong> Python Flask API with Qwen3-coder LLM</li>
+                <li><strong>Build Tool:</strong> Maven</li>
+                <li><strong>Architecture:</strong> MVC Pattern with Multi-User Data Store</li>
+                <li><strong>UI Design:</strong> Glassmorphism with Dark Theme</li>
+                <li><strong>Security:</strong> Complete User Isolation & Authentication</li>
+                <li><strong>Team:</strong> Computer Engineering Students - University of Mindanao</li>
+            </ul>
+        </div>
+        
+        <div class="tech-stack">
+            <div class="tech-item">
+                <h4>Java 21</h4>
+                <p>Modern Java with latest features</p>
+            </div>
+            <div class="tech-item">
+                <h4>JavaFX 21</h4>
+                <p>Rich desktop application framework</p>
+            </div>
+            <div class="tech-item">
+                <h4>MySQL</h4>
+                <p>Relational database with user isolation</p>
+            </div>
+            <div class="tech-item">
+                <h4>Python Flask</h4>
+                <p>AI document processing backend</p>
+            </div>
+            <div class="tech-item">
+                <h4>Qwen3-coder</h4>
+                <p>AI model for content generation</p>
+            </div>
+            <div class="tech-item">
+                <h4>Maven</h4>
+                <p>Dependency management and build tool</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#2d3748',
+                primaryBorderColor: '#4a5568',
+                lineColor: '#4a5568',
+                secondaryColor: '#f7fafc',
+                tertiaryColor: '#edf2f7'
+            }
+        });
+
+        const flowcharts = {
+            overview: `
+                graph TD
+                    A[🚀 Study Space Application] --> B[🔐 Authentication System]
+                    A --> C[📱 Main Application Interface]
+                    A --> D[🤖 AI Document Processing]
+                    A --> E[🗄️ Database Management]
+                    
+                    B --> B1[👤 User Registration]
+                    B --> B2[🔑 User Login]
+                    B --> B3[🛡️ Session Management]
+                    B --> B4[🚪 User Logout]
+                    
+                    C --> C1[📚 Study Modules]
+                    C1 --> C2[🃏 AI Flashcards]
+                    C1 --> C3[📝 Smart Notes]
+                    C1 --> C4[✅ Interactive Quizzes]
+                    C1 --> C5[📋 Task Management]
+                    C1 --> C6[🎮 Snake Game]
+                    
+                    D --> D1[📁 Document Upload]
+                    D --> D2[🤖 AI Content Generation]
+                    D --> D3[📊 Content Processing]
+                    D --> D4[💾 Database Storage]
+                    
+                    E --> E1[👤 User Data]
+                    E --> E2[📄 User Notes]
+                    E --> E3[🃏 User Flashcards]
+                    E --> E4[❓ User Quizzes]
+                    E --> E5[📋 User Tasks]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style C fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style D fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style E fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+            `,
+            
+            authentication: `
+                graph TD
+                    A[🚀 Study Space Launch] --> B{User Status}
+                    B -->|New User| C[👤 User Registration]
+                    B -->|Existing User| D[🔑 User Login]
+                    B -->|Guest| E[📱 Guest Mode]
+                    
+                    C --> C1[📧 Email Validation]
+                    C --> C2[🔑 Password Creation]
+                    C --> C3[👤 Profile Setup]
+                    C --> C4[✅ Account Creation]
+                    
+                    D --> D1[📧 Email Input]
+                    D --> D2[🔑 Password Verification]
+                    D --> D3{Authentication}
+                    D3 -->|Success| F[🏠 Main Dashboard]
+                    D3 -->|Failure| G[❌ Login Error]
+                    
+                    E --> H[📱 Limited Access]
+                    H --> I[🔐 Prompt for Registration]
+                    
+                    F --> J[🛡️ Session Management]
+                    J --> K[⏰ Auto Logout Timer]
+                    J --> L[🔄 Session Refresh]
+                    
+                    G --> M[🔄 Retry Login]
+                    M --> D
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style F fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style G fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+            `,
+            
+            userisolation: `
+                graph TD
+                    A[👤 User Login] --> B[🛡️ User Session Created]
+                    B --> C[🔐 User ID Authentication]
+                    C --> D[📊 User-Specific Data Access]
+                    
+                    D --> E[📄 User Notes]
+                    D --> F[🃏 User Flashcards]
+                    D --> G[❓ User Quizzes]
+                    D --> H[📋 User Tasks]
+                    D --> I[📁 User Files]
+                    
+                    E --> J[🗄️ MySQL Database]
+                    F --> J
+                    G --> J
+                    H --> J
+                    I --> J
+                    
+                    J --> K[🔍 Database Queries with User ID Filter]
+                    K --> L[📊 User-Specific Results]
+                    L --> M[🛡️ Data Isolation Maintained]
+                    
+                    N[👤 Other Users] --> O[🚫 No Access to User Data]
+                    O --> P[🛡️ Complete Isolation]
+                    
+                    Q[🗑️ User Account Deletion] --> R[🔄 Cascade Delete All User Data]
+                    R --> S[✅ Complete Data Removal]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style M fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style P fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+            `,
+            
+            aiprocessing: `
+                graph TD
+                    A[📁 Document Upload] --> B[🔍 File Type Detection]
+                    B --> C{Supported Format?}
+                    C -->|Yes| D[📄 Content Extraction]
+                    C -->|No| E[❌ Unsupported Format Error]
+                    
+                    D --> F[📝 Text Processing]
+                    F --> G[🤖 AI Model Processing]
+                    G --> H[🧠 Qwen3-coder LLM]
+                    
+                    H --> I[📊 Content Analysis]
+                    I --> J[📚 Study Notes Generation]
+                    I --> K[🃏 Flashcard Creation]
+                    I --> L[❓ Quiz Generation]
+                    
+                    J --> M[📋 Structured Notes]
+                    K --> N[🃏 Question-Answer Pairs]
+                    L --> O[❓ Multiple Choice Questions]
+                    
+                    M --> P[💾 Database Storage]
+                    N --> P
+                    O --> P
+                    
+                    P --> Q[✅ Content Available to User]
+                    
+                    R[⚙️ AI Configuration] --> H
+                    S[🔧 Error Handling] --> T[📊 Fallback Content Generation]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style H fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style Q fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+            `,
+            
+            database: `
+                graph TD
+                    A[🗄️ MySQL Database] --> B[👤 Users Table]
+                    A --> C[📄 Notes Table]
+                    A --> D[🃏 Flashcard Decks Table]
+                    A --> E[🃏 Flashcards Table]
+                    A --> F[❓ Quizzes Table]
+                    A --> G[❓ Questions Table]
+                    A --> H[📋 Todo Items Table]
+                    A --> I[📁 User Files Table]
+                    A --> J[📊 Activities Table]
+                    
+                    B --> K[🔑 Primary Key: id]
+                    B --> L[📧 Email Unique]
+                    B --> M[🔐 Password Hash]
+                    B --> N[📊 User Statistics]
+                    
+                    C --> O[🔗 Foreign Key: user_id]
+                    D --> O
+                    F --> O
+                    H --> O
+                    I --> O
+                    J --> O
+                    
+                    E --> P[🔗 Foreign Key: deck_id]
+                    G --> Q[🔗 Foreign Key: quiz_id]
+                    
+                    R[🛡️ User Isolation] --> S[📊 All Queries Filter by user_id]
+                    S --> T[🔒 Complete Data Privacy]
+                    
+                    U[🗑️ Cascade Deletion] --> V[👤 User Deletion]
+                    V --> W[🔄 Automatic Data Cleanup]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style T fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style W fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+            `,
+            
+            dataflow: `
+                graph TD
+                    A[👤 User Action] --> B[📱 JavaFX Interface]
+                    B --> C[🎯 Business Logic Layer]
+                    C --> D[💾 Data Access Layer]
+                    D --> E[🗄️ MySQL Database]
+                    
+                    E --> F[📊 Query Results]
+                    F --> G[🔄 Data Processing]
+                    G --> H[📱 UI Update]
+                    H --> I[👤 User Feedback]
+                    
+                    J[📁 Document Upload] --> K[🐍 Python Flask API]
+                    K --> L[🤖 AI Processing]
+                    L --> M[📊 Generated Content]
+                    M --> N[💾 Database Storage]
+                    N --> O[📱 JavaFX Update]
+                    
+                    P[🔄 Real-time Updates] --> Q[📊 Global Refresh System]
+                    Q --> R[🔄 UI Synchronization]
+                    R --> S[📱 Live Data Display]
+                    
+                    T[⚙️ Configuration] --> U[📄 Config Files]
+                    U --> V[🔧 System Settings]
+                    V --> W[📊 Runtime Behavior]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style E fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style L fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+            `,
+            
+            components: `
+                graph TD
+                    A[🏗️ Study Space Architecture] --> B[📱 Presentation Layer]
+                    A --> C[🎯 Business Logic Layer]
+                    A --> D[💾 Data Layer]
+                    A --> E[🤖 AI Processing Layer]
+                    
+                    B --> F[🔐 AuthView]
+                    B --> G[📱 SidebarView]
+                    B --> H[🃏 FlashcardListView]
+                    B --> I[📝 NotesView]
+                    B --> J[✅ QuizListView]
+                    B --> K[📋 TodoListView]
+                    B --> L[🎮 SnakeGameView]
+                    
+                    C --> M[🎯 AuthController]
+                    C --> N[🔄 SceneManager]
+                    C --> O[🛠️ IconUtils]
+                    C --> P[📤 DocumentProcessingService]
+                    
+                    D --> Q[💾 MySQLDataStore]
+                    D --> R[🗄️ DatabaseConnection]
+                    D --> S[👤 User Model]
+                    D --> T[📄 Note Model]
+                    D --> U[🃏 Flashcard Model]
+                    D --> V[❓ Question Model]
+                    D --> W[📋 TodoItem Model]
+                    D --> X[📊 Activity Model]
+                    D --> Y[📁 UserFile Model]
+                    
+                    E --> Z[🐍 Python Flask API]
+                    E --> AA[🤖 Document Processor]
+                    E --> BB[🧠 Qwen3-coder LLM]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style C fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style D fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style E fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+            `,
+            
+            features: `
+                graph TD
+                    A[🎯 Study Space Features] --> B[🔐 Authentication System]
+                    A --> C[📚 Study Tools]
+                    A --> D[🤖 AI Processing]
+                    A --> E[🎮 Interactive Features]
+                    A --> F[📊 Progress Tracking]
+                    
+                    B --> B1[👤 User Registration]
+                    B --> B2[🔑 Secure Login]
+                    B --> B3[🛡️ Session Management]
+                    B --> B4[👤 Profile Management]
+                    
+                    C --> C1[🃏 AI Flashcards]
+                    C --> C2[📝 Smart Notes]
+                    C --> C3[✅ Interactive Quizzes]
+                    C --> C4[📋 Task Management]
+                    
+                    C1 --> C1A[🤖 AI-Generated Flashcards]
+                    C1 --> C1B[📚 Custom Flashcard Decks]
+                    C1 --> C1C[🎯 Study Sessions]
+                    
+                    C2 --> C2A[🤖 AI-Generated Notes]
+                    C2 --> C2B[📝 Rich Text Editor]
+                    C2 --> C2C[🏷️ Category System]
+                    
+                    C3 --> C3A[🤖 AI-Generated Quizzes]
+                    C3 --> C3B[❓ Multiple Choice]
+                    C3 --> C3C[⏱️ Time Limits]
+                    C3 --> C3D[📊 Score Tracking]
+                    
+                    C4 --> C4A[📋 Priority System]
+                    C4 --> C4B[📅 Due Dates]
+                    C4 --> C4C[📊 Completion Stats]
+                    
+                    D --> D1[📁 Document Upload]
+                    D --> D2[🤖 Content Generation]
+                    D --> D3[📊 Smart Categorization]
+                    
+                    E --> E1[🐍 Snake Game]
+                    E --> E2[🎯 Break Activities]
+                    E --> E3[🏆 Achievement System]
+                    
+                    F --> F1[📊 Activity Logging]
+                    F --> F2[📈 User Statistics]
+                    F --> F3[🎯 Weekly Goals]
+                    F --> F4[📊 Performance Metrics]
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+                    style C fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style D fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style E fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style F fill:#06b6d4,stroke:#0891b2,stroke-width:3px,color:#fff
+            `
+        };
+
+        function showFlowchart(type) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Update flowchart content
+            const content = document.getElementById('flowchart-content');
+            content.innerHTML = `<div class="mermaid">${flowcharts[type]}</div>`;
+            
+            // Reinitialize mermaid
+            mermaid.init();
+        }
+
+        // Initialize with overview
+        document.addEventListener('DOMContentLoaded', function() {
+            showFlowchart('overview');
+        });
+    </script>
+</body>
+</html>
