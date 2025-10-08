@@ -216,7 +216,15 @@ class DocumentProcessor:
             Maintain a logical and academic flow (overview → development → key concepts → laws → issues → causes/effects → conclusion).
 
             Use clear section headers and a readable study-guide style format.
-
+            
+            CRITICAL TABLE FORMATTING REQUIREMENTS:
+            - All tables MUST be perfectly aligned with consistent column widths
+            - Use exactly 3 spaces between columns for proper alignment
+            - Ensure all rows have the same column structure
+            - Left-align all text within cells
+            - Use consistent spacing and padding
+            - Test table alignment by ensuring vertical lines are straight
+            
             Output Format Example
             Title: [Auto-detect or summarize the title]
 
@@ -234,11 +242,11 @@ class DocumentProcessor:
             - Green Consumerism: Buying eco-friendly and sustainable products.
 
             IV. Fundamental Theories / Models  
-            | Theory/Model | Description |  
-            |---------------|-------------|  
-            | Ecological Awareness | Understanding the impact of human actions on nature. |  
-            | Sustainable Development | Meeting present needs without harming future generations. |  
-            | Climate Change | Long-term shifts in weather patterns caused by human activities. |  
+            | Theory/Model            | Description                                                      |  
+            |-------------------------|------------------------------------------------------------------|  
+            | Ecological Awareness    | Understanding the impact of human actions on nature.             |  
+            | Sustainable Development | Meeting present needs without harming future generations.        |  
+            | Climate Change          | Long-term shifts in weather patterns caused by human activities. |  
 
             V. Key Historical Developments  
             - Indus Civilization (3000 BC): Established waste management standards.  
@@ -246,13 +254,13 @@ class DocumentProcessor:
             - Clean Air Act (1956): Reduced air pollution and improved public health.  
 
             VI. Key Regulations / Legislation  
-            | Regulation/Legislation | Description |  
-            |-------------------------|-------------|  
-            | Presidential Decree 1586 | Establishes the Environmental Impact Statement System. |  
-            | RA 6969 | Toxic Substances and Hazardous Waste Act (1990). |  
-            | RA 849 | Philippine Clean Air Act (1999). |  
-            | RA 9003 | Ecological Solid Waste Management Act (2000). |  
-            | RA 9275 | Clean Water Act (2004). |  
+            | Regulation/Legislation   | Description                                             |  
+            |--------------------------|---------------------------------------------------------|  
+            | Presidential Decree 1586 | Establishes the Environmental Impact Statement System.  |  
+            | RA 6969                  | Toxic Substances and Hazardous Waste Act (1990).        |  
+            | RA 849                   | Philippine Clean Air Act (1999).                        |  
+            | RA 9003                  | Ecological Solid Waste Management Act (2000).           |  
+            | RA 9275                  | Clean Water Act (2004).                                 |  
 
             VII. Key Environmental Issues  
             - Climate Change: Long-term global temperature rise.  
@@ -265,13 +273,13 @@ class DocumentProcessor:
             - Thermal inversion causes smog and air pollution near the ground.  
 
             IX. Cause and Effect Relationships  
-            | Cause | Effect |  
-            |--------|--------|  
-            | Industrial Revolution | Pollution → Birth of environmentalism. |  
-            | Deforestation | Climate change and biodiversity loss. |  
-            | Use of CFCs | Ozone layer depletion. |  
-            | Burning fossil fuels | Acid rain formation and soil damage. |  
-            | Thermal inversion | Air pollution trapped → health problems. |  
+            | Cause                    | Effect                                      |  
+            |--------------------------|---------------------------------------------| 
+            | Industrial Revolution    | Pollution → Birth of environmentalism.     |  
+            | Deforestation            | Climate change and biodiversity loss.       |  
+            | Use of CFCs              | Ozone layer depletion.                      |  
+            | Burning fossil fuels     | Acid rain formation and soil damage.        |  
+            | Thermal inversion        | Air pollution trapped → health problems.    |  
 
             X. Reference Information  
             - Clean Air Act: Regulates air pollution globally.  
@@ -292,6 +300,15 @@ class DocumentProcessor:
             Ensure no information is lost from the source text, only summarized.
 
             Maintain educational tone (like a study guide or review sheet).
+            
+            TABLE FORMATTING RULES:
+            1. Always use consistent column widths
+            2. Left-align all text in cells
+            3. Use proper spacing between columns (3 spaces minimum)
+            4. Ensure all rows have identical column structure
+            5. Test alignment by checking vertical line alignment
+            6. If content is too long, wrap text properly within cells
+            7. Use consistent padding and spacing throughout the table
             
             For FLASHCARDS, act as an intelligent flashcard generator:
             - Identify key points – Extract important definitions, dates, laws, processes, causes and effects, examples, and important people or events
