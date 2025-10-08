@@ -307,7 +307,7 @@
     <div class="container">
         <div class="header">
             <h1>🚀 Study Space System Architecture</h1>
-            <p>Multi-User Learning Management System with AI Document Processing</p>
+            <p>Multi-User Learning Management System with AI Document Processing & Advanced Features</p>
         </div>
 
         <div class="controls">
@@ -319,6 +319,9 @@
             <button class="btn" onclick="showFlowchart('dataflow')">Data Flow</button>
             <button class="btn" onclick="showFlowchart('components')">Component Architecture</button>
             <button class="btn" onclick="showFlowchart('features')">Feature Modules</button>
+            <button class="btn" onclick="showFlowchart('aifeatures')">AI Features</button>
+            <button class="btn" onclick="showFlowchart('uiimprovements')">UI Improvements</button>
+            <button class="btn" onclick="showFlowchart('visualizations')">Visual Presentations</button>
         </div>
 
         <div class="flowchart-container" id="flowchart-container">
@@ -345,6 +348,9 @@
                 <li><strong>Architecture:</strong> MVC Pattern with Multi-User Data Store</li>
                 <li><strong>UI Design:</strong> Glassmorphism with Dark Theme</li>
                 <li><strong>Security:</strong> Complete User Isolation & Authentication</li>
+                <li><strong>Team:</strong> Computer Engineering Students - University of Mindanao</li>
+                <li><strong>New Features:</strong> Interactive Animations, Visual Presentations, Enhanced UI</li>
+                <li><strong>AI Improvements:</strong> Perfect Table Alignment, File Creation Dates, Enhanced Processing</li>
             </ul>
         </div>
 
@@ -413,6 +419,34 @@
             <div class="tech-item">
                 <h4>CSS3</h4>
                 <p>Glassmorphism styling</p>
+            </div>
+            <div class="tech-item">
+                <h4>HTML5</h4>
+                <p>Interactive presentations</p>
+            </div>
+            <div class="tech-item">
+                <h4>JavaScript</h4>
+                <p>Dynamic animations</p>
+            </div>
+            <div class="tech-item">
+                <h4>Mermaid</h4>
+                <p>Diagram generation</p>
+            </div>
+            <div class="tech-item">
+                <h4>PyPDF2</h4>
+                <p>PDF processing</p>
+            </div>
+            <div class="tech-item">
+                <h4>python-docx</h4>
+                <p>Word document processing</p>
+            </div>
+            <div class="tech-item">
+                <h4>python-pptx</h4>
+                <p>PowerPoint processing</p>
+            </div>
+            <div class="tech-item">
+                <h4>Git</h4>
+                <p>Version control</p>
             </div>
         </div>
     </div>
@@ -919,6 +953,124 @@
                     style C fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
                     style D fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
                     style E fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+            `,
+            
+            aifeatures: `
+                graph TD
+                    A[🤖 AI-Powered Features] --> B[📄 Document Processing]
+                    A --> C[📚 Content Generation]
+                    A --> D[🎯 Smart Analysis]
+                    A --> E[📊 Enhanced Output]
+                    
+                    B --> B1[📁 Multi-Format Support<br/>PDF, DOC, DOCX, PPT, PPTX]
+                    B --> B2[🔍 Content Extraction<br/>PyPDF2, python-docx, python-pptx]
+                    B --> B3[📝 Text Processing<br/>Clean and structured content]
+                    
+                    C --> C1[📖 Study Notes<br/>Academic structure with sections]
+                    C --> C2[🃏 Flashcards<br/>Q&A pairs for memorization]
+                    C --> C3[❓ Quiz Questions<br/>Multiple choice with explanations]
+                    C --> C4[📊 Key Concepts<br/>Important topics and definitions]
+                    
+                    D --> D1[🧠 Qwen3-coder LLM<br/>Advanced language model]
+                    D --> D2[📈 Content Analysis<br/>Topic identification and categorization]
+                    D --> D3[🎯 Difficulty Assessment<br/>Beginner, Intermediate, Advanced]
+                    D --> D4[📚 Subject Classification<br/>Automatic subject detection]
+                    
+                    E --> E1[📋 Perfect Table Alignment<br/>Consistent formatting and spacing]
+                    E --> E2[📅 File Creation Dates<br/>Accurate timestamp preservation]
+                    E --> E3[🎨 Enhanced Formatting<br/>Professional academic style]
+                    E --> E4[📊 Structured Output<br/>Organized and readable content]
+                    
+                    F[⚙️ AI Configuration] --> D1
+                    G[🔧 Error Handling] --> B
+                    H[📊 Progress Tracking] --> C
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style C fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style D fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style E fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+            `,
+            
+            uiimprovements: `
+                graph TD
+                    A[🎨 UI/UX Improvements] --> B[🔐 Authentication UI]
+                    A --> C[📱 Component Enhancements]
+                    A --> D[🎮 Interactive Elements]
+                    A --> E[📊 Visual Feedback]
+                    
+                    B --> B1[👁️ Password Field with Eye Icon<br/>Show/Hide password functionality]
+                    B --> B2[🎨 Glassmorphism Design<br/>Modern transparent effects]
+                    B --> B3[📱 Responsive Layout<br/>Adaptive to different screen sizes]
+                    
+                    C --> C1[🃏 Quiz Option Text Wrapping<br/>Long choices display properly]
+                    C --> C2[📝 Enhanced Form Fields<br/>Better input validation and styling]
+                    C --> C3[🎯 Improved Button States<br/>Hover, active, and disabled states]
+                    C --> C4[📊 Progress Indicators<br/>Visual feedback for operations]
+                    
+                    D --> D1[🎬 Interactive Animations<br/>Document processing workflow]
+                    D --> D2[🎯 Hover Effects<br/>Smooth transitions and feedback]
+                    D --> D3[📱 Touch Support<br/>Mobile-friendly interactions]
+                    D --> D4[⌨️ Keyboard Shortcuts<br/>Efficient navigation]
+                    
+                    E --> E1[📊 Loading States<br/>Visual feedback during processing]
+                    E --> E2[✅ Success Messages<br/>Clear confirmation feedback]
+                    E --> E3[❌ Error Handling<br/>User-friendly error messages]
+                    E --> E4[📈 Progress Bars<br/>Operation progress indication]
+                    
+                    F[🎨 CSS Enhancements] --> B1
+                    F --> C1
+                    F --> D1
+                    
+                    G[🔧 JavaScript Improvements] --> D1
+                    G --> E1
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style C fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style D fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style E fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+            `,
+            
+            visualizations: `
+                graph TD
+                    A[📊 Visual Presentations] --> B[🎬 Interactive Animations]
+                    A --> C[📋 Documentation]
+                    A --> D[🎯 Workflow Diagrams]
+                    A --> E[📱 Responsive Design]
+                    
+                    B --> B1[🎬 Interactive Document Processing<br/>Click-to-play workflow animation]
+                    B --> B2[🎯 Step-by-Step Visualization<br/>File upload to study materials]
+                    B --> B3[📊 Progress Tracking<br/>Real-time processing status]
+                    B --> B4[🎨 Smooth Transitions<br/>Professional animation effects]
+                    
+                    C --> C1[📖 Comprehensive README<br/>Complete system documentation]
+                    C --> C2[🏗️ Architecture Diagrams<br/>System structure visualization]
+                    C --> C3[📋 Setup Guides<br/>Installation and configuration]
+                    C --> C4[🔧 API Documentation<br/>Python Flask API reference]
+                    
+                    D --> D1[🔄 System Overview<br/>Complete application flow]
+                    D --> D2[🔐 Authentication Flow<br/>User login and registration]
+                    D --> D3[🤖 AI Processing Flow<br/>Document to study materials]
+                    D --> D4[🗄️ Database Architecture<br/>Data structure and relationships]
+                    
+                    E --> E1[📱 Mobile Responsive<br/>Works on all device sizes]
+                    E --> E2[🎯 Touch Optimized<br/>Mobile-friendly interactions]
+                    E --> E3[⌨️ Keyboard Navigation<br/>Accessible controls]
+                    E --> E4[🔍 Zoom and Pan<br/>Interactive diagram exploration]
+                    
+                    F[🎨 Modern Design] --> B1
+                    F --> D1
+                    F --> E1
+                    
+                    G[📊 Mermaid Integration] --> D1
+                    G --> B1
+                    
+                    style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    style B fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+                    style C fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+                    style D fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+                    style E fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
             `
         };
 
