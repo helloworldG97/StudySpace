@@ -64,11 +64,28 @@
             padding: 25px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .step:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .step:hover::before {
+            left: 100%;
         }
 
         .step-number {
@@ -221,6 +238,153 @@
             opacity: 0.9;
         }
 
+        /* File Icons and Visual Elements */
+        .file-icon {
+            font-size: 3rem;
+            margin: 10px;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+
+        .file-icon.pdf { color: #e53e3e; }
+        .file-icon.docx { color: #3182ce; }
+        .file-icon.pptx { color: #d69e2e; }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .extraction-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .file-preview {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .file-preview:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .extraction-arrow {
+            font-size: 2rem;
+            color: #667eea;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .content-preview {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            min-width: 120px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(102, 126, 234, 0.5); }
+            to { box-shadow: 0 0 20px rgba(102, 126, 234, 0.8); }
+        }
+
+        .output-visual {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .output-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .output-item:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+        }
+
+        .output-item.notes {
+            border-left: 4px solid #10b981;
+        }
+
+        .output-item.flashcards {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .output-item.quizzes {
+            border-left: 4px solid #ef4444;
+        }
+
+        .output-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .transformation-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .transformation-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .transformation-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .transformation-label {
+            font-size: 0.9rem;
+            color: #718096;
+            font-weight: 500;
+        }
+
         @media (max-width: 768px) {
             .step {
                 flex-direction: column;
@@ -256,6 +420,20 @@
                     </div>
                     <div class="step-details">
                         <strong>Supported File Types:</strong>
+                        <div class="extraction-visual">
+                            <div class="file-preview">
+                                <div class="file-icon pdf">📄</div>
+                                <div>PDF Document</div>
+                            </div>
+                            <div class="file-preview">
+                                <div class="file-icon docx">📝</div>
+                                <div>Word Document</div>
+                            </div>
+                            <div class="file-preview">
+                                <div class="file-icon pptx">📊</div>
+                                <div>PowerPoint</div>
+                            </div>
+                        </div>
                         <div class="file-types">
                             <div class="file-type">PDF</div>
                             <div class="file-type">DOCX</div>
@@ -285,6 +463,17 @@ if (fileExtension in [".pdf", ".docx", ".pptx", ".doc", ".ppt"]) {
                     </div>
                     <div class="step-details">
                         <strong>Extraction Process:</strong>
+                        <div class="extraction-visual">
+                            <div class="file-preview">
+                                <div class="file-icon pdf">📄</div>
+                                <div>Original File</div>
+                            </div>
+                            <div class="extraction-arrow">➡️</div>
+                            <div class="content-preview">
+                                <div>📝</div>
+                                <div>Extracted Text</div>
+                            </div>
+                        </div>
                         <ul style="margin-left: 20px; margin-top: 10px;">
                             <li><span class="highlight">PDF</span>: PyPDF2 for text extraction</li>
                             <li><span class="highlight">DOCX</span>: python-docx for document parsing</li>
@@ -345,18 +534,37 @@ response = requests.post(llm_endpoint, json={
                     </div>
                     <div class="step-details">
                         <strong>Generated Content Types:</strong>
-                        <div class="output-examples">
-                            <div class="output-card">
-                                <h4>📖 Study Notes</h4>
-                                <p>Formatted notes with key concepts, definitions, and explanations extracted from the document.</p>
+                        <div class="transformation-flow">
+                            <div class="transformation-step">
+                                <div class="transformation-icon">🤖</div>
+                                <div class="transformation-label">AI Processing</div>
                             </div>
-                            <div class="output-card">
-                                <h4>🃏 Flashcards</h4>
-                                <p>Question-answer pairs for key concepts, definitions, and important information.</p>
+                            <div class="extraction-arrow">➡️</div>
+                            <div class="transformation-step">
+                                <div class="transformation-icon">📝</div>
+                                <div class="transformation-label">Content Analysis</div>
                             </div>
-                            <div class="output-card">
-                                <h4>❓ Quiz Questions</h4>
-                                <p>Multiple choice questions with correct answers and explanations for testing knowledge.</p>
+                            <div class="extraction-arrow">➡️</div>
+                            <div class="transformation-step">
+                                <div class="transformation-icon">⚡</div>
+                                <div class="transformation-label">Generation</div>
+                            </div>
+                        </div>
+                        <div class="output-visual">
+                            <div class="output-item notes">
+                                <div class="output-icon">📖</div>
+                                <h4>Study Notes</h4>
+                                <p>Formatted notes with key concepts, definitions, and explanations</p>
+                            </div>
+                            <div class="output-item flashcards">
+                                <div class="output-icon">🃏</div>
+                                <h4>Flashcards</h4>
+                                <p>Question-answer pairs for active recall and memorization</p>
+                            </div>
+                            <div class="output-item quizzes">
+                                <div class="output-icon">❓</div>
+                                <h4>Quiz Questions</h4>
+                                <p>Multiple choice questions for knowledge testing</p>
                             </div>
                         </div>
                     </div>
