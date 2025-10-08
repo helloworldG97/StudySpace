@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Document Processing Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+        }
+
+        .animation-container {
+            position: relative;
+            min-height: 500px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .step {
+            position: absolute;
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: all 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .step.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .step.completed {
+            opacity: 0.3;
+            transform: translateX(100px);
+        }
+
+        .step-content {
+            text-align: center;
+            color: white;
+        }
+
+        .step-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        .step-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            width: 0%;
+            transition: width 1s ease;
+            border-radius: 4px;
+        }
+
+        .file-icons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .file-icon:nth-child(1) { animation-delay: 0s; }
+        .file-icon:nth-child(2) { animation-delay: 0.5s; }
+        .file-icon:nth-child(3) { animation-delay: 1s; }
+
+        .extraction-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .flow-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .flow-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .flow-arrow {
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            animation: moveRight 1.5s infinite;
+        }
+
+        .ai-processing {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .ai-brain {
+            font-size: 5rem;
+            animation: rotate 3s linear infinite;
+        }
+
+        .processing-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: dotPulse 1.5s infinite;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .output-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            animation: slideUp 0.8s ease;
+        }
+
+        .output-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .output-card.notes {
+            border-color: #10b981;
+            animation-delay: 0.2s;
+        }
+
+        .output-card.flashcards {
+            border-color: #f59e0b;
+            animation-delay: 0.4s;
+        }
+
+        .output-card.quizzes {
+            border-color: #ef4444;
+            animation-delay: 0.6s;
+        }
+
+        .output-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .output-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .output-description {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .completion {
+            text-align: center;
+        }
+
+        .completion-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: celebration 2s infinite;
+        }
+
+        .completion-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .completion-description {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes moveRight {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes celebration {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .control-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .control-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Interactive Document Processing</h1>
+            <p>Click "Start Processing" to see the animated workflow</p>
+            <button class="start-button" onclick="startAnimation()">🚀 Start Processing</button>
+        </div>
+
+        <div class="animation-container">
+            <!-- Step 1: File Upload -->
+            <div class="step" id="step1">
+                <div class="step-content">
+                    <span class="step-icon">📁</span>
+                    <div class="step-title">File Upload</div>
+                    <div class="step-description">Uploading your document...</div>
+                    <div class="file-icons">
+                        <div class="file-icon">📄</div>
+                        <div class="file-icon">📝</div>
+                        <div class="file-icon">📊</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Content Extraction -->
+            <div class="step" id="step2">
+                <div class="step-content">
+                    <span class="step-icon">🔍</span>
+                    <div class="step-title">Content Extraction</div>
+                    <div class="step-description">Extracting text from your document...</div>
+                    <div class="extraction-flow">
+                        <div class="flow-item">
+                            <span class="flow-icon">📄</span>
+                            <div>Original File</div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-item">
+                            <span class="flow-icon">📝</span>
+                            <div>Extracted Text</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: AI Processing -->
+            <div class="step" id="step3">
+                <div class="step-content">
+                    <span class="step-icon">🤖</span>
+                    <div class="step-title">AI Processing</div>
+                    <div class="step-description">AI is analyzing your content...</div>
+                    <div class="ai-processing">
+                        <div class="ai-brain">🧠</div>
+                        <div class="processing-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Content Analysis -->
+            <div class="step" id="step4">
+                <div class="step-content">
+                    <span class="step-icon">📊</span>
+                    <div class="step-title">Content Analysis</div>
+                    <div class="step-description">Identifying key concepts and topics...</div>
+                    <div class="extraction-flow">
+                        <div class="flow-item">
+                            <span class="flow-icon">📝</span>
+                            <div>Raw Text</div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-item">
+                            <span class="flow-icon">🔍</span>
+                            <div>Analysis</div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-item">
+                            <span class="flow-icon">💡</span>
+                            <div>Key Concepts</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Material Generation -->
+            <div class="step" id="step5">
+                <div class="step-content">
+                    <span class="step-icon">⚡</span>
+                    <div class="step-title">Generating Study Materials</div>
+                    <div class="step-description">Creating notes, flashcards, and quizzes...</div>
+                    <div class="output-grid">
+                        <div class="output-card notes">
+                            <span class="output-icon">📖</span>
+                            <div class="output-title">Study Notes</div>
+                            <div class="output-description">Formatted notes with key concepts</div>
+                        </div>
+                        <div class="output-card flashcards">
+                            <span class="output-icon">🃏</span>
+                            <div class="output-title">Flashcards</div>
+                            <div class="output-description">Q&A pairs for memorization</div>
+                        </div>
+                        <div class="output-card quizzes">
+                            <span class="output-icon">❓</span>
+                            <div class="output-title">Quiz Questions</div>
+                            <div class="output-description">Multiple choice questions</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Database Storage -->
+            <div class="step" id="step6">
+                <div class="step-content">
+                    <span class="step-icon">💾</span>
+                    <div class="step-title">Database Storage</div>
+                    <div class="step-description">Saving your study materials...</div>
+                    <div class="extraction-flow">
+                        <div class="flow-item">
+                            <span class="flow-icon">📝</span>
+                            <div>Generated Content</div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-item">
+                            <span class="flow-icon">🗄️</span>
+                            <div>MySQL Database</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Completion -->
+            <div class="step" id="step7">
+                <div class="step-content">
+                    <div class="completion">
+                        <span class="completion-icon">🎉</span>
+                        <div class="completion-title">Processing Complete!</div>
+                        <div class="completion-description">Your study materials are ready to use!</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-button" onclick="resetAnimation()">🔄 Reset</button>
+            <button class="control-button" onclick="pauseAnimation()">⏸️ Pause</button>
+            <button class="control-button" onclick="resumeAnimation()">▶️ Resume</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let animationInterval;
+        let isPaused = false;
+        const totalSteps = 7;
+
+        function startAnimation() {
+            resetAnimation();
+            currentStep = 1;
+            showStep(currentStep);
+            animateProgress();
+        }
+
+        function showStep(stepNumber) {
+            // Hide all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'completed');
+            }
+
+            // Show current step
+            const currentStepElement = document.getElementById(`step${stepNumber}`);
+            currentStepElement.classList.add('active');
+
+            // Mark previous steps as completed
+            for (let i = 1; i < stepNumber; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.add('completed');
+            }
+        }
+
+        function animateProgress() {
+            if (isPaused) return;
+
+            const progressBar = document.getElementById(`progress${currentStep}`);
+            if (progressBar) {
+                progressBar.style.width = '100%';
+            }
+
+            // Move to next step after delay
+            setTimeout(() => {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                    animateProgress();
+                } else {
+                    // Animation complete
+                    console.log('Animation completed!');
+                }
+            }, getStepDuration(currentStep));
+        }
+
+        function getStepDuration(step) {
+            const durations = {
+                1: 2000, // File upload
+                2: 2500, // Content extraction
+                3: 3000, // AI processing
+                4: 2500, // Content analysis
+                5: 3000, // Material generation
+                6: 2000, // Database storage
+                7: 2000  // Completion
+            };
+            return durations[step] || 2000;
+        }
+
+        function resetAnimation() {
+            currentStep = 0;
+            isPaused = false;
+            
+            // Hide all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'completed');
+                
+                const progressBar = document.getElementById(`progress${i}`);
+                if (progressBar) {
+                    progressBar.style.width = '0%';
+                }
+            }
+        }
+
+        function pauseAnimation() {
+            isPaused = true;
+        }
+
+        function resumeAnimation() {
+            if (currentStep > 0 && currentStep < totalSteps) {
+                isPaused = false;
+                animateProgress();
+            }
+        }
+
+        // Auto-start animation on page load (optional)
+        // window.addEventListener('load', () => {
+        //     setTimeout(startAnimation, 1000);
+        // });
+    </script>
+</body>
+</html>
