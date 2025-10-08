@@ -9,18 +9,40 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            background: white;
             min-height: 100vh;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 210mm; /* A4 width */
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: white;
+            padding: 15mm;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 10mm;
+                box-shadow: none;
+            }
+            .controls {
+                display: none;
+            }
+            .flowchart-container {
+                page-break-inside: avoid;
+                min-height: 300px;
+            }
+            .mermaid {
+                font-size: 12px !important;
+            }
         }
         
         .header {
@@ -30,23 +52,23 @@
         
         .header h1 {
             color: #2d3748;
-            font-size: 2.5em;
+            font-size: 1.8em;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .header p {
             color: #4a5568;
-            font-size: 1.2em;
-            margin: 10px 0;
+            font-size: 1em;
+            margin: 8px 0;
         }
         
         .flowchart-container {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            margin: 10px 0;
+            min-height: 400px;
         }
         
         .section-title {
@@ -58,11 +80,11 @@
         }
         
         .info-panel {
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-            border-left: 5px solid #667eea;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
         }
         
         .info-panel h3 {
@@ -77,27 +99,34 @@
         
         .tech-stack {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        @media print {
+            .tech-stack {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         .tech-item {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 10px;
+            border-radius: 5px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-size: 0.9em;
         }
         
         .tech-item h4 {
-            margin: 0 0 10px 0;
-            font-size: 1.2em;
+            margin: 0 0 5px 0;
+            font-size: 1em;
         }
         
         .tech-item p {
             margin: 0;
+            font-size: 0.8em;
             opacity: 0.9;
         }
         
@@ -146,6 +175,7 @@
             <button class="btn" onclick="showFlowchart('dataflow')">Data Flow</button>
             <button class="btn" onclick="showFlowchart('components')">Component Architecture</button>
             <button class="btn" onclick="showFlowchart('features')">Feature Modules</button>
+            <button class="btn" onclick="window.print()" style="background: #10b981;">🖨️ Print Documentation</button>
         </div>
         
         <div class="flowchart-container">
@@ -207,13 +237,19 @@
                 lineColor: '#4a5568',
                 secondaryColor: '#f7fafc',
                 tertiaryColor: '#edf2f7'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
             }
         });
 
         const flowcharts = {
             overview: `
                 graph TD
-                    A[🚀 Study Space Application] --> B[🔐 Authentication System]
+                    A[🚀 Study Space Application]
+                    A --> B[🔐 Authentication System]
                     A --> C[📱 Main Application Interface]
                     A --> D[🤖 AI Document Processing]
                     A --> E[🗄️ Database Management]
@@ -250,31 +286,33 @@
             
             authentication: `
                 graph TD
-                    A[🚀 Study Space Launch] --> B{User Status}
+                    A[🚀 Study Space Launch]
+                    A --> B{User Status}
                     B -->|New User| C[👤 User Registration]
                     B -->|Existing User| D[🔑 User Login]
                     B -->|Guest| E[📱 Guest Mode]
                     
                     C --> C1[📧 Email Validation]
-                    C --> C2[🔑 Password Creation]
-                    C --> C3[👤 Profile Setup]
-                    C --> C4[✅ Account Creation]
+                    C1 --> C2[🔑 Password Creation]
+                    C2 --> C3[👤 Profile Setup]
+                    C3 --> C4[✅ Account Creation]
+                    C4 --> F[🏠 Main Dashboard]
                     
                     D --> D1[📧 Email Input]
-                    D --> D2[🔑 Password Verification]
-                    D --> D3{Authentication}
-                    D3 -->|Success| F[🏠 Main Dashboard]
+                    D1 --> D2[🔑 Password Verification]
+                    D2 --> D3{Authentication}
+                    D3 -->|Success| F
                     D3 -->|Failure| G[❌ Login Error]
+                    G --> M[🔄 Retry Login]
+                    M --> D
                     
                     E --> H[📱 Limited Access]
                     H --> I[🔐 Prompt for Registration]
+                    I --> C
                     
                     F --> J[🛡️ Session Management]
                     J --> K[⏰ Auto Logout Timer]
                     J --> L[🔄 Session Refresh]
-                    
-                    G --> M[🔄 Retry Login]
-                    M --> D
                     
                     style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
                     style F fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
@@ -283,7 +321,8 @@
             
             userisolation: `
                 graph TD
-                    A[👤 User Login] --> B[🛡️ User Session Created]
+                    A[👤 User Login]
+                    A --> B[🛡️ User Session Created]
                     B --> C[🔐 User ID Authentication]
                     C --> D[📊 User-Specific Data Access]
                     
@@ -303,10 +342,12 @@
                     K --> L[📊 User-Specific Results]
                     L --> M[🛡️ Data Isolation Maintained]
                     
-                    N[👤 Other Users] --> O[🚫 No Access to User Data]
+                    N[👤 Other Users]
+                    N --> O[🚫 No Access to User Data]
                     O --> P[🛡️ Complete Isolation]
                     
-                    Q[🗑️ User Account Deletion] --> R[🔄 Cascade Delete All User Data]
+                    Q[🗑️ User Account Deletion]
+                    Q --> R[🔄 Cascade Delete All User Data]
                     R --> S[✅ Complete Data Removal]
                     
                     style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
@@ -316,7 +357,8 @@
             
             aiprocessing: `
                 graph TD
-                    A[📁 Document Upload] --> B[🔍 File Type Detection]
+                    A[📁 Document Upload]
+                    A --> B[🔍 File Type Detection]
                     B --> C{Supported Format?}
                     C -->|Yes| D[📄 Content Extraction]
                     C -->|No| E[❌ Unsupported Format Error]
@@ -340,8 +382,10 @@
                     
                     P --> Q[✅ Content Available to User]
                     
-                    R[⚙️ AI Configuration] --> H
-                    S[🔧 Error Handling] --> T[📊 Fallback Content Generation]
+                    R[⚙️ AI Configuration]
+                    R --> H
+                    S[🔧 Error Handling]
+                    S --> T[📊 Fallback Content Generation]
                     
                     style A fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
                     style H fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
