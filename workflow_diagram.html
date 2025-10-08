@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyApp Processing Flow Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .flow-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 150px;
+            transition: transform 0.3s ease;
+        }
+
+        .flow-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .flow-item.upload {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .flow-item.extract {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .flow-item.ai {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .flow-item.generate {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white;
+        }
+
+        .flow-item.store {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+        }
+
+        .flow-item.display {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #2d3748;
+        }
+
+        .flow-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .flow-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .flow-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .arrow-down {
+            font-size: 2rem;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .arrow-right {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .output-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .output-title {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .output-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .output-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .output-card h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .output-card p {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .flow-row {
+                flex-direction: column;
+            }
+            
+            .arrow-right {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 StudyApp Document Processing Flow</h1>
+            <p>Visual representation of how documents become study materials</p>
+        </div>
+
+        <div class="flow-diagram">
+            <!-- Step 1: Upload -->
+            <div class="flow-item upload">
+                <div class="flow-icon">📁</div>
+                <div class="flow-title">File Upload</div>
+                <div class="flow-description">PDF, DOCX, PPTX</div>
+            </div>
+
+            <div class="arrow-down">⬇️</div>
+
+            <!-- Step 2: Extract -->
+            <div class="flow-item extract">
+                <div class="flow-icon">🔍</div>
+                <div class="flow-title">Content Extraction</div>
+                <div class="flow-description">PyPDF2, python-docx</div>
+            </div>
+
+            <div class="arrow-down">⬇️</div>
+
+            <!-- Step 3: AI Processing -->
+            <div class="flow-item ai">
+                <div class="flow-icon">🤖</div>
+                <div class="flow-title">AI Processing</div>
+                <div class="flow-description">Qwen3-coder LLM</div>
+            </div>
+
+            <div class="arrow-down">⬇️</div>
+
+            <!-- Step 4: Generate -->
+            <div class="flow-item generate">
+                <div class="flow-icon">📝</div>
+                <div class="flow-title">Generate Materials</div>
+                <div class="flow-description">Notes, Flashcards, Quizzes</div>
+            </div>
+
+            <div class="arrow-down">⬇️</div>
+
+            <!-- Step 5: Store -->
+            <div class="flow-item store">
+                <div class="flow-icon">💾</div>
+                <div class="flow-title">Database Storage</div>
+                <div class="flow-description">MySQL Database</div>
+            </div>
+
+            <div class="arrow-down">⬇️</div>
+
+            <!-- Step 6: Display -->
+            <div class="flow-item display">
+                <div class="flow-icon">🖥️</div>
+                <div class="flow-title">Java Application</div>
+                <div class="flow-description">User Interface</div>
+            </div>
+        </div>
+
+        <div class="output-section">
+            <h2 class="output-title">📚 Generated Study Materials</h2>
+            <div class="output-grid">
+                <div class="output-card">
+                    <h3>📖 Study Notes</h3>
+                    <p>Formatted notes with key concepts, definitions, and explanations extracted from the document.</p>
+                    <div style="margin-top: 15px;">
+                        <span class="tech-badge">Structured Content</span>
+                        <span class="tech-badge">Key Concepts</span>
+                    </div>
+                </div>
+                <div class="output-card">
+                    <h3>🃏 Flashcards</h3>
+                    <p>Question-answer pairs for key concepts, definitions, and important information for active recall.</p>
+                    <div style="margin-top: 15px;">
+                        <span class="tech-badge">Q&A Pairs</span>
+                        <span class="tech-badge">Active Recall</span>
+                    </div>
+                </div>
+                <div class="output-card">
+                    <h3>❓ Quiz Questions</h3>
+                    <p>Multiple choice questions with correct answers and explanations for knowledge testing.</p>
+                    <div style="margin-top: 15px;">
+                        <span class="tech-badge">MCQ Format</span>
+                        <span class="tech-badge">Knowledge Testing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center; background: #f7fafc; padding: 30px; border-radius: 15px;">
+            <h3 style="color: #2d3748; margin-bottom: 20px;">🛠️ Technology Stack</h3>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+                <span class="tech-badge">Java & JavaFX</span>
+                <span class="tech-badge">Python & Flask</span>
+                <span class="tech-badge">Qwen3-coder LLM</span>
+                <span class="tech-badge">MySQL Database</span>
+                <span class="tech-badge">PyPDF2</span>
+                <span class="tech-badge">python-docx</span>
+                <span class="tech-badge">REST API</span>
+                <span class="tech-badge">python-pptx</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

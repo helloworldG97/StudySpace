@@ -69,9 +69,22 @@ goto menu
 
 :view_details
 cls
-echo Loading all user details...
+echo Loading all user details with content statistics...
 echo.
-C:\xampp\mysql\bin\mysql.exe -u root -e "USE studyspace_db; SELECT * FROM users ORDER BY created_at DESC;"
+echo ========================================
+echo           USER DETAILS & CONTENT
+echo ========================================
+C:\xampp\mysql\bin\mysql.exe -u root -e "USE studyspace_db; SELECT id, full_name, email, password, created_at, last_login_at FROM users ORDER BY created_at DESC;"
+echo.
+echo ========================================
+echo           CREATED CONTENT STATISTICS
+echo ========================================
+C:\xampp\mysql\bin\mysql.exe -u root -e "USE studyspace_db; SELECT u.id, u.full_name, u.email, COUNT(DISTINCT n.id) as 'Notes Created', COUNT(DISTINCT fd.id) as 'Flashcard Decks Created', COUNT(DISTINCT f.id) as 'Flashcards Created', COUNT(DISTINCT q.id) as 'Quizzes Created' FROM users u LEFT JOIN notes n ON u.id = n.user_id LEFT JOIN flashcard_decks fd ON u.id = fd.user_id LEFT JOIN flashcards f ON fd.id = f.deck_id LEFT JOIN quizzes q ON u.id = q.user_id GROUP BY u.id, u.full_name, u.email ORDER BY u.created_at DESC;"
+echo.
+echo ========================================
+echo           STUDY ACTIVITY SUMMARY
+echo ========================================
+C:\xampp\mysql\bin\mysql.exe -u root -e "USE studyspace_db; SELECT id, full_name, current_streak, total_study_hours, flashcards_studied, quizzes_taken FROM users ORDER BY current_streak DESC, total_study_hours DESC;"
 echo.
 pause
 goto menu
