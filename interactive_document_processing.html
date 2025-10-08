@@ -80,28 +80,34 @@
             padding: 40px;
             margin: 20px 0;
             overflow: hidden;
+            isolation: isolate;
         }
 
         .step {
             position: absolute;
             opacity: 0;
             transform: translateX(-100px);
-            transition: all 0.8s ease;
+            transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
             height: 100%;
+            visibility: hidden;
+            z-index: 1;
         }
 
         .step.active {
             opacity: 1;
             transform: translateX(0);
+            visibility: visible;
+            z-index: 10;
         }
 
         .step.completed {
-            opacity: 0.3;
+            opacity: 0;
             transform: translateX(100px);
+            visibility: hidden;
         }
 
         .step-content {
@@ -555,20 +561,22 @@
         }
 
         function showStep(stepNumber) {
-            // Hide all steps
+            // Hide all steps completely
             for (let i = 1; i <= totalSteps; i++) {
                 const step = document.getElementById(`step${i}`);
                 step.classList.remove('active', 'completed');
+                step.style.opacity = '0';
+                step.style.visibility = 'hidden';
+                step.style.transform = 'translateX(-100px)';
             }
 
-            // Show current step
+            // Show only current step
             const currentStepElement = document.getElementById(`step${stepNumber}`);
-            currentStepElement.classList.add('active');
-
-            // Mark previous steps as completed
-            for (let i = 1; i < stepNumber; i++) {
-                const step = document.getElementById(`step${i}`);
-                step.classList.add('completed');
+            if (currentStepElement) {
+                currentStepElement.classList.add('active');
+                currentStepElement.style.opacity = '1';
+                currentStepElement.style.visibility = 'visible';
+                currentStepElement.style.transform = 'translateX(0)';
             }
         }
 
@@ -610,10 +618,13 @@
             currentStep = 0;
             isPaused = false;
             
-            // Hide all steps
+            // Completely hide all steps
             for (let i = 1; i <= totalSteps; i++) {
                 const step = document.getElementById(`step${i}`);
                 step.classList.remove('active', 'completed');
+                step.style.opacity = '0';
+                step.style.visibility = 'hidden';
+                step.style.transform = 'translateX(-100px)';
                 
                 const progressBar = document.getElementById(`progress${i}`);
                 if (progressBar) {
