@@ -18,6 +18,9 @@ module studyspace {
     // JSON dependencies
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.core;
+    
+    // Database dependencies - MySQL connector is not modularized
+    // requires com.mysql.cj;
 
     // Export main packages
     exports com.studyspace;

@@ -150,7 +150,8 @@ public class QuizModeView {
         questionText = new Label();
         questionText.getStyleClass().add("quiz-question");
         questionText.setWrapText(true);
-        questionText.setMaxWidth(750);
+        questionText.setMaxWidth(800);
+        questionText.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
         
         // Options container
         optionsContainer = new VBox();
@@ -273,6 +274,7 @@ public class QuizModeView {
         button.getStyleClass().add("quiz-option");
         button.setMaxWidth(Double.MAX_VALUE);
         button.setAlignment(Pos.CENTER_LEFT);
+        button.setWrapText(true);  // Enable text wrapping for long options
         
         button.setOnAction(e -> handleOptionSelected(optionIndex, button));
         
@@ -371,11 +373,16 @@ public class QuizModeView {
         String correctAnswerText = shuffledOptions.get(correctAnswerIndex);
         Label correctAnswerLabel = new Label("Correct Answer: " + correctAnswerText);
         correctAnswerLabel.getStyleClass().addAll("text-sm", "font-medium", "text-primary");
+        correctAnswerLabel.setWrapText(true);
+        correctAnswerLabel.setMaxWidth(700);  // Increased width
+        correctAnswerLabel.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
         
         // Explanation
         Label explanationLabel = new Label(question.getExplanation());
         explanationLabel.getStyleClass().add("quiz-explanation");
         explanationLabel.setWrapText(true);
+        explanationLabel.setMaxWidth(700);  // Increased width
+        explanationLabel.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
         
         explanationContainer.getChildren().addAll(resultLabel, correctAnswerLabel, explanationLabel);
         explanationContainer.setVisible(true);

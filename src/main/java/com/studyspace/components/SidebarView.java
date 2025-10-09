@@ -699,6 +699,11 @@ public class SidebarView {
             StackPane.setAlignment(notesViewContainer, Pos.TOP_LEFT);
             System.out.println("Notes view loaded successfully. Content area children: " + contentArea.getChildren().size());
             
+            // Force refresh the notes view to ensure latest data is shown
+            javafx.application.Platform.runLater(() -> {
+                notesView.refresh();
+            });
+            
         } catch (Exception e) {
             System.err.println("Error loading notes view: " + e.getMessage());
             e.printStackTrace();
@@ -719,6 +724,11 @@ public class SidebarView {
             // Add to StackPane with proper alignment
             contentArea.getChildren().add(flashcardViewContainer);
             StackPane.setAlignment(flashcardViewContainer, Pos.TOP_LEFT);
+            
+            // Force refresh the flashcard view to ensure latest data is shown
+            javafx.application.Platform.runLater(() -> {
+                flashcardListView.refresh();
+            });
             
         } catch (Exception e) {
             System.err.println("Error loading flashcards view: " + e.getMessage());

@@ -53,6 +53,17 @@ public class AuthController {
         }
         
         User user = dataStore.getCurrentUser();
+        if (user != null) {
+            // Update streak based on login pattern
+            user.updateStreakOnLogin();
+            // Update last login time
+            user.updateLastLogin();
+            // Save updated user data
+            dataStore.updateUser(user);
+            
+            System.out.println("🔥 Streak updated: " + user.getCurrentStreak() + " days");
+        }
+        
         return new AuthResult(true, SUCCESS_LOGIN, user);
     }
     

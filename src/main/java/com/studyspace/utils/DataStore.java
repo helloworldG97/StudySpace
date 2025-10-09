@@ -14,9 +14,13 @@ import java.util.Comparator;
 public class DataStore {
     private static DataStore instance;
     private MySQLDataStore mysqlDataStore;
+    private InMemoryDataStore inMemoryDataStore;
+    private DatabaseConnection dbConnection;
     
     private DataStore() {
+        this.dbConnection = DatabaseConnection.getInstance();
         this.mysqlDataStore = MySQLDataStore.getInstance();
+        this.inMemoryDataStore = InMemoryDataStore.getInstance();
     }
     
     public static DataStore getInstance() {
@@ -29,192 +33,323 @@ public class DataStore {
         return instance;
     }
     
+    private boolean isDatabaseAvailable() {
+        return dbConnection.isDatabaseAvailable();
+    }
+    
     // Authentication methods
     public boolean authenticateUser(String email, String password) {
-        return mysqlDataStore.authenticateUser(email, password);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.authenticateUser(email, password);
+        } else {
+            System.out.println("Database not available, using in-memory store for authentication");
+            return inMemoryDataStore.authenticateUser(email, password);
+        }
     }
     
     public User registerUser(String fullName, String email, String password) {
-        return mysqlDataStore.registerUser(fullName, email, password);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.registerUser(fullName, email, password);
+        } else {
+            System.out.println("Database not available, using in-memory store for registration");
+            return inMemoryDataStore.registerUser(fullName, email, password);
+        }
     }
     
     public void logout() {
-        mysqlDataStore.logout();
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.logout();
+        } else {
+            inMemoryDataStore.logout();
+        }
     }
     
     public User getCurrentUser() {
-        return mysqlDataStore.getCurrentUser();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getCurrentUser();
+        } else {
+            return inMemoryDataStore.getCurrentUser();
+        }
     }
     
     public void setCurrentUser(User user) {
-        mysqlDataStore.setCurrentUser(user);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.setCurrentUser(user);
+        } else {
+            inMemoryDataStore.setCurrentUser(user);
+        }
     }
     
     public void updateUser(User user) {
-        mysqlDataStore.updateUser(user);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.updateUser(user);
+        } else {
+            inMemoryDataStore.updateUser(user);
+        }
     }
     
     public boolean isEmailTaken(String email) {
-        return mysqlDataStore.isEmailTaken(email);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.isEmailTaken(email);
+        } else {
+            return inMemoryDataStore.isEmailTaken(email);
+        }
     }
     
     // Data access methods
     public List<FlashcardDeck> getAllFlashcardDecks() {
-        return mysqlDataStore.getAllFlashcardDecks();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getAllFlashcardDecks();
+        } else {
+            return inMemoryDataStore.getAllFlashcardDecks();
+        }
     }
     
     public FlashcardDeck getFlashcardDeck(String id) {
-        return mysqlDataStore.getFlashcardDeck(id);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getFlashcardDeck(id);
+        } else {
+            return inMemoryDataStore.getFlashcardDeck(id);
+        }
     }
     
     public void saveFlashcardDeck(FlashcardDeck deck) {
-        mysqlDataStore.saveFlashcardDeck(deck);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.saveFlashcardDeck(deck);
+        } else {
+            inMemoryDataStore.saveFlashcardDeck(deck);
+        }
     }
     
     public void deleteFlashcardDeck(String id) {
-        mysqlDataStore.deleteFlashcardDeck(id);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.deleteFlashcardDeck(id);
+        } else {
+            inMemoryDataStore.deleteFlashcardDeck(id);
+        }
     }
     
     public List<Quiz> getAllQuizzes() {
-        return mysqlDataStore.getAllQuizzes();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getAllQuizzes();
+        } else {
+            return inMemoryDataStore.getAllQuizzes();
+        }
     }
     
     public Quiz getQuiz(String id) {
-        return mysqlDataStore.getQuiz(id);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getQuiz(id);
+        } else {
+            return inMemoryDataStore.getQuiz(id);
+        }
     }
     
     public void saveQuiz(Quiz quiz) {
-        mysqlDataStore.saveQuiz(quiz);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.saveQuiz(quiz);
+        } else {
+            inMemoryDataStore.saveQuiz(quiz);
+        }
     }
     
     public void deleteQuiz(String id) {
-        mysqlDataStore.deleteQuiz(id);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.deleteQuiz(id);
+        } else {
+            inMemoryDataStore.deleteQuiz(id);
+        }
     }
     
     
     public List<Note> getAllNotes() {
-        return mysqlDataStore.getAllNotes();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getAllNotes();
+        } else {
+            return inMemoryDataStore.getAllNotes();
+        }
     }
     
     public Note getNote(String id) {
-        return mysqlDataStore.getNote(id);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getNote(id);
+        } else {
+            return inMemoryDataStore.getNote(id);
+        }
     }
     
     public void saveNote(Note note) {
-        mysqlDataStore.saveNote(note);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.saveNote(note);
+        } else {
+            inMemoryDataStore.saveNote(note);
+        }
     }
     
     public void deleteNote(String id) {
-        mysqlDataStore.deleteNote(id);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.deleteNote(id);
+        } else {
+            inMemoryDataStore.deleteNote(id);
+        }
     }
     
     public void addNote(Note note) {
-        mysqlDataStore.saveNote(note);
+        saveNote(note);
     }
     
     public void updateNote(Note note) {
-        mysqlDataStore.saveNote(note);
+        saveNote(note);
     }
     
     public List<Note> getNotes() {
-        return mysqlDataStore.getAllNotes();
+        return getAllNotes();
     }
     
     public List<TodoItem> getTodoItems() {
-        return mysqlDataStore.getAllTodoItems();
+        return getAllTodoItems();
     }
     
     public List<TodoItem> getAllTodoItems() {
-        return mysqlDataStore.getAllTodoItems();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getAllTodoItems();
+        } else {
+            return inMemoryDataStore.getAllTodoItems();
+        }
     }
     
     public List<TodoItem> getActiveTodoItems() {
-        return mysqlDataStore.getAllTodoItems().stream()
+        return getAllTodoItems().stream()
                 .filter(todo -> !todo.isCompleted())
                 .collect(Collectors.toList());
     }
     
     public List<TodoItem> getCompletedTodoItems() {
-        return mysqlDataStore.getAllTodoItems().stream()
+        return getAllTodoItems().stream()
                 .filter(TodoItem::isCompleted)
                 .collect(Collectors.toList());
     }
     
     public TodoItem getTodoItem(String id) {
-        return mysqlDataStore.getTodoItem(id);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getTodoItem(id);
+        } else {
+            return inMemoryDataStore.getTodoItem(id);
+        }
     }
     
     public void saveTodoItem(TodoItem todoItem) {
-        mysqlDataStore.saveTodoItem(todoItem);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.saveTodoItem(todoItem);
+        } else {
+            inMemoryDataStore.saveTodoItem(todoItem);
+        }
     }
     
     public void deleteTodoItem(String id) {
-        mysqlDataStore.deleteTodoItem(id);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.deleteTodoItem(id);
+        } else {
+            inMemoryDataStore.deleteTodoItem(id);
+        }
     }
     
     // Statistics methods
     public int getTotalFlashcards() {
-        return mysqlDataStore.getTotalFlashcards();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getTotalFlashcards();
+        } else {
+            return inMemoryDataStore.getTotalFlashcards();
+        }
     }
     
     public int getTotalQuizzes() {
-        return mysqlDataStore.getTotalQuizzes();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getTotalQuizzes();
+        } else {
+            return inMemoryDataStore.getTotalQuizzes();
+        }
     }
     
-    
     public int getTotalNotes() {
-        return mysqlDataStore.getTotalNotes();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getTotalNotes();
+        } else {
+            return inMemoryDataStore.getTotalNotes();
+        }
     }
     
     public int getTotalTodoItems() {
-        return mysqlDataStore.getTotalTodoItems();
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getTotalTodoItems();
+        } else {
+            return inMemoryDataStore.getTotalTodoItems();
+        }
     }
     
     public int getActiveTodoCount() {
-        return (int) mysqlDataStore.getAllTodoItems().stream()
+        return (int) getAllTodoItems().stream()
                 .filter(todo -> !todo.isCompleted())
                 .count();
     }
     
     public int getCompletedTodoCount() {
-        return (int) mysqlDataStore.getAllTodoItems().stream()
+        return (int) getAllTodoItems().stream()
                 .filter(TodoItem::isCompleted)
                 .count();
     }
     
     // Activity methods
     public void logUserActivity(String activityType, String description) {
-        mysqlDataStore.logUserActivity(activityType, description);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.logUserActivity(activityType, description);
+        } else {
+            inMemoryDataStore.logUserActivity(activityType, description);
+        }
     }
     
     // User management methods
     public void deleteUser(String userId) {
-        mysqlDataStore.deleteUser(userId);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.deleteUser(userId);
+        }
+        // In offline mode, we don't delete the demo user
     }
     
     public void updateUserPassword(String userId, String newPassword) {
-        mysqlDataStore.updateUserPassword(userId, newPassword);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.updateUserPassword(userId, newPassword);
+        }
+        // In offline mode, password changes are not persisted
     }
     
     public void logActivity(Activity activity) {
         if (activity != null) {
-            mysqlDataStore.logUserActivity(activity.getType().toString(), activity.getDescription());
+            logUserActivity(activity.getType().toString(), activity.getDescription());
         }
     }
     
     public List<Activity> getActivitiesForUser(String userId, LocalDate date) {
-        return mysqlDataStore.getAllActivitiesForUser(userId).stream()
+        return getAllActivitiesForUser(userId).stream()
                 .filter(activity -> activity.getTimestamp().toLocalDate().equals(date))
                 .sorted(Comparator.comparing(Activity::getTimestamp).reversed())
                 .collect(Collectors.toList());
     }
     
     public List<Activity> getAllActivitiesForUser(String userId) {
-        return mysqlDataStore.getAllActivitiesForUser(userId);
+        if (isDatabaseAvailable()) {
+            return mysqlDataStore.getAllActivitiesForUser(userId);
+        } else {
+            return inMemoryDataStore.getAllActivitiesForUser(userId);
+        }
     }
     
     public void debugUserActivities(String userId) {
-        mysqlDataStore.debugUserActivities(userId);
+        if (isDatabaseAvailable()) {
+            mysqlDataStore.debugUserActivities(userId);
+        } else {
+            inMemoryDataStore.debugUserActivities(userId);
+        }
     }
     
     public Map<String, Activity> getActivities() {

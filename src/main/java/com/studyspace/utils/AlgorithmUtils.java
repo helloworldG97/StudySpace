@@ -303,6 +303,22 @@ public class AlgorithmUtils {
             case "Difficulty (Hard-Easy)":
                 sortedList.sort((a, b) -> b.getDifficulty().compareTo(a.getDifficulty()));
                 break;
+            case "Date Created (Newest)":
+                sortedList.sort((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                });
+                break;
+            case "Date Created (Oldest)":
+                sortedList.sort((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return a.getCreatedAt().compareTo(b.getCreatedAt());
+                });
+                break;
         }
         
         return sortedList;
@@ -362,10 +378,20 @@ public class AlgorithmUtils {
         
         switch (sortOption) {
             case "Date Created (Newest)":
-                sortedList.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+                sortedList.sort((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                });
                 break;
             case "Date Created (Oldest)":
-                sortedList.sort((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()));
+                sortedList.sort((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return a.getCreatedAt().compareTo(b.getCreatedAt());
+                });
                 break;
             case "Title (A-Z)":
                 sortedList.sort((a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle()));
@@ -380,10 +406,20 @@ public class AlgorithmUtils {
                 sortedList.sort((a, b) -> b.getCategory().compareToIgnoreCase(a.getCategory()));
                 break;
             case "Last Modified (Newest)":
-                sortedList.sort((a, b) -> b.getModifiedAt().compareTo(a.getModifiedAt()));
+                sortedList.sort((a, b) -> {
+                    if (a.getModifiedAt() == null && b.getModifiedAt() == null) return 0;
+                    if (a.getModifiedAt() == null) return 1;
+                    if (b.getModifiedAt() == null) return -1;
+                    return b.getModifiedAt().compareTo(a.getModifiedAt());
+                });
                 break;
             case "Last Modified (Oldest)":
-                sortedList.sort((a, b) -> a.getModifiedAt().compareTo(b.getModifiedAt()));
+                sortedList.sort((a, b) -> {
+                    if (a.getModifiedAt() == null && b.getModifiedAt() == null) return 0;
+                    if (a.getModifiedAt() == null) return 1;
+                    if (b.getModifiedAt() == null) return -1;
+                    return a.getModifiedAt().compareTo(b.getModifiedAt());
+                });
                 break;
         }
         
@@ -473,10 +509,20 @@ public class AlgorithmUtils {
                 sortedList.sort((a, b) -> b.getTitle().compareToIgnoreCase(a.getTitle()));
                 break;
             case "Date Created (Newest)":
-                sortedList.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+                sortedList.sort((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                });
                 break;
             case "Date Created (Oldest)":
-                sortedList.sort((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()));
+                sortedList.sort((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return a.getCreatedAt().compareTo(b.getCreatedAt());
+                });
                 break;
         }
         

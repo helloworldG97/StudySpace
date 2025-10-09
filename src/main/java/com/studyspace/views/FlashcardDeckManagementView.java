@@ -131,6 +131,8 @@ public class FlashcardDeckManagementView {
             "Least Recently Studied", 
             "Most Studied", 
             "Least Studied", 
+            "Date Created (Newest)",
+            "Date Created (Oldest)",
             "Alphabetical (A-Z)", 
             "Alphabetical (Z-A)",
             "Difficulty (Easy-Hard)",
@@ -287,6 +289,22 @@ public class FlashcardDeckManagementView {
                 break;
             case "Difficulty (Hard-Easy)":
                 sortedFlashcards.setComparator((a, b) -> b.getDifficulty().compareTo(a.getDifficulty()));
+                break;
+            case "Date Created (Newest)":
+                sortedFlashcards.setComparator((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                });
+                break;
+            case "Date Created (Oldest)":
+                sortedFlashcards.setComparator((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
+                    return a.getCreatedAt().compareTo(b.getCreatedAt());
+                });
                 break;
             default:
                 // Default to recently studied

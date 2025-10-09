@@ -98,6 +98,105 @@ public class User {
         this.totalStudyHours += hours;
     }
     
+    /**
+     * Checks and updates streak based on daily login pattern
+     * Increments streak if user was online yesterday and logs in today
+     * Resets streak if user missed a day
+     */
+    public void updateStreakOnLogin() {
+        if (lastLoginAt == null) {
+            // First time login - no streak yet
+            this.currentStreak = 0;
+            return;
+        }
+        
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yesterday = now.minusDays(1);
+        
+        // Check if last login was yesterday
+        boolean wasOnlineYesterday = lastLoginAt.toLocalDate().equals(yesterday.toLocalDate());
+        
+        // Check if last login was today (already logged in today)
+        boolean alreadyLoggedInToday = lastLoginAt.toLocalDate().equals(now.toLocalDate());
+        
+        if (alreadyLoggedInToday) {
+            // User already logged in today, don't change streak
+            return;
+        }
+        
+        if (wasOnlineYesterday) {
+            // User was online yesterday and logging in today - increment streak
+            this.currentStreak++;
+        } else {
+            // Check if user missed more than 1 day
+            long daysSinceLastLogin = java.time.temporal.ChronoUnit.DAYS.between(lastLoginAt.toLocalDate(), now.toLocalDate());
+            
+            if (daysSinceLastLogin > 1) {
+                // User missed a day or more - reset streak
+                this.currentStreak = 0; // Start fresh with today's login
+            } else {
+                // This shouldn't happen given our logic above, but just in case
+                this.currentStreak = 0;
+            }
+        }
+    }
+    
+    /**
+     * Checks if user was active yesterday (for streak validation)
+     */
+    public boolean wasActiveYesterday() {
+        if (lastLoginAt == null) {
+            return false;
+        }
+        
+        LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+        return lastLoginAt.toLocalDate().equals(yesterday.toLocalDate());
+    }
+    
+    /**
+     * Gets the number of days since last login
+     */
+    public long getDaysSinceLastLogin() {
+        if (lastLoginAt == null) {
+            return Long.MAX_VALUE; // Never logged in
+        }
+        
+        return java.time.temporal.ChronoUnit.DAYS.between(lastLoginAt.toLocalDate(), LocalDateTime.now().toLocalDate());
+    }
+    
+    /**
+     * Updates streak when user completes activities (for users already logged in)
+     * This ensures streak is updated even if user doesn't log out/in
+     */
+    public void updateStreakOnActivity() {
+        if (lastLoginAt == null) {
+            // First time activity - no streak yet
+            this.currentStreak = 0;
+            return;
+        }
+        
+        LocalDateTime now = LocalDateTime.now();
+        
+        // Check if last login was today
+        boolean loggedInToday = lastLoginAt.toLocalDate().equals(now.toLocalDate());
+        
+        if (loggedInToday) {
+            // User is active today - check if this is their first day
+            if (this.currentStreak == 0) {
+                // Check if they were active yesterday to determine streak
+                if (wasActiveYesterday()) {
+                    this.currentStreak = 2; // They were active yesterday and today
+                } else {
+                    this.currentStreak = 0; // First day of activity, no streak yet
+                }
+            }
+        } else {
+            // User wasn't logged in today - this shouldn't happen if they're completing activities
+            // But just in case, update the streak logic
+            updateStreakOnLogin();
+        }
+    }
+    
     public boolean isValidForRegistration() {
         return fullName != null && !fullName.trim().isEmpty() &&
                email != null && !email.trim().isEmpty() &&

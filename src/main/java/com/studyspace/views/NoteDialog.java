@@ -129,12 +129,13 @@ public class NoteDialog extends Dialog<Note> {
             return existingNote;
         } else {
             // Create new note
+            LocalDateTime now = LocalDateTime.now();
             return new Note(
                 title,
                 subject,
                 content,
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                now,
+                now
             );
         }
     }

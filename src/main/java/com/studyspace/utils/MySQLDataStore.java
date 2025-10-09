@@ -39,9 +39,6 @@ public class MySQLDataStore {
             
             if (rs.next()) {
                 currentUser = mapResultSetToUser(rs);
-                // Update last login
-                String updateSql = "UPDATE users SET last_login_at = ? WHERE id = ?";
-                dbConnection.executeUpdate(updateSql, Timestamp.valueOf(LocalDateTime.now()), currentUser.getId());
                 System.out.println("Authentication successful for: " + currentUser.getFullName());
                 return true;
             }
@@ -92,10 +89,19 @@ public class MySQLDataStore {
     public void updateUser(User user) {
         try {
             String sql = "UPDATE users SET full_name = ?, flashcards_studied = ?, " +
-                        "quizzes_taken = ?, current_streak = ?, total_study_hours = ? WHERE id = ?";
+                        "quizzes_taken = ?, current_streak = ?, total_study_hours = ?, " +
+                        "last_login_at = ? WHERE id = ?";
+            
+            Timestamp lastLoginTimestamp = user.getLastLoginAt() != null ? 
+                Timestamp.valueOf(user.getLastLoginAt()) : null;
+            
             dbConnection.executeUpdate(sql, user.getFullName(), user.getFlashcardsStudied(), 
                                     user.getQuizzesTaken(), 
-                                    user.getCurrentStreak(), user.getTotalStudyHours(), user.getId());
+                                    user.getCurrentStreak(), user.getTotalStudyHours(), 
+                                    lastLoginTimestamp, user.getId());
+            
+            System.out.println("User updated successfully: " + user.getFullName() + 
+                             " (Streak: " + user.getCurrentStreak() + " days)");
         } catch (SQLException e) {
             System.err.println("Update user error: " + e.getMessage());
         }
@@ -561,6 +567,11 @@ public class MySQLDataStore {
                 dbConnection.executeUpdate(sql, id, currentUser.getId(), activityType, description,
                                         Timestamp.valueOf(LocalDateTime.now()));
                 System.out.println("Activity logged: " + description);
+                
+                // Update streak when user completes activities
+                currentUser.updateStreakOnActivity();
+                updateUser(currentUser); // Save the updated streak
+                
             } catch (SQLException e) {
                 System.err.println("Log activity error: " + e.getMessage());
             }

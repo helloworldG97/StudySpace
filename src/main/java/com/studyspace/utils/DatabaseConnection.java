@@ -40,16 +40,20 @@ public class DatabaseConnection {
             props.setProperty("useSSL", "false");
             props.setProperty("serverTimezone", "UTC");
             props.setProperty("allowPublicKeyRetrieval", "true");
+            props.setProperty("connectTimeout", "5000"); // 5 second timeout
+            props.setProperty("socketTimeout", "5000");
             
             connection = DriverManager.getConnection(DB_URL, props);
             System.out.println("Database connection established successfully!");
             
         } catch (ClassNotFoundException e) {
             System.err.println("MySQL JDBC Driver not found: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Application will run in offline mode.");
+            connection = null;
         } catch (SQLException e) {
             System.err.println("Database connection failed: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Application will run in offline mode.");
+            connection = null;
         }
     }
     
@@ -78,6 +82,10 @@ public class DatabaseConnection {
             System.err.println("Connection test failed: " + e.getMessage());
         }
         return false;
+    }
+    
+    public boolean isDatabaseAvailable() {
+        return connection != null && testConnection();
     }
     
     public void closeConnection() {

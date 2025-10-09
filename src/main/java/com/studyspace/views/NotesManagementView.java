@@ -220,9 +220,9 @@ public class NotesManagementView {
                     case "Subject (Z-A)":
                         return note2.getSubject().compareToIgnoreCase(note1.getSubject());
                     case "Last Modified (Newest)":
-                        return note2.getLastModified().compareTo(note1.getLastModified());
+                        return note2.getModifiedAt().compareTo(note1.getModifiedAt());
                     case "Last Modified (Oldest)":
-                        return note1.getLastModified().compareTo(note2.getLastModified());
+                        return note1.getModifiedAt().compareTo(note2.getModifiedAt());
                     default:
                         return 0;
                 }

@@ -655,6 +655,16 @@ public class FlashcardListView {
                 // Refresh activity history and all views
                 com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
                 com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+                
+                // Force refresh the flashcard view to show the new deck immediately
+                javafx.application.Platform.runLater(() -> {
+                    loadFlashcardDecks();
+                });
+                
+                // Show success notification
+                sceneManager.showInfoDialog("Deck Created", 
+                    "Successfully created flashcard deck: " + newDeck.getTitle() + "\n\n" +
+                    "Your new deck is now ready for study sessions!");
             }
         });
     }
@@ -919,6 +929,11 @@ public class FlashcardListView {
                     // Refresh activity history and all views
                     com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
                     com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+                    
+                    // Force refresh the flashcard view to show the new deck immediately
+                    javafx.application.Platform.runLater(() -> {
+                        loadFlashcardDecks();
+                    });
                 } else {
                     sceneManager.showErrorDialog("AI Generation Failed", 
                         "Failed to generate flashcards: " + result.getMessage());
@@ -1117,6 +1132,11 @@ public class FlashcardListView {
                     
                     sceneManager.showInfoDialog("AI Processing Complete", successMessage);
                     
+                    // Force refresh the flashcard view to show the new deck immediately
+                    javafx.application.Platform.runLater(() -> {
+                        loadFlashcardDecks();
+                    });
+                    
                     // Auto-open the flashcard practice view for the newly created deck
                     try {
                         // Find the newly created deck by title
@@ -1255,6 +1275,11 @@ public class FlashcardListView {
                 "• Cards: " + flashcards.size() + " flashcards generated\n" +
                 "• Content: Key concepts, definitions, and important details\n\n" +
                 "Your flashcard deck is now ready for study sessions!");
+            
+            // Force refresh the flashcard view to show the new deck immediately
+            javafx.application.Platform.runLater(() -> {
+                loadFlashcardDecks();
+            });
             
             // Auto-open the flashcard practice view
             autoOpenFlashcardPractice(newDeck);

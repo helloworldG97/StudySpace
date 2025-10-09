@@ -60,6 +60,29 @@ public class AuthViewController implements Initializable {
         setupEventHandlers();
         setupInitialState();
         setupLogoIcon();
+        checkOfflineMode();
+    }
+    
+    /**
+     * Check if database is available and show offline mode dialog if needed
+     */
+    private void checkOfflineMode() {
+        // Check if database is available
+        com.studyspace.utils.DatabaseConnection dbConnection = com.studyspace.utils.DatabaseConnection.getInstance();
+        if (!dbConnection.isDatabaseAvailable()) {
+            // Show offline mode dialog after a short delay to ensure the UI is ready
+            javafx.application.Platform.runLater(() -> {
+                try {
+                    // Get the current stage from the scene
+                    Scene scene = signInForm.getScene();
+                    if (scene != null && scene.getWindow() instanceof javafx.stage.Stage) {
+                        OfflineLoginDialog.showOfflineModeDialog((javafx.stage.Stage) scene.getWindow());
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error showing offline mode dialog: " + e.getMessage());
+                }
+            });
+        }
     }
     
     /**

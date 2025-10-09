@@ -26,6 +26,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
@@ -46,6 +47,12 @@ public class QuizManagementView {
     private javafx.collections.transformation.SortedList<Question> sortedQuestions;
     private TextField searchField;
     private ComboBox<String> sortComboBox;
+    
+    // Form field references for dialog processing
+    private TextArea questionTextArea;
+    private TextArea optionsTextArea;
+    private TextField correctAnswerField;
+    private ToggleGroup difficultyGroup;
     
     public QuizManagementView(Quiz quiz, QuizListView parentView) {
         this.dataStore = DataStore.getInstance();
@@ -324,8 +331,8 @@ public class QuizManagementView {
     private VBox createQuestionCard(Question question, int questionNumber) {
         VBox card = new VBox();
         card.getStyleClass().add("question-management-card");
-        card.setSpacing(12);
-        card.setPadding(new Insets(16));
+        card.setSpacing(16);  // Increased from 12
+        card.setPadding(new Insets(20));  // Increased from 16
         
         // Add hover effect for better visual feedback
         card.setOnMouseEntered(e -> {
@@ -343,7 +350,7 @@ public class QuizManagementView {
         
         VBox contentSection = new VBox();
         contentSection.setSpacing(8);
-        contentSection.setPrefWidth(400);
+        contentSection.setPrefWidth(600);  // Increased from 400
         contentSection.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(contentSection, Priority.ALWAYS);
         
@@ -362,6 +369,8 @@ public class QuizManagementView {
         Label questionTextLabel = new Label(question.getQuestionText());
         questionTextLabel.getStyleClass().add("question-text");
         questionTextLabel.setWrapText(true);
+        questionTextLabel.setMaxWidth(800);  // Increased from 600
+        questionTextLabel.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
         
         // Show correct answer
         HBox correctAnswerRow = new HBox();
@@ -374,6 +383,8 @@ public class QuizManagementView {
         Label correctAnswerLabel = new Label("Correct: " + question.getCorrectAnswer());
         correctAnswerLabel.getStyleClass().addAll("text-sm", "text-success");
         correctAnswerLabel.setWrapText(true);
+        correctAnswerLabel.setMaxWidth(800);  // Increased from 600
+        correctAnswerLabel.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
         
         correctAnswerRow.getChildren().addAll(checkIcon, correctAnswerLabel);
         
@@ -396,6 +407,8 @@ public class QuizManagementView {
             Label optionLabel = new Label(prefix + option);
             optionLabel.getStyleClass().addAll("text-sm", "text-muted");
             optionLabel.setWrapText(true);
+            optionLabel.setMaxWidth(800);  // Increased from 600
+            optionLabel.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
             optionsSection.getChildren().add(optionLabel);
         }
         
@@ -627,17 +640,17 @@ public class QuizManagementView {
         Label questionLabel = new Label("Question Text *");
         questionLabel.getStyleClass().add("form-label");
         
-        TextArea questionArea = new TextArea();
-        questionArea.getStyleClass().add("form-field");
-        questionArea.setPromptText("Enter the question...");
-        questionArea.setPrefRowCount(3);
-        questionArea.setWrapText(true);
-        questionArea.setId("questionText");
+        questionTextArea = new TextArea();
+        questionTextArea.getStyleClass().add("form-field");
+        questionTextArea.setPromptText("Enter the question...");
+        questionTextArea.setPrefRowCount(3);
+        questionTextArea.setWrapText(true);
+        questionTextArea.setId("questionText");
         if (question != null) {
-            questionArea.setText(question.getQuestionText());
+            questionTextArea.setText(question.getQuestionText());
         }
         
-        questionContainer.getChildren().addAll(questionLabel, questionArea);
+        questionContainer.getChildren().addAll(questionLabel, questionTextArea);
         
         // Options field (for multiple choice)
         VBox optionsContainer = new VBox();
@@ -646,17 +659,17 @@ public class QuizManagementView {
         Label optionsLabel = new Label("Options (one per line)");
         optionsLabel.getStyleClass().add("form-label");
         
-        TextArea optionsArea = new TextArea();
-        optionsArea.getStyleClass().add("form-field");
-        optionsArea.setPromptText("Enter options, one per line...");
-        optionsArea.setPrefRowCount(4);
-        optionsArea.setWrapText(true);
-        optionsArea.setId("questionOptions");
+        optionsTextArea = new TextArea();
+        optionsTextArea.getStyleClass().add("form-field");
+        optionsTextArea.setPromptText("Enter options, one per line...");
+        optionsTextArea.setPrefRowCount(4);
+        optionsTextArea.setWrapText(true);
+        optionsTextArea.setId("questionOptions");
         if (question != null && question.getOptions() != null) {
-            optionsArea.setText(String.join("\n", question.getOptions()));
+            optionsTextArea.setText(String.join("\n", question.getOptions()));
         }
         
-        optionsContainer.getChildren().addAll(optionsLabel, optionsArea);
+        optionsContainer.getChildren().addAll(optionsLabel, optionsTextArea);
         
         // Correct answer field
         VBox answerContainer = new VBox();
@@ -665,15 +678,15 @@ public class QuizManagementView {
         Label answerLabel = new Label("Correct Answer *");
         answerLabel.getStyleClass().add("form-label");
         
-        TextField answerField = new TextField();
-        answerField.getStyleClass().add("form-field");
-        answerField.setPromptText("Enter the correct answer...");
-        answerField.setId("correctAnswer");
+        correctAnswerField = new TextField();
+        correctAnswerField.getStyleClass().add("form-field");
+        correctAnswerField.setPromptText("Enter the correct answer...");
+        correctAnswerField.setId("correctAnswer");
         if (question != null) {
-            answerField.setText(question.getCorrectAnswer());
+            correctAnswerField.setText(question.getCorrectAnswer());
         }
         
-        answerContainer.getChildren().addAll(answerLabel, answerField);
+        answerContainer.getChildren().addAll(answerLabel, correctAnswerField);
         
         // Difficulty selection
         VBox difficultyContainer = new VBox();
@@ -685,7 +698,7 @@ public class QuizManagementView {
         HBox difficultyButtons = new HBox();
         difficultyButtons.setSpacing(8);
         
-        ToggleGroup difficultyGroup = new ToggleGroup();
+        difficultyGroup = new ToggleGroup();
         
         RadioButton easyButton = new RadioButton("Easy");
         easyButton.getStyleClass().add("difficulty-radio");
@@ -730,23 +743,125 @@ public class QuizManagementView {
      * Creates a question from the form data
      */
     private Question createQuestionFromForm() {
-        // For now, create a simple question
-        // This would need to be implemented with proper form handling
-        List<String> options = java.util.Arrays.asList("Option A", "Option B", "Option C", "Option D");
-        Question newQuestion = new Question("Sample Question", options, 0, "Sample explanation", com.studyspace.models.Flashcard.Difficulty.MEDIUM);
-        return newQuestion;
+        // Extract form data from stored field references
+        String questionText = questionTextArea.getText();
+        String optionsText = optionsTextArea.getText();
+        String correctAnswer = correctAnswerField.getText();
+        com.studyspace.models.Flashcard.Difficulty difficulty = getDifficultyFromForm();
+        
+        // Validate required fields
+        if (questionText == null || questionText.trim().isEmpty() ||
+            correctAnswer == null || correctAnswer.trim().isEmpty()) {
+            sceneManager.showErrorDialog("Validation Error", "Question text and correct answer are required.");
+            return null;
+        }
+        
+        // Parse options
+        List<String> options = new java.util.ArrayList<>();
+        if (optionsText != null && !optionsText.trim().isEmpty()) {
+            String[] optionLines = optionsText.split("\n");
+            for (String line : optionLines) {
+                String option = line.trim();
+                if (!option.isEmpty()) {
+                    options.add(option);
+                }
+            }
+        }
+        
+        // If no options provided, create default options
+        if (options.isEmpty()) {
+            options.add("True");
+            options.add("False");
+        }
+        
+        // Find correct answer index
+        int correctIndex = options.indexOf(correctAnswer.trim());
+        if (correctIndex == -1) {
+            // Add correct answer as an option if not found
+            options.add(correctAnswer.trim());
+            correctIndex = options.size() - 1;
+        }
+        
+        // Create and return new question
+        return new Question(questionText.trim(), options, correctIndex, 
+            "No explanation provided", difficulty);
     }
     
     /**
      * Updates a question from the form data
      */
     private Question updateQuestionFromForm(Question question) {
-        // For now, just return the question as-is
-        // This would need to be implemented with proper form handling
+        // Extract form data from stored field references
+        String questionText = questionTextArea.getText();
+        String optionsText = optionsTextArea.getText();
+        String correctAnswer = correctAnswerField.getText();
+        com.studyspace.models.Flashcard.Difficulty difficulty = getDifficultyFromForm();
+        
+        // Validate required fields
+        if (questionText == null || questionText.trim().isEmpty() ||
+            correctAnswer == null || correctAnswer.trim().isEmpty()) {
+            sceneManager.showErrorDialog("Validation Error", "Question text and correct answer are required.");
+            return question; // Return original question if validation fails
+        }
+        
+        // Parse options
+        List<String> options = new java.util.ArrayList<>();
+        if (optionsText != null && !optionsText.trim().isEmpty()) {
+            String[] optionLines = optionsText.split("\n");
+            for (String line : optionLines) {
+                String option = line.trim();
+                if (!option.isEmpty()) {
+                    options.add(option);
+                }
+            }
+        }
+        
+        // If no options provided, create default options
+        if (options.isEmpty()) {
+            options.add("True");
+            options.add("False");
+        }
+        
+        // Find correct answer index
+        int correctIndex = options.indexOf(correctAnswer.trim());
+        if (correctIndex == -1) {
+            // Add correct answer as an option if not found
+            options.add(correctAnswer.trim());
+            correctIndex = options.size() - 1;
+        }
+        
+        // Update question properties
+        question.setQuestionText(questionText.trim());
+        question.setOptions(options);
+        question.setCorrectOptionIndex(correctIndex);
+        question.setDifficulty(difficulty);
+        
         return question;
     }
     
-    
+    /**
+     * Helper method to get difficulty from form
+     */
+    private com.studyspace.models.Flashcard.Difficulty getDifficultyFromForm() {
+        if (difficultyGroup == null) {
+            return com.studyspace.models.Flashcard.Difficulty.MEDIUM;
+        }
+        
+        RadioButton selectedButton = (RadioButton) difficultyGroup.getSelectedToggle();
+        if (selectedButton == null) {
+            return com.studyspace.models.Flashcard.Difficulty.MEDIUM;
+        }
+        
+        String buttonText = selectedButton.getText();
+        switch (buttonText) {
+            case "Easy":
+                return com.studyspace.models.Flashcard.Difficulty.EASY;
+            case "Hard":
+                return com.studyspace.models.Flashcard.Difficulty.HARD;
+            default:
+                return com.studyspace.models.Flashcard.Difficulty.MEDIUM;
+        }
+    }
     
     /**
      * Gets the main view container

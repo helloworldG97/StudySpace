@@ -274,10 +274,10 @@ public class NotesView {
                 sortedNotes.setComparator(Comparator.comparing(Note::getSubject, String.CASE_INSENSITIVE_ORDER).reversed());
                 break;
             case "Last Modified (Newest)":
-                sortedNotes.setComparator(Comparator.comparing(Note::getLastModified).reversed());
+                sortedNotes.setComparator(Comparator.comparing(Note::getModifiedAt).reversed());
                 break;
             case "Last Modified (Oldest)":
-                sortedNotes.setComparator(Comparator.comparing(Note::getLastModified));
+                sortedNotes.setComparator(Comparator.comparing(Note::getModifiedAt));
                 break;
         }
         
@@ -481,6 +481,23 @@ public class NotesView {
             dataStore.addNote(note);
             notesList.add(note);
             loadNotes();
+            
+            // Log activity
+            dataStore.logUserActivity("NOTE_CREATED", "Created note: " + note.getTitle());
+            
+            // Refresh activity history and all views
+            com.studyspace.components.SidebarView.refreshActivityHistoryGlobally();
+            com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+            
+            // Force refresh the notes view to show the new note immediately
+            javafx.application.Platform.runLater(() -> {
+                loadNotes();
+            });
+            
+            // Show success notification
+            SceneManager.getInstance().showInfoDialog("Note Created", 
+                "Successfully created note: " + note.getTitle() + "\n\n" +
+                "Your new note is now ready for study!");
         });
     }
     
@@ -558,6 +575,10 @@ public class NotesView {
      * Formats date for display
      */
     private String formatDate(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return "Unknown";
+        }
+        System.out.println("DEBUG: Formatting date: " + dateTime + " -> " + dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm")));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm");
         return dateTime.format(formatter);
     }
@@ -740,6 +761,16 @@ public class NotesView {
                     );
                     
                     SceneManager.getInstance().showInfoDialog("AI Processing Complete", successMessage);
+                    
+                    // Force refresh all views to show any new flashcards or decks created
+                    com.studyspace.components.SidebarView.refreshAllViewsGlobally();
+                    
+                    // Force refresh the notes view to show the new notes immediately
+                    javafx.application.Platform.runLater(() -> {
+                        notesList.clear();
+                        notesList.addAll(dataStore.getNotes());
+                        loadNotes();
+                    });
                 } else {
                     SceneManager.getInstance().showErrorDialog("AI Processing Failed", 
                         "Failed to process document: " + result.getMessage());
@@ -792,6 +823,7 @@ public class NotesView {
             }
             
             // Note 1: Key Concepts
+            LocalDateTime importTime = LocalDateTime.now();
             Note keyConceptsNote = new Note(
                 keyConceptsTitle,
                 "Extracted from " + fileType + " content",
@@ -807,7 +839,9 @@ public class NotesView {
                 "• Key insight 3: Summary of the third critical element\n\n" +
                 "### Study Notes:\n" +
                 "This content was automatically extracted and organized from your " + fileType + " document. " +
-                "Review and edit these notes to personalize them for your study needs."
+                "Review and edit these notes to personalize them for your study needs.",
+                importTime,
+                importTime
             );
             keyConceptsNote.setTags(java.util.Arrays.asList("document-import", "key-concepts", "study-notes"));
             dataStore.addNote(keyConceptsNote);
@@ -829,7 +863,9 @@ public class NotesView {
                 "• Focus on understanding the main concepts first\n" +
                 "• Create flashcards for key definitions\n" +
                 "• Practice with the examples provided\n" +
-                "• Review the conclusion for key takeaways"
+                "• Review the conclusion for key takeaways",
+                importTime,
+                importTime
             );
             summaryNote.setTags(java.util.Arrays.asList("document-import", "summary", "overview"));
             dataStore.addNote(summaryNote);
@@ -848,7 +884,9 @@ public class NotesView {
                 "• Concept B: Key details and importance in the overall context\n" +
                 "• Concept C: Additional information and connections\n\n" +
                 "### Study Strategy:\n" +
-                "Create flashcards for each definition and practice recalling them regularly."
+                "Create flashcards for each definition and practice recalling them regularly.",
+                importTime,
+                importTime
             );
             definitionsNote.setTags(java.util.Arrays.asList("document-import", "definitions", "terminology"));
             dataStore.addNote(definitionsNote);
@@ -904,6 +942,18 @@ public class NotesView {
     public void returnToNotesList() {
         // Restore the original content container
         mainContainer.getChildren().setAll(contentContainer);
+    }
+    
+    /**
+     * Refreshes the notes list (useful when returning from other views)
+     */
+    public void refresh() {
+        System.out.println("NotesView refresh called");
+        javafx.application.Platform.runLater(() -> {
+            notesList.clear();
+            notesList.addAll(dataStore.getNotes());
+            loadNotes();
+        });
     }
     
     /**

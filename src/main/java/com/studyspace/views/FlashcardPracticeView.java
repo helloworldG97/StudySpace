@@ -137,9 +137,10 @@ public class FlashcardPracticeView {
     private StackPane createFlashcardContainer() {
         StackPane container = new StackPane();
         container.getStyleClass().add("flashcard-practice-container");
-        container.setMinHeight(350);
-        container.setPrefHeight(350);
-        container.setMaxWidth(600);
+        container.setMinHeight(400);
+        container.setPrefHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
+        container.setMaxHeight(Region.USE_COMPUTED_SIZE);  // No height limit
+        container.setMaxWidth(800);   // Increased maximum width
         
         // Create front side of card
         flashcardFront = new VBox();
@@ -155,7 +156,8 @@ public class FlashcardPracticeView {
         frontContent.getStyleClass().add("flashcard-content");
         frontContent.setWrapText(true);
         frontContent.setAlignment(Pos.CENTER);
-        frontContent.setMaxWidth(550);
+        frontContent.setMaxWidth(750);  // Increased width
+        frontContent.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
         
         flashcardFront.getChildren().addAll(frontLabel, frontContent);
         
@@ -174,7 +176,8 @@ public class FlashcardPracticeView {
         backContent.getStyleClass().add("flashcard-content");
         backContent.setWrapText(true);
         backContent.setAlignment(Pos.CENTER);
-        backContent.setMaxWidth(550);
+        backContent.setMaxWidth(750);  // Increased width
+        backContent.setMaxHeight(Region.USE_COMPUTED_SIZE); // Auto-size to content
         
         flashcardBack.getChildren().addAll(backLabel, backContent);
         
