@@ -485,8 +485,9 @@ III. Summary
             # Extract file name without extension
             file_name = Path(file_path).stem
             
-            # Get file creation date for proper timestamping
-            file_creation_time = self.get_file_creation_date(file_path)
+            # Use current time for proper timestamping (not file creation time)
+            current_time = datetime.now()
+            logger.info(f"DEBUG: Using current time for timestamps: {current_time}")
             
             # Create note entry only if content_type includes notes
             if content_type in ["notes", "both"]:
@@ -500,8 +501,8 @@ III. Summary
                     llm_result.get('title', file_name),
                     llm_result.get('study_notes', content[:20000]),
                     llm_result.get('subject', 'General'),
-                    file_creation_time,
-                    file_creation_time,
+                    current_time,
+                    current_time,
                     False
                 )
                 cursor.execute(note_query, note_values)
@@ -520,7 +521,7 @@ III. Summary
                     llm_result.get('summary', f"Content imported from {file_type} file"),
                     llm_result.get('subject', 'General'),
                     llm_result.get('difficulty', 'MEDIUM'),
-                    file_creation_time,
+                    current_time,
                     None,
                     0
                 )
@@ -545,7 +546,7 @@ III. Summary
                             flashcard_data.get('question', ''),
                             flashcard_data.get('answer', ''),
                             llm_result.get('difficulty', 'MEDIUM'),
-                            file_creation_time,
+                            current_time,
                             None,
                             0,
                             False
@@ -569,7 +570,7 @@ III. Summary
                                 f"What is {term.strip()}?",
                                 definition_text.strip(),
                                 llm_result.get('difficulty', 'MEDIUM'),
-                                file_creation_time,
+                                current_time,
                                 None,
                                 0,
                                 False
@@ -591,7 +592,7 @@ III. Summary
                             f"Explain: {topic}",
                             f"This is a key topic from the {file_type} document: {topic}",
                             llm_result.get('difficulty', 'MEDIUM'),
-                            file_creation_time,
+                            current_time,
                             None,
                             0,
                             False
